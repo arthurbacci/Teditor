@@ -105,5 +105,4 @@ If the cursor is in the line start/end, it will NOT come back to the other line
 2. More syntax highlighting
 3. Create translation files and replace the in code strings
 4. Create a `.tedrc`
-5. Fragment the files
-6. Windows support (not too important)
+5. Windows support (not too important)
