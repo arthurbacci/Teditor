@@ -42,8 +42,7 @@ touch [filename]
 #### In the source directory:
 
 ```
-make
-sudo cp ted /usr/bin/ted
+sudo make install
 ```
 
 And you can run ted with `ted [filename]`
