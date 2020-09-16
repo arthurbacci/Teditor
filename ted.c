@@ -377,9 +377,14 @@ void readFile(char *filename)
 
   selectSyntaxHighlight();
 
-  FILE *fp = fopen(filename, "r");
+  FILE *fp;
+  fp = fopen(filename, "r");
   if (!fp)
-    die("Can not open the requested file, sorry for that");
+  {
+    FILE *tmpfp = fopen(filename, "w");
+    fclose(tmpfp);
+    fp = fopen(filename, "r");
+  }
 
   char *line = NULL;
   size_t lineCapacity = 0;
@@ -919,6 +924,56 @@ void autoComplete(int c)
   }
 }
 
+void processCommand()
+{
+  char *command = prompt(":%s", NULL);
+  size_t commandlen = strlen(command);
+  
+  if (commandlen == 0)
+  {
+    setStatusMessage("No commands");
+    return;
+  }
+  
+  for (unsigned int i = 0; i < commandlen; i++)
+  {
+    char c = command[i];
+    switch (c)
+    {
+      case 'w':
+        saveFile();
+        break;
+      case 'q':
+        if (TED.quittimes > 0 && TED.dirty > 0)
+        {
+          setStatusMessage("WARNING!!! File has unsaved changes. Press Ctrl-C %d more times to quit.", TED.quittimes);
+          TED.quittimes--;
+          return;
+        }
+        write(STDOUT_FILENO, "\x1b[2J", 4);
+        write(STDOUT_FILENO, "\x1b[H", 3);
+        exit(0);
+        break;
+      case 'h':
+        // TODO: help command
+        break;
+      case 'c':
+        centerCursor();
+        break;
+      case 'f':
+        search();
+        break;
+      case 'g':
+        gotoLine();
+        break;
+      default:
+        setStatusMessage("Command not exists: ", c);
+        commandlen = 0; // To break the loop
+        
+    } // switch
+  } // for
+} //  process command
+
 void processKeypress()
 {
 
@@ -1007,8 +1062,14 @@ void processKeypress()
     centerCursor();
     break;
 
+  case CTRL_KEY('t'):
+    processCommand();
+    break;
+
   default:
-    autoComplete(c);
+    // autoComplete(c);
+    // autoComplete will come back soon
+    insertChar(c); // for now
     break;
   }
   TED.quittimes = TED_CFG.quittimes;
@@ -1180,16 +1241,16 @@ void processScroll()
 void reloadScreen()
 {
   processScroll();
-
+  
   struct AppendBuffer buf = {NULL, 0};
-
+  
   appendBuf(&buf, "\x1b[?25l", 6);
   appendBuf(&buf, "\x1b[H", 3); // Move cursor to top left
-
+  
   drawRows(&buf);
   drawStatusBar(&buf);
   drawMessageBar(&buf);
-
+  
   char bf[32];
   snprintf(bf, sizeof(bf), "\x1b[%d;%dH", (TED.cy - TED.rowoff) + 1, (TED.rx - TED.coloff) + 1);
   appendBuf(&buf, bf, strlen(bf));
@@ -1511,14 +1572,14 @@ int main(int argc, char **argv)
   initEditor();
   if (argc >= 2)
     readFile(argv[1]);
-  else
+  if (TED.numrows == 0)
   {
     reloadScreen();
-    readKey();
-    insertRow(TED.numrows, "", 0);
+    insertRow(0, "", 0);
+    processKeypress();
   }
 
-  setStatusMessage("Ctrl+C to quit - Ctrl+S to save - Ctrl+F to search - Ctrl+G go to line");
+  setStatusMessage("Press Ctrl+T and type \"h\" to get help");
 
   while (1)
   {
@@ -1526,5 +1587,5 @@ int main(int argc, char **argv)
     processKeypress();
   }
 
-  return 0;
+  return 0; 
 }
