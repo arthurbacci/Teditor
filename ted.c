@@ -8,7 +8,7 @@
 struct line
 {
     unsigned int len;
-    char *data;
+    unsigned char *data;
 };
 
 struct line *lines = NULL;
@@ -16,6 +16,13 @@ unsigned int num_lines;
 unsigned int len_line_number; // The length of the number of the last line
 
 FILE *fp = NULL;
+
+struct
+{
+    unsigned int x;
+    unsigned int y;
+}
+cursor = {0, 0};
 
 void read_lines()
 {
@@ -44,9 +51,64 @@ void read_lines()
 
 void show_lines()
 {
-    for (unsigned int i = 0; i < num_lines; i++)
+    for (unsigned int i = 0; i < (unsigned int)LINES; i++)
     {
-        printw("%*d %s\n", len_line_number, i + 1, lines[i].data);
+        if (i >= num_lines)
+        {
+            printw("~\n");
+            continue;
+        }
+        
+        printw("%*d ", len_line_number, i + 1);
+
+        unsigned int size = 0;
+        for (unsigned int j = 0; j < (unsigned int)COLS - len_line_number - 2; j++)
+        {
+            if (lines[i].data[j] == '\0')
+            {
+                break;
+            }
+
+            if (lines[i].data[j] >= 0xC0 && lines[i].data[j] <= 0xDF)
+            {
+                if (lines[i].data[j] == '\0')
+                {
+                    break;
+                }
+                printw("%.2s", &lines[i].data[j]);
+                j++;
+            }
+            else if (lines[i].data[j] >= 0xE0 && lines[i].data[j] <= 0xEF)
+            {
+                if (lines[i].data[j] == '\0')
+                {
+                    break;
+                }
+                printw("%.3s", &lines[i].data[j]);
+                j += 2;
+            }
+            else if (lines[i].data[j] >= 0xF0 && lines[i].data[j] <= 0xF7)
+            {
+                if (lines[i].data[j] == '\0')
+                {
+                    break;
+                }
+                printw("%.4s", &lines[i].data[j]);
+                j += 3;
+            }
+            else
+            {
+                printw("%c", lines[i].data[j]);
+            }
+
+            if (lines[i].data[j] == '\0')
+            {
+                break;
+            }
+            size++;
+        }
+
+        printw("\n");
     }
 }
 
@@ -79,7 +141,6 @@ int main()
 
     show_lines();
 
-    move(0, len_line_number + 1);
 
     free_lines();
     fclose(fp);
