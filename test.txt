@@ -1,0 +1,10 @@
+This file is for testing purposes
+
+You can open this file to test the text editor
+
+this is a normal txt file
+    I am with 4 spaces of identation :D
+
+Í ám Ũñíĉôdè ççç
+
+
