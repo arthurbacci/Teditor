@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <string.h>
 
 #define READ_BLOCKSIZE 10
 
@@ -9,6 +10,7 @@ struct line
 {
     unsigned int len;
     unsigned char *data;
+    unsigned int length;
 };
 
 struct line *lines = NULL;
@@ -24,6 +26,13 @@ struct
 }
 cursor = {0, 0};
 
+struct
+{
+    unsigned int x;
+    unsigned int y;
+}
+text_scroll = {0, 0};
+
 void read_lines()
 {
     num_lines = 0;
@@ -32,7 +41,8 @@ void read_lines()
         lines = realloc(lines, ++num_lines * sizeof(struct line));     
 
         lines[i].len = READ_BLOCKSIZE;
-        lines[i].data = malloc(lines[i].len * sizeof(wchar_t));
+        lines[i].data = malloc(lines[i].len);
+        lines[i].length = 0;
 
         char c;
         unsigned int j;
@@ -41,9 +51,65 @@ void read_lines()
             if (j >= READ_BLOCKSIZE)
             {
                 lines[i].len += READ_BLOCKSIZE;
-                lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(wchar_t));
+                lines[i].data = realloc(lines[i].data, lines[i].len);
             }
-            lines[i].data[j] = c;
+
+            unsigned char uc = *(unsigned char *)&c;
+            
+            if (uc >= 0xC0 && uc <= 0xDF)
+            {
+                if (uc == '\0')
+                {
+                    break;
+                }
+                for (unsigned int k = 0; k < 2; k++)
+                {
+                    lines[i].data[j + k] = c;
+                    if (k < 1)
+                    {
+                        c = fgetc(fp);
+                    }
+                }
+                j++;
+            }
+            else if (uc >= 0xE0 && uc <= 0xEF)
+            {
+                if (uc == '\0')
+                {
+                    break;
+                }
+                for (unsigned int k = 0; k < 3; k++)
+                {
+                    lines[i].data[j + k] = c;
+                    if (k < 2)
+                    {
+                        c = fgetc(fp);
+                    }
+                }
+                j += 2;
+            }
+            else if (uc >= 0xF0 && uc <= 0xF7)
+            {
+                if (uc == '\0')
+                {
+                    break;
+                }
+                for (unsigned int k = 0; k < 4; k++)
+                {
+                    lines[i].data[j + k] = c;
+                    if (k < 3)
+                    {
+                        c = fgetc(fp);
+                    }
+                }
+                j += 3;
+            }
+            else
+            {
+                lines[i].data[j] = uc;
+            }
+
+            lines[i].length++;
         }
         lines[i].data[j] = '\0';
     }
@@ -51,18 +117,19 @@ void read_lines()
 
 void show_lines()
 {
-    for (unsigned int i = 0; i < (unsigned int)LINES; i++)
+    for (unsigned int i = text_scroll.y; i < text_scroll.y + LINES; i++)
     {
+        move(i - text_scroll.y, 0);
         if (i >= num_lines)
         {
-            printw("~\n");
+            printw("~");
             continue;
         }
         
         printw("%*d ", len_line_number, i + 1);
 
         unsigned int size = 0;
-        for (unsigned int j = 0; j < (unsigned int)COLS - len_line_number - 2; j++)
+        for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1 + text_scroll.x; j++)
         {
             if (lines[i].data[j] == '\0')
             {
@@ -75,7 +142,10 @@ void show_lines()
                 {
                     break;
                 }
-                printw("%.2s", &lines[i].data[j]);
+                if (size >= text_scroll.x)
+                {
+                    printw("%.2s", &lines[i].data[j]);
+                }
                 j++;
             }
             else if (lines[i].data[j] >= 0xE0 && lines[i].data[j] <= 0xEF)
@@ -84,7 +154,10 @@ void show_lines()
                 {
                     break;
                 }
-                printw("%.3s", &lines[i].data[j]);
+                if (size >= text_scroll.x)
+                {
+                    printw("%.3s", &lines[i].data[j]);
+                }
                 j += 2;
             }
             else if (lines[i].data[j] >= 0xF0 && lines[i].data[j] <= 0xF7)
@@ -93,12 +166,18 @@ void show_lines()
                 {
                     break;
                 }
-                printw("%.4s", &lines[i].data[j]);
+                if (size >= text_scroll.x)
+                {
+                    printw("%.4s", &lines[i].data[j]);
+                }
                 j += 3;
             }
             else
             {
-                printw("%c", lines[i].data[j]);
+                if (size >= text_scroll.x)
+                {
+                    printw("%c", lines[i].data[j]);
+                }
             }
 
             if (lines[i].data[j] == '\0')
@@ -108,7 +187,6 @@ void show_lines()
             size++;
         }
 
-        printw("\n");
     }
 }
 
@@ -126,6 +204,8 @@ int main()
     setlocale(LC_ALL, "");
 
     initscr();
+    noecho();
+    keypad(stdscr, TRUE);
 
 
     fp = fopen("test.txt", "r");
@@ -139,13 +219,84 @@ int main()
     }
 
 
-    show_lines();
+    int c;
+    while (1)
+    {
+        clear();
+        show_lines();
+        move(cursor.y - text_scroll.y, cursor.x - text_scroll.x + len_line_number + 1);
+        refresh();
+
+        c = getch();
+
+        switch (c)
+        {
+            case KEY_UP:
+                cursor.y -= (cursor.y > 0);
+                if (cursor.x > lines[cursor.y].length)
+                {
+                    cursor.x = lines[cursor.y].length;
+                }
+                if (cursor.y < text_scroll.y)
+                {
+                    text_scroll.y = cursor.y;
+                }
+
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
+                break;
+            case KEY_DOWN:
+                cursor.y += (cursor.y < num_lines - 1);
+                if (cursor.x > lines[cursor.y].length)
+                {
+                    cursor.x = lines[cursor.y].length;
+                }
+                if (cursor.y > text_scroll.y + LINES - 1)
+                {
+                    text_scroll.y = cursor.y + 1 - LINES;
+                }
+
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
+                break;
+            case KEY_LEFT:
+                cursor.x -= (cursor.x > 0);
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                break;
+            case KEY_RIGHT:
+                cursor.x += (cursor.x < lines[cursor.y].length);
+                if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
+                break;
+        }
+
+        if (c == 'q')
+        {
+            break;
+        }
+    }
 
 
     free_lines();
     fclose(fp);
 
-    getch();
 
     endwin();
     return 0;
