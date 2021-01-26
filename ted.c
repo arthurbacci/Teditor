@@ -26,6 +26,13 @@ struct
 }
 cursor = {0, 0};
 
+struct
+{
+    unsigned int x;
+    unsigned int y;
+}
+text_scroll = {0, 0};
+
 void read_lines()
 {
     num_lines = 0;
@@ -110,18 +117,19 @@ void read_lines()
 
 void show_lines()
 {
-    for (unsigned int i = 0; i < (unsigned int)LINES; i++)
+    for (unsigned int i = text_scroll.y; i < text_scroll.y + LINES; i++)
     {
+        move(i - text_scroll.y, 0);
         if (i >= num_lines)
         {
-            printw("~\n");
+            printw("~");
             continue;
         }
         
         printw("%*d ", len_line_number, i + 1);
 
         unsigned int size = 0;
-        for (unsigned int j = 0; j < (unsigned int)COLS - len_line_number - 2; j++)
+        for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1 + text_scroll.x; j++)
         {
             if (lines[i].data[j] == '\0')
             {
@@ -134,7 +142,10 @@ void show_lines()
                 {
                     break;
                 }
-                printw("%.2s", &lines[i].data[j]);
+                if (size >= text_scroll.x)
+                {
+                    printw("%.2s", &lines[i].data[j]);
+                }
                 j++;
             }
             else if (lines[i].data[j] >= 0xE0 && lines[i].data[j] <= 0xEF)
@@ -143,7 +154,10 @@ void show_lines()
                 {
                     break;
                 }
-                printw("%.3s", &lines[i].data[j]);
+                if (size >= text_scroll.x)
+                {
+                    printw("%.3s", &lines[i].data[j]);
+                }
                 j += 2;
             }
             else if (lines[i].data[j] >= 0xF0 && lines[i].data[j] <= 0xF7)
@@ -152,12 +166,18 @@ void show_lines()
                 {
                     break;
                 }
-                printw("%.4s", &lines[i].data[j]);
+                if (size >= text_scroll.x)
+                {
+                    printw("%.4s", &lines[i].data[j]);
+                }
                 j += 3;
             }
             else
             {
-                printw("%c", lines[i].data[j]);
+                if (size >= text_scroll.x)
+                {
+                    printw("%c", lines[i].data[j]);
+                }
             }
 
             if (lines[i].data[j] == '\0')
@@ -167,7 +187,6 @@ void show_lines()
             size++;
         }
 
-        printw("\n");
     }
 }
 
@@ -204,9 +223,8 @@ int main()
     while (1)
     {
         clear();
-        move(0, 0);
         show_lines();
-        move(cursor.y, cursor.x + len_line_number + 1);
+        move(cursor.y - text_scroll.y, cursor.x - text_scroll.x + len_line_number + 1);
         refresh();
 
         c = getch();
@@ -219,6 +237,19 @@ int main()
                 {
                     cursor.x = lines[cursor.y].length;
                 }
+                if (cursor.y < text_scroll.y)
+                {
+                    text_scroll.y = cursor.y;
+                }
+
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
                 break;
             case KEY_DOWN:
                 cursor.y += (cursor.y < num_lines - 1);
@@ -226,12 +257,33 @@ int main()
                 {
                     cursor.x = lines[cursor.y].length;
                 }
+                if (cursor.y > text_scroll.y + LINES - 1)
+                {
+                    text_scroll.y = cursor.y + 1 - LINES;
+                }
+
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
                 break;
             case KEY_LEFT:
                 cursor.x -= (cursor.x > 0);
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
                 break;
             case KEY_RIGHT:
                 cursor.x += (cursor.x < lines[cursor.y].length);
+                if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
                 break;
         }
 
