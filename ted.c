@@ -227,7 +227,6 @@ int main()
 
     read_lines();
 
-
     {
         char tmp[50];
         len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
