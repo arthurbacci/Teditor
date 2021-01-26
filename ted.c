@@ -62,6 +62,11 @@ void read_lines()
                 {
                     break;
                 }
+                if (j + 1 >= READ_BLOCKSIZE)
+                {
+                    lines[i].len += READ_BLOCKSIZE;
+                    lines[i].data = realloc(lines[i].data, lines[i].len);
+                }
                 for (unsigned int k = 0; k < 2; k++)
                 {
                     lines[i].data[j + k] = c;
@@ -78,6 +83,11 @@ void read_lines()
                 {
                     break;
                 }
+                if (j + 2 >= READ_BLOCKSIZE)
+                {
+                    lines[i].len += READ_BLOCKSIZE;
+                    lines[i].data = realloc(lines[i].data, lines[i].len);
+                }
                 for (unsigned int k = 0; k < 3; k++)
                 {
                     lines[i].data[j + k] = c;
@@ -93,6 +103,11 @@ void read_lines()
                 if (uc == '\0')
                 {
                     break;
+                }
+                if (j + 3 >= READ_BLOCKSIZE)
+                {
+                    lines[i].len += READ_BLOCKSIZE;
+                    lines[i].data = realloc(lines[i].data, lines[i].len);
                 }
                 for (unsigned int k = 0; k < 4; k++)
                 {
