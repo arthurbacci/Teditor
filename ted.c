@@ -43,6 +43,8 @@ void setcolor(int c)
     }
 }
 
+unsigned int last_cursor_x = 0;
+
 void read_lines()
 {
     num_lines = 0;
@@ -235,7 +237,98 @@ void free_lines()
     }
 }
 
+void process_keypress(int c)
+{
+    switch (c)
+        {
+            case KEY_UP:
+                cursor.y -= (cursor.y > 0);
 
+                if (cursor.x < last_cursor_x)
+                {
+                    cursor.x = last_cursor_x;
+                    last_cursor_x = 0;
+                }
+
+                if (cursor.x > lines[cursor.y].length)
+                {
+                    last_cursor_x = cursor.x;
+                    cursor.x = lines[cursor.y].length;
+                }
+                if (cursor.y < text_scroll.y)
+                {
+                    text_scroll.y = cursor.y;
+                }
+
+                
+
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
+                break;
+            case KEY_DOWN:
+                cursor.y += (cursor.y < num_lines - 1);
+
+                if (cursor.x < last_cursor_x)
+                {
+                    cursor.x = last_cursor_x;
+                    last_cursor_x = 0;
+                }
+
+                if (cursor.x > lines[cursor.y].length)
+                {
+                    last_cursor_x = cursor.x;
+                    cursor.x = lines[cursor.y].length;
+                }
+                if (cursor.y > text_scroll.y + LINES - 1)
+                {
+                    text_scroll.y = cursor.y + 1 - LINES;
+                }
+
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
+                break;
+            case KEY_LEFT:
+                cursor.x -= (cursor.x > 0);
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                break;
+            case KEY_RIGHT:
+                cursor.x += (cursor.x < lines[cursor.y].length);
+                if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
+                break;
+            case KEY_HOME:
+                cursor.x = 0;
+                if (cursor.x < text_scroll.x)
+                {
+                    text_scroll.x = cursor.x;
+                }
+                break;
+            case KEY_END:
+                cursor.x = lines[cursor.y].length;
+                if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+                {
+                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+                }
+                break;
+        }
+}
 
 int main()
 {
@@ -287,68 +380,12 @@ int main()
 
         c = getch();
 
-        switch (c)
-        {
-            case KEY_UP:
-                cursor.y -= (cursor.y > 0);
-                if (cursor.x > lines[cursor.y].length)
-                {
-                    cursor.x = lines[cursor.y].length;
-                }
-                if (cursor.y < text_scroll.y)
-                {
-                    text_scroll.y = cursor.y;
-                }
-
-                if (cursor.x < text_scroll.x)
-                {
-                    text_scroll.x = cursor.x;
-                }
-                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-                {
-                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-                }
-                break;
-            case KEY_DOWN:
-                cursor.y += (cursor.y < num_lines - 1);
-                if (cursor.x > lines[cursor.y].length)
-                {
-                    cursor.x = lines[cursor.y].length;
-                }
-                if (cursor.y > text_scroll.y + LINES - 1)
-                {
-                    text_scroll.y = cursor.y + 1 - LINES;
-                }
-
-                if (cursor.x < text_scroll.x)
-                {
-                    text_scroll.x = cursor.x;
-                }
-                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-                {
-                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-                }
-                break;
-            case KEY_LEFT:
-                cursor.x -= (cursor.x > 0);
-                if (cursor.x < text_scroll.x)
-                {
-                    text_scroll.x = cursor.x;
-                }
-                break;
-            case KEY_RIGHT:
-                cursor.x += (cursor.x < lines[cursor.y].length);
-                if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-                {
-                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-                }
-                break;
-        }
-
         if (c == 'q')
         {
             break;
         }
+
+        process_keypress(c);
     }
 
 
