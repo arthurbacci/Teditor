@@ -33,6 +33,16 @@ struct
 }
 text_scroll = {0, 0};
 
+char colors_on;
+
+void setcolor(int c)
+{
+    if (colors_on)
+    {
+        attrset(c);
+    }
+}
+
 void read_lines()
 {
     num_lines = 0;
@@ -137,11 +147,22 @@ void show_lines()
         move(i - text_scroll.y, 0);
         if (i >= num_lines)
         {
-            printw("~");
+            setcolor(COLOR_PAIR(1));
+            for (unsigned int j = 0; j < len_line_number - 1; j++)
+            {
+                addch(' ');
+            }
+            addch('~');
+            setcolor(COLOR_PAIR(2));
             continue;
         }
         
+        setcolor(COLOR_PAIR(1));
+
         printw("%*d ", len_line_number, i + 1);
+
+        setcolor(COLOR_PAIR(2));
+
 
         unsigned int size = 0;
         for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1 + text_scroll.x; j++)
@@ -214,6 +235,8 @@ void free_lines()
     }
 }
 
+
+
 int main()
 {
     setlocale(LC_ALL, "");
@@ -230,6 +253,27 @@ int main()
     {
         char tmp[50];
         len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
+    }
+
+
+    if (!has_colors())
+    {
+        colors_on = 0;
+    }
+    else if (start_color() != OK)
+    {
+        colors_on = 0;
+    }
+    else {
+        colors_on = 1;
+    }
+
+
+    if (colors_on)
+    {
+        use_default_colors();
+        init_pair(1, COLOR_RED, -1);
+        init_pair(2, -1, -1);
     }
 
 
