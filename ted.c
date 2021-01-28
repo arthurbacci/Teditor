@@ -517,8 +517,20 @@ void process_keypress(int c)
     }
 }
 
-int main()
+int main(int argc, char **argv)
 {
+    if (argc < 2)
+    {
+        if (argc > 0)
+        {
+            fprintf(stderr, "Usage: '%s file'\n", argv[0]);
+        }
+        else {
+            fprintf(stderr, "Usage: 'ted file'\n");
+        }
+        return 1;
+    }
+
     setlocale(LC_ALL, "");
 
     initscr();
@@ -527,8 +539,9 @@ int main()
     noecho();
     keypad(stdscr, TRUE);
 
+    
 
-    fp = fopen("test.txt", "r");
+    fp = fopen(argv[1], "r");
 
     read_lines();
 
