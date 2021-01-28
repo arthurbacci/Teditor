@@ -337,22 +337,29 @@ void process_keypress(int c)
 
     unsigned int real_cx = 0;
     unsigned int offset = 0;
+    unsigned int last_one_size = 1;
     for (unsigned int i = 0; i < cursor.x; i++)
     {
         if (lines[cy].data[i + offset] >= 0xC0 && lines[cy].data[i + offset] <= 0xDF)
         {
             offset++;
             real_cx++;
+            last_one_size = 2;
         }
         else if (lines[cy].data[i + offset] >= 0xE0 && lines[cy].data[i + offset] <= 0xEF)
         {
             offset += 2;
             real_cx += 2;
+            last_one_size = 3;
         }
         else if (lines[cy].data[i + offset] >= 0xF0 && lines[cy].data[i + offset] <= 0xF7)
         {
             offset += 3;
             real_cx += 3;
+            last_one_size = 4;
+        }
+        else {
+            last_one_size = 1;
         }
         real_cx++;
     }
@@ -437,6 +444,22 @@ void process_keypress(int c)
         lines[cy].length++;
 
         process_keypress(KEY_RIGHT);
+    }
+    else if (c == KEY_BACKSPACE)
+    {
+        if (real_cx >= last_one_size)
+        {
+            memmove(
+                &lines[cy].data[real_cx - last_one_size],
+                &lines[cy].data[real_cx],
+                lines[cy].real_length - real_cx
+            );
+            lines[cy].real_length -= last_one_size;
+            lines[cy].length--;
+            lines[cy].data[lines[cy].real_length] = '\0';
+
+            process_keypress(KEY_LEFT);
+        }
     }
 }
 
