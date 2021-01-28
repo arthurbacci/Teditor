@@ -335,6 +335,11 @@ void process_keypress(int c)
             break;
     }
 
+    if (c == '\n')
+    {
+        last_cursor_x = cx;
+    }
+
     unsigned int real_cx = 0;
     unsigned int offset = 0;
     unsigned int last_one_size = 1;
@@ -515,6 +520,76 @@ void process_keypress(int c)
             free(del_line);
         }
     }
+    else if (c == '\n')
+    {
+        lines = realloc(lines, (num_lines + 1) * sizeof(struct line));
+    
+        memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct line));
+
+        num_lines++;
+
+        process_keypress(KEY_DOWN);
+
+        lines[cy].len = READ_BLOCKSIZE;
+        lines[cy].data = malloc(lines[cy].len * sizeof(struct line));
+
+        lines[cy].length = 0;
+        lines[cy].real_length = 0;
+
+        for (unsigned int i = 0; i < lines[cy - 1].real_length - real_cx; i++)
+        {
+            int cc = lines[cy - 1].data[i + real_cx];
+
+            lines[cy].real_length++;
+            lines[cy].length++;
+            while (lines[cy].real_length >= lines[cy].len)
+            {
+                lines[cy].len += READ_BLOCKSIZE;
+                lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(struct line));
+            }
+            lines[cy].data[i] = lines[cy - 1].data[i + real_cx];
+            
+            if (cc >= 0xC0 && cc <= 0xDF)
+            {
+                lines[cy].length--;
+            }
+            else if (cc >= 0xE0 && cc <= 0xEF)
+            {
+                lines[cy].length -= 2;
+            }
+            else if (cc >= 0xF0 && cc <= 0xF7)
+            {
+                lines[cy].length -= 3;
+            }
+        }
+        lines[cy].data[lines[cy].real_length] = '\0';
+
+        lines[cy - 1].length = real_cx;
+        lines[cy - 1].real_length = real_cx;
+
+        for (unsigned int i = 0; i < lines[cy - 1].real_length; i++)
+        {
+            int cc = lines[cy - 1].data[i];
+
+            if (cc >= 0xC0 && cc <= 0xDF)
+            {
+                lines[cy - 1].length--;
+            }
+            else if (cc >= 0xE0 && cc <= 0xEF)
+            {
+                lines[cy - 1].length -= 2;
+            }
+            else if (cc >= 0xF0 && cc <= 0xF7)
+            {
+                lines[cy - 1].length -= 3;
+            }
+        }
+
+        lines[cy - 1].data[lines[cy - 1].real_length] = '\0';
+
+        char tmp[50];
+        len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
+    }
 }
 
 int main(int argc, char **argv)
@@ -525,7 +600,8 @@ int main(int argc, char **argv)
         {
             fprintf(stderr, "Usage: '%s file'\n", argv[0]);
         }
-        else {
+        else
+        {
             fprintf(stderr, "Usage: 'ted file'\n");
         }
         return 1;
