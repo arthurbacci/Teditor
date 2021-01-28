@@ -460,6 +460,60 @@ void process_keypress(int c)
 
             process_keypress(KEY_LEFT);
         }
+        else if (cy > 0) {
+            unsigned char *del_line = lines[cy].data;
+            unsigned int del_line_len = lines[cy].real_length;
+
+            memmove(
+                &lines[cy],
+                &lines[cy + 1],
+                (num_lines - cy - 1) * sizeof(struct line)
+            );
+
+            num_lines--;
+            lines = realloc(lines, num_lines * sizeof(struct line));
+
+    
+            process_keypress(KEY_UP);
+
+            cursor.x = lines[cy].length;
+            
+            process_keypress(KEY_RIGHT);
+
+            while (lines[cy].len <= lines[cy].real_length + del_line_len)
+            {
+                lines[cy].len += READ_BLOCKSIZE;
+                lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+            }
+
+            
+            for (unsigned int i = 0; i < del_line_len; i++)
+            {
+                lines[cy].data[lines[cy].real_length + i] = del_line[i];
+
+                lines[cy].length++;
+
+                unsigned char cc = del_line[i];
+                if (cc >= 0xC0 && cc <= 0xDF)
+                {
+                    lines[cy].length--;
+                }
+                else if (cc >= 0xE0 && cc <= 0xEF)
+                {
+                    lines[cy].length -= 2;
+                }
+                else if (cc >= 0xF0 && cc <= 0xF7)
+                {
+                    lines[cy].length -= 3;
+                }
+
+            }
+
+            lines[cy].real_length += del_line_len;
+            lines[cy].data[lines[cy].real_length] = '\0';
+
+            free(del_line);
+        }
     }
 }
 
