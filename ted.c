@@ -38,6 +38,8 @@ struct
 }
 text_scroll = {0, 0};
 
+char *filename;
+
 char colors_on;
 
 void setcolor(int c)
@@ -49,6 +51,22 @@ void setcolor(int c)
 }
 
 unsigned int last_cursor_x = 0;
+
+void savefile()
+{
+    FILE *fpw = fopen(filename, "w");
+    
+    for (unsigned int i = 0; i < num_lines; i++)
+    {
+        fputs((const char *)lines[i].data, fpw);
+        if (i < num_lines - 1)
+        {
+            fputc('\n', fpw);
+        }
+    }
+
+    fclose(fpw);
+}
 
 void read_lines()
 {
@@ -333,11 +351,9 @@ void process_keypress(int c)
                 text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
             }
             break;
-    }
-
-    if (c == '\n')
-    {
-        last_cursor_x = cx;
+        case ctrl('s'):
+            savefile();
+            break;
     }
 
     unsigned int real_cx = 0;
@@ -528,6 +544,8 @@ void process_keypress(int c)
 
         num_lines++;
 
+        cursor.x = 0;
+        last_cursor_x = 0;
         process_keypress(KEY_DOWN);
 
         lines[cy].len = READ_BLOCKSIZE;
@@ -616,10 +634,12 @@ int main(int argc, char **argv)
     keypad(stdscr, TRUE);
 
     
-
-    fp = fopen(argv[1], "r");
+    filename = argv[1];
+    fp = fopen(filename, "r");
 
     read_lines();
+
+    fclose(fp);
 
     {
         char tmp[50];
@@ -668,7 +688,6 @@ int main(int argc, char **argv)
 
 
     free_lines();
-    fclose(fp);
 
 
     endwin();
