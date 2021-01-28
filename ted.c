@@ -3,14 +3,19 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
+#include <ctype.h>
 
 #define READ_BLOCKSIZE 10
+#define ctrl(x) ((x) & 0x1f)
+#define cx cursor.x
+#define cy cursor.y
 
 struct line
 {
     unsigned int len;
     unsigned char *data;
     unsigned int length;
+    unsigned int real_length;
 };
 
 struct line *lines = NULL;
@@ -138,6 +143,7 @@ void read_lines()
 
             lines[i].length++;
         }
+        lines[i].real_length = j;
         lines[i].data[j] = '\0';
     }
 }
@@ -240,94 +246,198 @@ void free_lines()
 void process_keypress(int c)
 {
     switch (c)
-        {
-            case KEY_UP:
-                cursor.y -= (cursor.y > 0);
+    {
+        case KEY_UP:
+            cursor.y -= (cursor.y > 0);
 
-                if (cursor.x < last_cursor_x)
-                {
-                    cursor.x = last_cursor_x;
-                    last_cursor_x = 0;
-                }
+            if (cursor.x < last_cursor_x)
+            {
+                cursor.x = last_cursor_x;
+                last_cursor_x = 0;
+            }
 
-                if (cursor.x > lines[cursor.y].length)
-                {
-                    last_cursor_x = cursor.x;
-                    cursor.x = lines[cursor.y].length;
-                }
-                if (cursor.y < text_scroll.y)
-                {
-                    text_scroll.y = cursor.y;
-                }
+            if (cursor.x > lines[cursor.y].length)
+            {
+                last_cursor_x = cursor.x;
+                cursor.x = lines[cursor.y].length;
+            }
+            if (cursor.y < text_scroll.y)
+            {
+                text_scroll.y = cursor.y;
+            }
 
                 
 
-                if (cursor.x < text_scroll.x)
-                {
-                    text_scroll.x = cursor.x;
-                }
-                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-                {
-                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-                }
-                break;
-            case KEY_DOWN:
-                cursor.y += (cursor.y < num_lines - 1);
+            if (cursor.x < text_scroll.x)
+            {
+                text_scroll.x = cursor.x;
+            }
+            else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+            {
+                text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+            }
+            break;
+        case KEY_DOWN:
+            cursor.y += (cursor.y < num_lines - 1);
 
-                if (cursor.x < last_cursor_x)
-                {
-                    cursor.x = last_cursor_x;
-                    last_cursor_x = 0;
-                }
+            if (cursor.x < last_cursor_x)
+            {
+                cursor.x = last_cursor_x;
+                last_cursor_x = 0;
+            }
 
-                if (cursor.x > lines[cursor.y].length)
-                {
-                    last_cursor_x = cursor.x;
-                    cursor.x = lines[cursor.y].length;
-                }
-                if (cursor.y > text_scroll.y + LINES - 1)
-                {
-                    text_scroll.y = cursor.y + 1 - LINES;
-                }
-
-                if (cursor.x < text_scroll.x)
-                {
-                    text_scroll.x = cursor.x;
-                }
-                else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-                {
-                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-                }
-                break;
-            case KEY_LEFT:
-                cursor.x -= (cursor.x > 0);
-                if (cursor.x < text_scroll.x)
-                {
-                    text_scroll.x = cursor.x;
-                }
-                break;
-            case KEY_RIGHT:
-                cursor.x += (cursor.x < lines[cursor.y].length);
-                if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-                {
-                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-                }
-                break;
-            case KEY_HOME:
-                cursor.x = 0;
-                if (cursor.x < text_scroll.x)
-                {
-                    text_scroll.x = cursor.x;
-                }
-                break;
-            case KEY_END:
+            if (cursor.x > lines[cursor.y].length)
+            {
+                last_cursor_x = cursor.x;
                 cursor.x = lines[cursor.y].length;
-                if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-                {
-                    text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-                }
-                break;
+            }
+            if (cursor.y > text_scroll.y + LINES - 1)
+            {
+                text_scroll.y = cursor.y + 1 - LINES;
+            }
+
+            if (cursor.x < text_scroll.x)
+            {
+                text_scroll.x = cursor.x;
+            }
+            else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+            {
+                text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+            }
+            break;
+        case KEY_LEFT:
+            cursor.x -= (cursor.x > 0);
+            if (cursor.x < text_scroll.x)
+            {
+                text_scroll.x = cursor.x;
+            }
+            break;
+        case KEY_RIGHT:
+            cursor.x += (cursor.x < lines[cursor.y].length);
+            if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+            {
+                text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+            }
+            break;
+        case KEY_HOME:
+            cursor.x = 0;
+            if (cursor.x < text_scroll.x)
+            {
+                text_scroll.x = cursor.x;
+            }
+            break;
+        case KEY_END:
+            cursor.x = lines[cursor.y].length;
+            if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
+            {
+                text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+            }
+            break;
+    }
+
+    unsigned int real_cx = 0;
+    unsigned int offset = 0;
+    for (unsigned int i = 0; i < cursor.x; i++)
+    {
+        if (lines[cy].data[i + offset] >= 0xC0 && lines[cy].data[i + offset] <= 0xDF)
+        {
+            offset++;
+            real_cx++;
         }
+        else if (lines[cy].data[i + offset] >= 0xE0 && lines[cy].data[i + offset] <= 0xEF)
+        {
+            offset += 2;
+            real_cx += 2;
+        }
+        else if (lines[cy].data[i + offset] >= 0xF0 && lines[cy].data[i + offset] <= 0xF7)
+        {
+            offset += 3;
+            real_cx += 3;
+        }
+        real_cx++;
+    }
+
+    if (isprint(c))
+    {
+        if (lines[cy].len <= lines[cy].real_length + 1)
+        {
+            lines[cy].len += READ_BLOCKSIZE;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+        }
+
+        memmove(&lines[cy].data[real_cx + 1], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
+
+        lines[cy].data[real_cx] = c;
+        lines[cy].data[lines[cy].real_length + 1] = '\0';
+
+        lines[cy].real_length++;
+        lines[cy].length++;
+
+        process_keypress(KEY_RIGHT);
+    }
+    else if (c >= 0xC0 && c <= 0xDF)
+    {
+        while (lines[cy].len <= lines[cy].real_length + 2)
+        {
+            lines[cy].len += READ_BLOCKSIZE;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+        }
+
+        memmove(&lines[cy].data[real_cx + 2], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
+
+        lines[cy].data[real_cx] = c;
+        lines[cy].data[real_cx + 1] = getch();
+        lines[cy].data[lines[cy].real_length + 2] = '\0';
+
+        lines[cy].real_length += 2;
+
+        lines[cy].length++;
+
+        process_keypress(KEY_RIGHT);
+    }
+    else if (c >= 0xE0 && c <= 0xEF)
+    {
+        while (lines[cy].len <= lines[cy].real_length + 3)
+        {
+            lines[cy].len += READ_BLOCKSIZE;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+        }
+
+        memmove(&lines[cy].data[real_cx + 3], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
+
+        lines[cy].data[real_cx] = c;
+        lines[cy].data[real_cx + 1] = getch();
+        lines[cy].data[real_cx + 2] = getch();
+        lines[cy].data[lines[cy].real_length + 3] = '\0';
+
+        lines[cy].real_length += 3;
+
+        lines[cy].length++;
+
+        process_keypress(KEY_RIGHT);
+    }
+    else if (c >= 0xF0 && c <= 0xF7)
+    {
+        while (lines[cy].len <= lines[cy].real_length + 4)
+        {
+            lines[cy].len += READ_BLOCKSIZE;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+        }
+
+        memmove(&lines[cy].data[real_cx + 4], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
+
+        lines[cy].data[real_cx] = c;
+        lines[cy].data[real_cx + 1] = getch();
+        lines[cy].data[real_cx + 2] = getch();
+        lines[cy].data[real_cx + 3] = getch();
+        lines[cy].data[lines[cy].real_length + 4] = '\0';
+
+        lines[cy].real_length += 4;
+
+        lines[cy].length++;
+
+        process_keypress(KEY_RIGHT);
+    }
 }
 
 int main()
@@ -335,6 +445,8 @@ int main()
     setlocale(LC_ALL, "");
 
     initscr();
+    cbreak();
+    raw();
     noecho();
     keypad(stdscr, TRUE);
 
@@ -380,7 +492,7 @@ int main()
 
         c = getch();
 
-        if (c == 'q')
+        if (c == ctrl('c'))
         {
             break;
         }
