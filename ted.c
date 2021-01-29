@@ -57,7 +57,55 @@ void setcolor(int c)
 
 unsigned int last_cursor_x = 0;
 
-void message(char *msg)
+struct
+{
+    unsigned int tablen;
+}
+config = {4};
+
+int message(char *msg);
+
+char *prompt(char *msg)
+{
+    unsigned int len = strlen(msg);
+    char *ret = malloc(1000 - len);
+
+    int c;
+    
+    unsigned int i;
+    for (i = 0; (c = message(msg)) != '\n' && i < 999 - len; i++)
+    {
+        if (c == KEY_BACKSPACE)
+        {
+            if (i > 0)
+            {
+                i -= 2;
+            }
+            else
+            {
+                i--;
+            }
+        }
+        else if (c == ctrl('c'))
+        {
+            free(ret);
+            return NULL;
+        }
+
+        ret[i + 1] = '\0';
+        msg[len + i + 1] = '\0';
+
+        if (isprint(c))
+        {
+            msg[len + i] = c;
+            ret[i] = c;
+        }
+    }
+
+    return ret;
+}
+
+int message(char *msg)
 {
     unsigned int len = strlen(msg);
 
@@ -85,7 +133,61 @@ void message(char *msg)
     setcolor(COLOR_PAIR(2));
     refresh();
     
-    getch();
+    return getch();
+}
+
+void config_dialog()
+{
+    char msg[1000];
+    snprintf(msg, 1000, "Configure: ");
+
+    char *answer = prompt(msg);
+
+    if (answer == NULL)
+    {
+        return;
+    }
+
+    if (strcmp(answer, "tablen") == 0)
+    {
+        char msg1[1000];
+        snprintf(msg1, 1000, "tablen: ");
+
+        char *answer1 = prompt(msg1);
+
+        if (answer1 == NULL)
+        {
+            char msg2[1000];
+            snprintf(msg2, 1000, "Canceled");
+
+            message(msg2);
+        }
+        else
+        {
+            int answer_int = atoi(answer1);
+
+            if (answer_int > 0)
+            {
+                config.tablen = answer_int;
+            }
+            else {
+                char msg2[1000];
+                snprintf(msg2, 1000, "Needs to be greater than zero");
+            
+                message(msg2);
+            }
+
+            free(answer1);
+        }
+    }
+    else {
+        char msg1[1000];
+        snprintf(msg1, 1000, "This option does not exist");
+
+        message(msg1);
+    }
+
+    free(answer);
 }
 
 void savefile()
@@ -420,6 +522,15 @@ void process_keypress(int c)
             break;
         case ctrl('s'):
             savefile();
+            break;
+        case '\t':
+            for (unsigned int i = 0; i < config.tablen; i++)
+            {
+                process_keypress(' ');
+            }
+            break;
+        case ctrl('h'):
+            config_dialog();
             break;
     }
 
