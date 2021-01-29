@@ -57,12 +57,48 @@ void setcolor(int c)
 
 unsigned int last_cursor_x = 0;
 
+void message(char *msg)
+{
+    unsigned int len = strlen(msg);
+
+    unsigned int lines = 0;
+    for (unsigned int i = 0; i < len; i++)
+    {
+        if (msg[i] == '\n')
+        {
+            lines++;
+        }
+    }
+
+    char *s = strtok(msg, "\n");
+
+    clear();
+    setcolor(COLOR_PAIR(1));
+    attron(A_BOLD);
+    for (unsigned int i = (LINES - lines) / 2; s != NULL; i++)
+    {
+        mvprintw(i, (COLS - strlen(s)) / 2, "%s", s);
+
+        s = strtok(NULL, "\n");
+    }
+    attroff(A_BOLD);
+    setcolor(COLOR_PAIR(2));
+    refresh();
+    
+    getch();
+}
+
 void savefile()
 {
     FILE *fpw = fopen(filename, "w");
 
     if (fpw == NULL)
     {
+        char buf[1000];
+        snprintf(buf, 1000, "Could not open the file\nErrno: %d\nPress any key", errno);
+
+        message(buf);
+
         return;
     }
 
@@ -244,7 +280,7 @@ void show_lines()
                 {
                     printw("%.3s", &lines[i].data[j]);
                 }
-                j += 2;
+                j += 2;setcolor(1);
             }
             else if (lines[i].data[j] >= 0xF0 && lines[i].data[j] <= 0xF7)
             {
