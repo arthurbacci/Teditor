@@ -4,6 +4,10 @@
 #include <locale.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
 
 #define READ_BLOCKSIZE 10
 #define ctrl(x) ((x) & 0x1f)
@@ -41,6 +45,7 @@ text_scroll = {0, 0};
 char *filename;
 
 char colors_on;
+char needs_to_free_filename;
 
 void setcolor(int c)
 {
@@ -55,7 +60,12 @@ unsigned int last_cursor_x = 0;
 void savefile()
 {
     FILE *fpw = fopen(filename, "w");
-    
+
+    if (fpw == NULL)
+    {
+        return;
+    }
+
     for (unsigned int i = 0; i < num_lines; i++)
     {
         fputs((const char *)lines[i].data, fpw);
@@ -628,15 +638,41 @@ int main(int argc, char **argv)
 {
     if (argc < 2)
     {
-        if (argc > 0)
+        struct stat st = {0};
+
+        char *home = getenv("HOME");
+
+        char config[strlen(home) + strlen("/.config/") + 1];
+
+        strcpy(config, home);
+        strcat(config, "/.config/");
+
+
+        if (stat(config, &st) == -1)
         {
-            fprintf(stderr, "Usage: '%s file'\n", argv[0]);
+            mkdir(config, 0777);
         }
-        else
+
+        char config_ted[strlen(config) + strlen("ted/") + 1];
+
+        strcpy(config_ted, config);
+        strcat(config_ted, "ted/");
+
+        if (stat(config_ted, &st) == -1)
         {
-            fprintf(stderr, "Usage: 'ted file'\n");
+            mkdir(config_ted, 0777);
         }
-        return 1;
+
+        filename = malloc(strlen(config_ted) + strlen("buffer") + 1);
+        
+        strcpy(filename, config_ted);
+        strcat(filename, "buffer");
+
+        needs_to_free_filename = 1;
+    }
+    else {
+        filename = argv[1];
+        needs_to_free_filename = 0;
     }
 
     setlocale(LC_ALL, "");
@@ -648,7 +684,6 @@ int main(int argc, char **argv)
     keypad(stdscr, TRUE);
 
     
-    filename = argv[1];
     fp = fopen(filename, "r");
 
     read_lines();
@@ -706,6 +741,10 @@ int main(int argc, char **argv)
 
     free_lines();
 
+    if (needs_to_free_filename == 1)
+    {
+        free(filename);
+    }
 
     endwin();
     return 0;
