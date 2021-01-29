@@ -70,6 +70,20 @@ void savefile()
 
 void read_lines()
 {
+    if (fp == NULL)
+    {
+        num_lines = 1;
+        lines = malloc(sizeof(struct line));
+
+        lines[0].len = READ_BLOCKSIZE;
+        lines[0].data = malloc(lines[0].len);
+        lines[0].length = 0;
+        lines[0].real_length = 0;
+        lines[0].data[0] = '\0';
+
+        return;
+    }
+
     num_lines = 0;
     for (unsigned int i = 0; !feof(fp); i++)
     {
@@ -639,7 +653,10 @@ int main(int argc, char **argv)
 
     read_lines();
 
-    fclose(fp);
+    if (fp != NULL)
+    {
+        fclose(fp);
+    }
 
     {
         char tmp[50];
