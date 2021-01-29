@@ -133,7 +133,7 @@ void read_lines()
     num_lines = 0;
     for (unsigned int i = 0; !feof(fp); i++)
     {
-        lines = realloc(lines, ++num_lines * sizeof(struct line));     
+        lines = realloc(lines, ++num_lines * sizeof(struct line));
 
         lines[i].len = READ_BLOCKSIZE;
         lines[i].data = malloc(lines[i].len);
@@ -143,7 +143,7 @@ void read_lines()
         unsigned int j;
         for (j = 0; (c = fgetc(fp)) != '\n' && c != EOF; j++)
         {
-            if (j >= READ_BLOCKSIZE)
+            if (j >= lines[i].len)
             {
                 lines[i].len += READ_BLOCKSIZE;
                 lines[i].data = realloc(lines[i].data, lines[i].len);
@@ -157,7 +157,7 @@ void read_lines()
                 {
                     break;
                 }
-                if (j + 1 >= READ_BLOCKSIZE)
+                if (j + 1 >= lines[i].len)
                 {
                     lines[i].len += READ_BLOCKSIZE;
                     lines[i].data = realloc(lines[i].data, lines[i].len);
@@ -178,7 +178,7 @@ void read_lines()
                 {
                     break;
                 }
-                if (j + 2 >= READ_BLOCKSIZE)
+                if (j + 2 >= lines[i].len)
                 {
                     lines[i].len += READ_BLOCKSIZE;
                     lines[i].data = realloc(lines[i].data, lines[i].len);
@@ -199,7 +199,7 @@ void read_lines()
                 {
                     break;
                 }
-                if (j + 3 >= READ_BLOCKSIZE)
+                if (j + 3 >= lines[i].len)
                 {
                     lines[i].len += READ_BLOCKSIZE;
                     lines[i].data = realloc(lines[i].data, lines[i].len);
@@ -221,6 +221,13 @@ void read_lines()
 
             lines[i].length++;
         }
+
+        if (j >= lines[i].len)
+        {
+            lines[i].len += READ_BLOCKSIZE;
+            lines[i].data = realloc(lines[i].data, lines[i].len);
+        }
+
         lines[i].real_length = j;
         lines[i].data[j] = '\0';
     }
