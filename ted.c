@@ -532,6 +532,32 @@ void process_keypress(int c)
         case ctrl('h'):
             config_dialog();
             break;
+        case KEY_PPAGE:
+        {
+            unsigned int ccy = cy;
+            for (
+                unsigned int i = 0;
+                i < (unsigned int)(ccy % LINES + LINES);
+                i++
+            )
+            {
+                process_keypress(KEY_UP);
+            }
+            break;
+        }
+        case KEY_NPAGE:
+        {
+            unsigned int ccy = cy;
+            for (
+                unsigned int i = 0;
+                i < (unsigned int)(LINES - (ccy % LINES) - 1 + LINES);
+                i++
+            )
+            {
+                process_keypress(KEY_DOWN);
+            }
+            break;
+        }
     }
 
     unsigned int real_cx = 0;
