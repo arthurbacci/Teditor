@@ -29,12 +29,15 @@ make dev
 
 **Ctrl+S** Saves the file.
 
+
 If you open the config dialog, type the command you want
 and press Enter.
+
 
 Config dialog commands:
 
 **tablen** Set tab length (expects argument)
+
 
 Please open a Pull Request if you have a solution or a new feature.
 
