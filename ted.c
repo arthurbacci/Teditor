@@ -415,6 +415,10 @@ void show_lines()
                 addch(' ');
             }
             addch('~');
+            for (unsigned int j = 0; j < (unsigned int)COLS - len_line_number; j++)
+            {
+                addch(' ');
+            }
             setcolor(COLOR_PAIR(2));
             continue;
         }
