@@ -381,12 +381,19 @@ void read_lines()
 void show_menu()
 {
     move(config.LINES, 0);
+    for (unsigned int i = 0; i < (unsigned int)COLS; i++)
+    {
+        addch(' ');
+    }
+
+    move(config.LINES, 0);
     printw("Ident: %u", lines[cy].ident);
 
 }
 
 void show_lines()
 {
+    
     for (unsigned int i = text_scroll.y; i < text_scroll.y + config.LINES; i++)
     {
         move(i - text_scroll.y, 0);
@@ -402,6 +409,8 @@ void show_lines()
             continue;
         }
         
+        
+        
         setcolor(COLOR_PAIR(1));
 
         printw("%*d ", len_line_number, i + 1);
@@ -410,18 +419,33 @@ void show_lines()
 
 
         unsigned int size = 0;
+        char passed_limit = 0;
         for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1 + text_scroll.x; j++)
         {
+
+            if (passed_limit)
+            {
+                addch(' ');
+                size++;
+                continue;
+            }
+
             if (lines[i].data[j] == '\0')
             {
-                break;
+                addch(' ');
+                passed_limit = 1;
+                size++;
+                continue;
             }
 
             if (lines[i].data[j] >= 0xC0 && lines[i].data[j] <= 0xDF)
             {
                 if (lines[i].data[j] == '\0')
                 {
-                    break;
+                    addch(' ');
+                    passed_limit = 1;
+                    size++;
+                    continue;
                 }
                 if (size >= text_scroll.x)
                 {
@@ -433,19 +457,25 @@ void show_lines()
             {
                 if (lines[i].data[j] == '\0')
                 {
-                    break;
+                    addch(' ');
+                    passed_limit = 1;
+                    size++;
+                    continue;
                 }
                 if (size >= text_scroll.x)
                 {
                     printw("%.3s", &lines[i].data[j]);
                 }
-                j += 2;setcolor(1);
+                j += 2;
             }
             else if (lines[i].data[j] >= 0xF0 && lines[i].data[j] <= 0xF7)
             {
                 if (lines[i].data[j] == '\0')
                 {
-                    break;
+                    addch(' ');
+                    passed_limit = 1;
+                    size++;
+                    continue;
                 }
                 if (size >= text_scroll.x)
                 {
@@ -463,7 +493,10 @@ void show_lines()
 
             if (lines[i].data[j] == '\0')
             {
-                break;
+                addch(' ');
+                passed_limit = 1;
+                size++;
+                continue;
             }
             size++;
         }
@@ -987,7 +1020,6 @@ int main(int argc, char **argv)
     {
         config.LINES = LINES - 1;
 
-        clear();
         show_lines();
         show_menu();
         move(cursor.y - text_scroll.y, cursor.x - text_scroll.x + len_line_number + 1);
