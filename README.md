@@ -1,13 +1,33 @@
 # Teditor
 ## A simple text/code editor
 
-### Ted is being remade, now with ncurses.
-
 <image src="teditor.gif">
 
-Ted is currently being remade from the stratch, the new version of ted will be
-called Ted-2 or Teditor-2, now ncurses will be used. The main goal now is to
-make a very simple text editor, trying to make very lightweight.
+Hello, to compile:
 
-For now I am not accepting contributions.
-	
+```
+git clone https//github.com/ArthurBacci64/Teditor.git
+cd Teditor
+make
+```
+
+to run:
+
+```
+./ted
+```
+
+If you want to develop/contribute, use `make dev` instead of `make`
+
+```
+make dev
+./ted
+```
+
+Please open a Pull Request if you have a solution or a new feature.
+
+Please open a Issue if you find some bug or if you have a suggestion.
+
+Pages in the Wiki also are appreciated
+
+Thanks for reading.
