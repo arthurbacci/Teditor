@@ -29,10 +29,12 @@ make dev
 
 **Ctrl+S** Saves the file.
 
-
+<br>
+<br>
 If you open the config dialog, type the command you want
 and press Enter.
-
+<br>
+<br>
 
 Config dialog commands:
 
