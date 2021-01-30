@@ -32,7 +32,7 @@ make dev
 <br>
 If you open the config dialog, type the command you want
 and press Enter.
-<br>
+<br>  
 Config dialog commands:
 
 **tablen** Set tab length (expects argument)
