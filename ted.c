@@ -23,6 +23,7 @@ struct line
     unsigned char *data;
     unsigned int length;
     unsigned int real_length;
+    unsigned int ident;
 };
 
 struct line *lines = NULL;
@@ -63,8 +64,9 @@ unsigned int last_cursor_x = 0;
 struct
 {
     unsigned int tablen;
+    unsigned int LINES;
 }
-config = {4};
+config = {4, 0};
 
 int message(char *msg);
 
@@ -119,7 +121,7 @@ int message(char *msg)
     clear();
     setcolor(COLOR_PAIR(1));
     attron(A_BOLD);
-    for (unsigned int i = (LINES - lines) / 2; s != NULL; i++)
+    for (unsigned int i = (config.LINES - lines) / 2; s != NULL; i++)
     {
         mvprintw(i, (COLS - strlen(s)) / 2, "%s", s);
 
@@ -257,6 +259,7 @@ void read_lines()
         lines[0].length = 0;
         lines[0].real_length = 0;
         lines[0].data[0] = '\0';
+        lines[0].ident = 0;
 
         return;
     }
@@ -269,15 +272,26 @@ void read_lines()
         lines[i].len = READ_BLOCKSIZE;
         lines[i].data = malloc(lines[i].len);
         lines[i].length = 0;
+        lines[i].ident = 0;
 
         char c;
         unsigned int j;
+        char passed_spaces = 0;
         for (j = 0; (c = fgetc(fp)) != '\n' && c != EOF; j++)
         {
             if (j >= lines[i].len)
             {
                 lines[i].len += READ_BLOCKSIZE;
                 lines[i].data = realloc(lines[i].data, lines[i].len);
+            }
+
+            if (passed_spaces == 0 && c != ' ')
+            {
+                passed_spaces = 1;
+            }
+            else if (passed_spaces == 0)
+            {
+                lines[i].ident++;
             }
 
             unsigned char uc = *(unsigned char *)&c;
@@ -364,9 +378,16 @@ void read_lines()
     }
 }
 
+void show_menu()
+{
+    move(config.LINES, 0);
+    printw("Ident: %u", lines[cy].ident);
+
+}
+
 void show_lines()
 {
-    for (unsigned int i = text_scroll.y; i < text_scroll.y + LINES; i++)
+    for (unsigned int i = text_scroll.y; i < text_scroll.y + config.LINES; i++)
     {
         move(i - text_scroll.y, 0);
         if (i >= num_lines)
@@ -507,9 +528,9 @@ void process_keypress(int c)
                 last_cursor_x = cursor.x;
                 cursor.x = lines[cursor.y].length;
             }
-            if (cursor.y > text_scroll.y + LINES - 1)
+            if (cursor.y > text_scroll.y + config.LINES - 1)
             {
-                text_scroll.y = cursor.y + 1 - LINES;
+                text_scroll.y = cursor.y + 1 - config.LINES;
             }
 
             if (cursor.x < text_scroll.x)
@@ -566,7 +587,7 @@ void process_keypress(int c)
             unsigned int ccy = cy;
             for (
                 unsigned int i = 0;
-                i < (unsigned int)(ccy % LINES + LINES);
+                i < (unsigned int)(ccy % config.LINES + config.LINES);
                 i++
             )
             {
@@ -579,7 +600,7 @@ void process_keypress(int c)
             unsigned int ccy = cy;
             for (
                 unsigned int i = 0;
-                i < (unsigned int)(LINES - (ccy % LINES) - 1 + LINES);
+                i < (unsigned int)(config.LINES - (ccy % config.LINES) - 1 + config.LINES);
                 i++
             )
             {
@@ -790,10 +811,11 @@ void process_keypress(int c)
         process_keypress(KEY_DOWN);
 
         lines[cy].len = READ_BLOCKSIZE;
-        lines[cy].data = malloc(lines[cy].len * sizeof(struct line));
+        lines[cy].data = malloc(lines[cy].len);
 
         lines[cy].length = 0;
         lines[cy].real_length = 0;
+        
 
         for (unsigned int i = 0; i < lines[cy - 1].real_length - real_cx; i++)
         {
@@ -848,6 +870,29 @@ void process_keypress(int c)
 
         char tmp[50];
         len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
+
+        
+        const unsigned int ident = lines[cy - 1].ident;
+        lines[cy].ident = ident;
+
+        lines[cy].len += ident;
+        lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+
+        memmove(&lines[cy].data[ident], lines[cy].data, lines[cy].real_length + 1);
+
+        for (unsigned int i = 0; i < ident; i++)
+        {
+            lines[cy].data[i] = ' ';
+        }
+
+        lines[cy].length += ident;
+        lines[cy].real_length += ident;
+        
+        for (unsigned int i = 0; i < ident; i++)
+        {
+            process_keypress(KEY_RIGHT);
+        }
+
     }
 }
 
@@ -940,8 +985,11 @@ int main(int argc, char **argv)
     int c;
     while (1)
     {
+        config.LINES = LINES - 1;
+
         clear();
         show_lines();
+        show_menu();
         move(cursor.y - text_scroll.y, cursor.x - text_scroll.x + len_line_number + 1);
         refresh();
 
