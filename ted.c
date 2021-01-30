@@ -696,6 +696,11 @@ void process_keypress(int c)
 
     if (isprint(c))
     {
+        if (c == ' ' && cx <= lines[cy].ident)
+        {
+            lines[cy].ident++;
+        }
+
         if (lines[cy].len <= lines[cy].real_length + 1)
         {
             lines[cy].len += READ_BLOCKSIZE;
@@ -777,6 +782,11 @@ void process_keypress(int c)
     }
     else if (c == KEY_BACKSPACE)
     {
+        if (cx <= lines[cy].ident)
+        {
+            lines[cy].ident--;
+        }
+
         if (real_cx >= last_one_size)
         {
             memmove(
