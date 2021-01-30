@@ -26,6 +26,7 @@ make dev
 
 ## Shortcuts
 **Ctrl+H** Opens the config dialog.
+
 **Ctrl+S** Saves the file.
 
 If you open the config dialog, type the command you want
