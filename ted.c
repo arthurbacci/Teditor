@@ -72,19 +72,12 @@ char *prompt(char *msg)
 
     int c;
     
-    unsigned int i;
-    for (i = 0; (c = message(msg)) != '\n' && i < 999 - len; i++)
+    int i;
+    for (i = 0; (c = message(msg)) != '\n' && i < 999 - (int)len; i++)
     {
         if (c == KEY_BACKSPACE)
         {
-            if (i > 0)
-            {
-                i -= 2;
-            }
-            else
-            {
-                i--;
-            }
+            i -= 1 + (i > 0);
         }
         else if (c == ctrl('c'))
         {
