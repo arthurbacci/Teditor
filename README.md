@@ -24,7 +24,7 @@ make dev
 ./ted
 ```
 
-== Shortcuts ==
+## Shortcuts
 **Ctrl+H** Opens the config dialog.
 **Ctrl+S** Saves the file.
 
