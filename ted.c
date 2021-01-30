@@ -855,7 +855,7 @@ void process_keypress(int c)
             free(del_line);
         }
     }
-    else if (c == '\n' || c == KEY_ENTER || c == 0x0D)
+    else if (c == '\n' || c == KEY_ENTER || c == '\r')
     {
         lines = realloc(lines, (num_lines + 1) * sizeof(struct line));
     
