@@ -238,7 +238,7 @@ void savefile()
     for (unsigned int i = 0; i < num_lines; i++)
     {
         fputs((const char *)lines[i].data, fpw);
-        if (i < num_lines - 1)
+        if (num_lines > 1)
         {
             fputc('\n', fpw);
         }
@@ -267,6 +267,15 @@ void read_lines()
     num_lines = 0;
     for (unsigned int i = 0; !feof(fp); i++)
     {
+
+        if (fgetc(fp) == EOF && num_lines > 0)
+        {
+            break;
+        }
+        else {
+            fseek(fp, -1, SEEK_CUR);
+        }
+
         lines = realloc(lines, ++num_lines * sizeof(struct line));
 
         lines[i].len = READ_BLOCKSIZE;
@@ -279,6 +288,7 @@ void read_lines()
         char passed_spaces = 0;
         for (j = 0; (c = fgetc(fp)) != '\n' && c != EOF; j++)
         {
+
             if (j >= lines[i].len)
             {
                 lines[i].len += READ_BLOCKSIZE;
