@@ -65,8 +65,9 @@ struct
 {
     unsigned int tablen;
     unsigned int LINES;
+    unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
 }
-config = {4, 0};
+config = {4, 0, 0};
 
 int message(char *msg);
 
@@ -240,11 +241,50 @@ void savefile()
         fputs((const char *)lines[i].data, fpw);
         if (num_lines > 1)
         {
-            fputc('\n', fpw);
+            if (config.line_break_type == 0)
+            {
+                fputc('\n', fpw);
+            }
+            else if (config.line_break_type == 1)
+            {
+                fputs("\r\n", fpw);
+            }
+            else if (config.line_break_type == 2)
+            {
+                fputc('\r', fpw);
+            }
         }
     }
 
     fclose(fpw);
+}
+
+void detect_linebreak()
+{
+    char c;
+    while (!feof(fp))
+    {
+        c = fgetc(fp);
+
+        if (c == '\r')
+        {
+            if (fgetc(fp) == '\n')
+            {
+                config.line_break_type = 1;
+            }
+            else {
+                config.line_break_type = 2;
+            }
+
+            break;
+        }
+        else if (c == '\n')
+        {
+            config.line_break_type = 0;
+            break;
+        }
+    }
+    fseek(fp, 0, SEEK_SET);
 }
 
 void read_lines()
@@ -262,6 +302,15 @@ void read_lines()
         lines[0].ident = 0;
 
         return;
+    }
+
+    detect_linebreak();
+
+    char lineend = '\n';
+
+    if (config.line_break_type != 0)
+    {
+        lineend = '\r';
     }
 
     num_lines = 0;
@@ -286,7 +335,9 @@ void read_lines()
         char c;
         unsigned int j;
         char passed_spaces = 0;
-        for (j = 0; (c = fgetc(fp)) != '\n' && c != EOF; j++)
+
+
+        for (j = 0; (c = fgetc(fp)) != lineend && c != EOF; j++)
         {
 
             if (j >= lines[i].len)
@@ -306,11 +357,7 @@ void read_lines()
 
             unsigned char uc = *(unsigned char *)&c;
 
-            if (uc == '\r')
-            {
-                c = fgetc(fp);
-                break;
-            }
+            
 
             if (!(
                 isprint(uc) ||
@@ -320,7 +367,7 @@ void read_lines()
                 uc == '\r'
             ))
             {
-                lines[i].data[j] = '?';
+                lines[i].data[j] = '+';
             }
             else if (uc >= 0xC0 && uc <= 0xDF)
             {
@@ -401,6 +448,11 @@ void read_lines()
 
         lines[i].real_length = j;
         lines[i].data[j] = '\0';
+
+        if (config.line_break_type == 1)
+        {
+            fgetc(fp);
+        }
     }
 }
 
@@ -413,8 +465,23 @@ void show_menu()
     }
 
     move(config.LINES, 0);
-    printw("Ident: %u", lines[cy].ident);
+    printw("I:%u", lines[cy].ident);
 
+    char buf[100];
+    switch (config.line_break_type)
+    {
+        case 0:
+            snprintf(buf, 100, "LF");
+            break;
+        case 1:
+            snprintf(buf, 100, "CRLF");
+            break;
+        case 2:
+            snprintf(buf, 100, "CR");
+            break;
+    }
+    move(config.LINES, COLS - strlen(buf));
+    printw("%s", buf);
 }
 
 void show_lines()
