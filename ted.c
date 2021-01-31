@@ -305,8 +305,24 @@ void read_lines()
             }
 
             unsigned char uc = *(unsigned char *)&c;
-            
-            if (uc >= 0xC0 && uc <= 0xDF)
+
+            if (uc == '\r')
+            {
+                c = fgetc(fp);
+                break;
+            }
+
+            if (!(
+                isprint(uc) ||
+                (uc >= 0xC0 && uc <= 0xDF) ||
+                (uc >= 0xE0 && uc <= 0xEF) ||
+                (uc >= 0xF0 && uc <= 0xF7) ||
+                uc == '\r'
+            ))
+            {
+                lines[i].data[j] = '?';
+            }
+            else if (uc >= 0xC0 && uc <= 0xDF)
             {
                 if (uc == '\0')
                 {
