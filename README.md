@@ -17,9 +17,17 @@ to run:
 ./ted
 ```
 
+to recompile:
+
+```
+make clean
+make
+```
+
 If you want to develop/contribute, use `make dev` instead of `make`
 
 ```
+make clean
 make dev
 ./ted
 ```
