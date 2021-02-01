@@ -24,6 +24,9 @@ char *prompt(char *msg);
 // ted.c
 void setcolor(int c);
 
+// config_dialog.c
+void config_dialog();
+
 struct CFG
 {
     unsigned int tablen;
@@ -32,4 +35,3 @@ struct CFG
 };
 
 extern struct CFG config;
-
