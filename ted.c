@@ -897,7 +897,7 @@ void process_keypress(int c)
     }
     else if (c == KEY_BACKSPACE)
     {
-        if (cx <= lines[cy].ident)
+        if (cx <= lines[cy].ident && cx > 0)
         {
             lines[cy].ident--;
         }
@@ -915,7 +915,8 @@ void process_keypress(int c)
 
             process_keypress(KEY_LEFT);
         }
-        else if (cy > 0) {
+        else if (cy > 0)
+        {
             unsigned char *del_line = lines[cy].data;
             unsigned int del_line_len = lines[cy].real_length;
 
@@ -968,6 +969,16 @@ void process_keypress(int c)
             lines[cy].data[lines[cy].real_length] = '\0';
 
             free(del_line);
+        }
+
+        lines[cy].ident = 0;
+        for (unsigned int i = 0; lines[cy].data[i] != '\0'; i++)
+        {
+            if (lines[cy].data[i] != ' ')
+            {
+                break;
+            }
+            lines[cy].ident++;
         }
     }
     else if (c == '\n' || c == KEY_ENTER || c == '\r')
