@@ -1,21 +1,4 @@
-#include <ncurses.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <locale.h>
-#include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <errno.h>
-
-#define READ_BLOCKSIZE 10
-#define ctrl(x) ((x) & 0x1f)
-#define cx cursor.x
-#define cy cursor.y
-
-#define CTRL_KEY_RIGHT 0x232
-#define CTRL_KEY_LEFT  0x223
+#include "ted.h"
 
 struct line
 {
@@ -61,79 +44,7 @@ void setcolor(int c)
 
 unsigned int last_cursor_x = 0;
 
-struct
-{
-    unsigned int tablen;
-    unsigned int LINES;
-    unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
-}
-config = {4, 0, 0};
-
-int message(char *msg);
-
-char *prompt(char *msg)
-{
-    unsigned int len = strlen(msg);
-    char *ret = malloc(1000 - len);
-
-    int c;
-    
-    int i;
-    for (i = 0; (c = message(msg)) != '\n' && i < 999 - (int)len; i++)
-    {
-        if (c == KEY_BACKSPACE)
-        {
-            i -= 1 + (i > 0);
-        }
-        else if (c == ctrl('c'))
-        {
-            free(ret);
-            return NULL;
-        }
-
-        ret[i + 1] = '\0';
-        msg[len + i + 1] = '\0';
-
-        if (isprint(c))
-        {
-            msg[len + i] = c;
-            ret[i] = c;
-        }
-    }
-
-    return ret;
-}
-
-int message(char *msg)
-{
-    unsigned int len = strlen(msg);
-
-    unsigned int lines = 0;
-    for (unsigned int i = 0; i < len; i++)
-    {
-        if (msg[i] == '\n')
-        {
-            lines++;
-        }
-    }
-
-    char *s = strtok(msg, "\n");
-
-    clear();
-    setcolor(COLOR_PAIR(1));
-    attron(A_BOLD);
-    for (unsigned int i = (config.LINES - lines) / 2; s != NULL; i++)
-    {
-        mvprintw(i, (COLS - strlen(s)) / 2, "%s", s);
-
-        s = strtok(NULL, "\n");
-    }
-    attroff(A_BOLD);
-    setcolor(COLOR_PAIR(2));
-    refresh();
-    
-    return getch();
-}
+struct CFG config = {4, 0, 0};
 
 unsigned int calculate_real_cx(unsigned int *last_one_size)
 {
