@@ -58,15 +58,6 @@ unsigned int calculate_real_cx(unsigned int *last_one_size)
     return real_cx;
 }
 
-void free_lines()
-{
-    for (unsigned int i = 0; i < num_lines; i++)
-    {
-        free(lines[i].data);
-        lines[i].len = 0;
-    }
-}
-
 void process_keypress(int c)
 {
     switch (c)

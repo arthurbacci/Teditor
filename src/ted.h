@@ -36,6 +36,9 @@ void detect_linebreak();
 void show_menu();
 void show_lines();
 
+// free.c
+void free_lines();
+
 struct CFG
 {
     unsigned int tablen;
