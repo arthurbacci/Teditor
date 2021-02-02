@@ -32,6 +32,10 @@ void savefile();
 void read_lines();
 void detect_linebreak();
 
+// show.c
+void show_menu();
+void show_lines();
+
 struct CFG
 {
     unsigned int tablen;
@@ -39,7 +43,7 @@ struct CFG
     unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
 };
 
-struct line
+struct LINE
 {
     unsigned int len;
     unsigned char *data;
@@ -48,8 +52,23 @@ struct line
     unsigned int ident;
 };
 
+struct CURSOR
+{
+    unsigned int x;
+    unsigned int y;
+};
+
+struct TEXT_SCROLL
+{
+    unsigned int x;
+    unsigned int y;
+};
+
 extern struct CFG config;
 extern char *filename;
 extern unsigned int num_lines;
-extern struct line *lines;
+extern unsigned int len_line_number;
+extern struct LINE *lines;
 extern FILE *fp;
+extern struct CURSOR cursor;
+extern struct TEXT_SCROLL text_scroll;

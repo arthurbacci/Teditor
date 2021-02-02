@@ -1,24 +1,12 @@
 #include "ted.h"
 
-struct line *lines = NULL;
+struct LINE *lines = NULL;
 unsigned int num_lines;
 unsigned int len_line_number; // The length of the number of the last line
 
 FILE *fp = NULL;
-
-struct
-{
-    unsigned int x;
-    unsigned int y;
-}
-cursor = {0, 0};
-
-struct
-{
-    unsigned int x;
-    unsigned int y;
-}
-text_scroll = {0, 0};
+struct CURSOR cursor = {0, 0};
+struct TEXT_SCROLL text_scroll = {0, 0};
 
 char *filename;
 
@@ -68,151 +56,6 @@ unsigned int calculate_real_cx(unsigned int *last_one_size)
         real_cx++;
     }
     return real_cx;
-}
-
-void show_menu()
-{
-    move(config.LINES, 0);
-    for (unsigned int i = 0; i < (unsigned int)COLS; i++)
-    {
-        addch(' ');
-    }
-
-    move(config.LINES, 0);
-    printw("I:%u", lines[cy].ident);
-
-    char buf[100];
-    switch (config.line_break_type)
-    {
-        case 0:
-            snprintf(buf, 100, "LF");
-            break;
-        case 1:
-            snprintf(buf, 100, "CRLF");
-            break;
-        case 2:
-            snprintf(buf, 100, "CR");
-            break;
-    }
-    move(config.LINES, COLS - strlen(buf));
-    printw("%s", buf);
-}
-
-void show_lines()
-{
-    
-    for (unsigned int i = text_scroll.y; i < text_scroll.y + config.LINES; i++)
-    {
-        move(i - text_scroll.y, 0);
-        if (i >= num_lines)
-        {
-            setcolor(COLOR_PAIR(1));
-            for (unsigned int j = 0; j < len_line_number - 1; j++)
-            {
-                addch(' ');
-            }
-            addch('~');
-            for (unsigned int j = 0; j < (unsigned int)COLS - len_line_number; j++)
-            {
-                addch(' ');
-            }
-            setcolor(COLOR_PAIR(2));
-            continue;
-        }
-        
-        
-        
-        setcolor(COLOR_PAIR(1));
-
-        printw("%*d ", len_line_number, i + 1);
-
-        setcolor(COLOR_PAIR(2));
-
-
-        unsigned int size = 0;
-        char passed_limit = 0;
-        for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1 + text_scroll.x; j++)
-        {
-
-            if (passed_limit)
-            {
-                addch(' ');
-                size++;
-                continue;
-            }
-
-            if (lines[i].data[j] == '\0')
-            {
-                addch(' ');
-                passed_limit = 1;
-                size++;
-                continue;
-            }
-
-            if (lines[i].data[j] >= 0xC0 && lines[i].data[j] <= 0xDF)
-            {
-                if (lines[i].data[j] == '\0')
-                {
-                    addch(' ');
-                    passed_limit = 1;
-                    size++;
-                    continue;
-                }
-                if (size >= text_scroll.x)
-                {
-                    printw("%.2s", &lines[i].data[j]);
-                }
-                j++;
-            }
-            else if (lines[i].data[j] >= 0xE0 && lines[i].data[j] <= 0xEF)
-            {
-                if (lines[i].data[j] == '\0')
-                {
-                    addch(' ');
-                    passed_limit = 1;
-                    size++;
-                    continue;
-                }
-                if (size >= text_scroll.x)
-                {
-                    printw("%.3s", &lines[i].data[j]);
-                }
-                j += 2;
-            }
-            else if (lines[i].data[j] >= 0xF0 && lines[i].data[j] <= 0xF7)
-            {
-                if (lines[i].data[j] == '\0')
-                {
-                    addch(' ');
-                    passed_limit = 1;
-                    size++;
-                    continue;
-                }
-                if (size >= text_scroll.x)
-                {
-                    printw("%.4s", &lines[i].data[j]);
-                }
-                j += 3;
-            }
-            else
-            {
-                if (size >= text_scroll.x)
-                {
-                    printw("%c", lines[i].data[j]);
-                }
-            }
-
-            if (lines[i].data[j] == '\0')
-            {
-                addch(' ');
-                passed_limit = 1;
-                size++;
-                continue;
-            }
-            size++;
-        }
-
-    }
 }
 
 void free_lines()
@@ -505,11 +348,11 @@ void process_keypress(int c)
             memmove(
                 &lines[cy],
                 &lines[cy + 1],
-                (num_lines - cy - 1) * sizeof(struct line)
+                (num_lines - cy - 1) * sizeof(struct LINE)
             );
 
             num_lines--;
-            lines = realloc(lines, num_lines * sizeof(struct line));
+            lines = realloc(lines, num_lines * sizeof(struct LINE));
 
     
             process_keypress(KEY_UP);
@@ -565,9 +408,9 @@ void process_keypress(int c)
     }
     else if (c == '\n' || c == KEY_ENTER || c == '\r')
     {
-        lines = realloc(lines, (num_lines + 1) * sizeof(struct line));
+        lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
     
-        memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct line));
+        memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
 
         num_lines++;
 
@@ -591,7 +434,7 @@ void process_keypress(int c)
             while (lines[cy].real_length >= lines[cy].len)
             {
                 lines[cy].len += READ_BLOCKSIZE;
-                lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(struct line));
+                lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(struct LINE));
             }
             lines[cy].data[i] = lines[cy - 1].data[i + real_cx];
             

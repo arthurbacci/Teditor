@@ -42,7 +42,7 @@ void read_lines()
     if (fp == NULL)
     {
         num_lines = 1;
-        lines = malloc(sizeof(struct line));
+        lines = malloc(sizeof(struct LINE));
 
         lines[0].len = READ_BLOCKSIZE;
         lines[0].data = malloc(lines[0].len);
@@ -75,7 +75,7 @@ void read_lines()
             fseek(fp, -1, SEEK_CUR);
         }
 
-        lines = realloc(lines, ++num_lines * sizeof(struct line));
+        lines = realloc(lines, ++num_lines * sizeof(struct LINE));
 
         lines[i].len = READ_BLOCKSIZE;
         lines[i].data = malloc(lines[i].len);
