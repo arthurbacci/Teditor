@@ -39,6 +39,12 @@ void show_lines();
 // free.c
 void free_lines();
 
+// keypress.c
+void process_keypress(int c);
+
+// utils.c
+unsigned int calculate_real_cx(unsigned int *last_one_size);
+
 struct CFG
 {
     unsigned int tablen;
@@ -75,3 +81,4 @@ extern struct LINE *lines;
 extern FILE *fp;
 extern struct CURSOR cursor;
 extern struct TEXT_SCROLL text_scroll;
+extern unsigned int last_cursor_x;
