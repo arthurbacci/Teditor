@@ -94,10 +94,15 @@ void process_keypress(int c)
             savefile();
             break;
         case '\t':
-            for (unsigned int i = 0; i < config.tablen; i++)
+            if (config.use_spaces == 1)
             {
-                process_keypress(' ');
+                for (unsigned int i = 0; i < config.tablen; i++)
+                {
+                    process_keypress(' ');
+                }
+                return;
             }
+            // else, it will pass though and be add to the buffer
             break;
         case ctrl('h'):
             config_dialog();
@@ -167,7 +172,7 @@ void process_keypress(int c)
     unsigned int last_one_size;
     unsigned int real_cx = calculate_real_cx(&last_one_size);
 
-    if (isprint(c))
+    if (isprint(c) || c == '\t')
     {
         if (c == ' ' && cx <= lines[cy].ident)
         {

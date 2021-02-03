@@ -55,7 +55,8 @@ void config_dialog()
         {
             message("Canceled");
         }
-        else {
+        else
+        {
             if (strcmp(answer1, "LF") == 0)
             {
                 config.line_break_type = 0;
@@ -71,6 +72,35 @@ void config_dialog()
             else
             {
                 message("Needs to be LF, CRLF or CR");
+            }
+
+            free(answer1);
+        }
+    }
+    else if (strcmp(answer, "use_spaces") == 0)
+    {
+        char msg1[1000];
+        snprintf(msg1, 1000, "use_spaces (0/FALSE, 1/TRUE): ");
+
+        char *answer1 = prompt(msg1);
+
+        if (answer1 == NULL)
+        {
+            message("Canceled");
+        }
+        else
+        {
+            if (strcmp(answer1, "TRUE") == 0 || strcmp(answer1, "1") == 0)
+            {
+                config.use_spaces = 1;
+            }
+            else if (strcmp(answer1, "FALSE") == 0 || strcmp(answer1, "0") == 0)
+            {
+                config.use_spaces = 0;
+            }
+            else
+            {
+                message("Invalid option");
             }
 
             free(answer1);

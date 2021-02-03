@@ -50,6 +50,7 @@ struct CFG
     unsigned int tablen;
     unsigned int LINES;
     unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
+    unsigned char use_spaces : 1;
 };
 
 struct LINE

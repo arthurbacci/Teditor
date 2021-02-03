@@ -114,7 +114,8 @@ void read_lines()
                 (uc >= 0xC0 && uc <= 0xDF) ||
                 (uc >= 0xE0 && uc <= 0xEF) ||
                 (uc >= 0xF0 && uc <= 0xF7) ||
-                uc == '\r'
+                uc == '\r' ||
+                uc == '\t'
             ))
             {
                 lines[i].data[j] = '+';
