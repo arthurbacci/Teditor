@@ -23,8 +23,20 @@ void setcolor(int c)
 
 unsigned int last_cursor_x = 0;
 
-struct CFG config = {4, 0, 0};
+struct CFG config = {4, 0, 0, 1};
 
+unsigned int display_cx()
+{
+    unsigned int ret = cx;
+    for (unsigned int i = 0; i < cx; i++)
+    {
+        if (lines[cy].data[i] == '\t')
+        {
+            ret += config.tablen - 1;
+        }
+    }
+    return ret;
+}
 
 int main(int argc, char **argv)
 {
@@ -119,7 +131,7 @@ int main(int argc, char **argv)
 
         show_lines();
         show_menu();
-        move(cursor.y - text_scroll.y, cursor.x - text_scroll.x + len_line_number + 1);
+        move(cursor.y - text_scroll.y, display_cx() - text_scroll.x + len_line_number + 1);
         refresh();
 
         c = getch();

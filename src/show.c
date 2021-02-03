@@ -128,7 +128,18 @@ void show_lines()
             {
                 if (size >= text_scroll.x)
                 {
-                    printw("%c", lines[i].data[j]);
+                    if (lines[i].data[j] == '\t')
+                    {
+                        for (unsigned int k = 0; k < config.tablen; k++)
+                        {
+                            addch(' ');
+                        }
+                        size += config.tablen - 1;
+                    }
+                    else
+                    {
+                        addch(lines[i].data[j]);                    
+                    }
                 }
             }
 
