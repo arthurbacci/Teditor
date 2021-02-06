@@ -106,6 +106,25 @@ void config_dialog()
             free(answer1);
         }
     }
+    else if (strcmp(answer, "autotab") == 0)
+    {
+        char msg1[1000];
+        snprintf(msg1, 1000, "autotab (0/FALSE, 1/TRUE): ");
+        char *answer1 = prompt(msg1);
+        
+        if (answer1 == NULL)
+            message("Canceled");
+        else
+        {
+            if (strcmp(answer1, "TRUE") == 0 || strcmp(answer1, "1") == 0)
+                config.autotab = 1;
+            else if (strcmp(answer1, "FALSE") == 0 || strcmp(answer1, "0") == 0)
+                config.autotab = 0;
+            else
+                message("Incalid option");
+            free(answer1);
+        }
+    }
     else {
         char msg1[1000];
         snprintf(msg1, 1000, "This option does not exist");
