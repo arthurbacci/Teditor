@@ -417,27 +417,23 @@ void process_keypress(int c)
         char tmp[50];
         len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
 
-        
-        const unsigned int ident = lines[cy - 1].ident;
-        lines[cy].ident = ident;
-
-        lines[cy].len += ident;
-        lines[cy].data = realloc(lines[cy].data, lines[cy].len);
-
-        memmove(&lines[cy].data[ident], lines[cy].data, lines[cy].real_length + 1);
-
-        for (unsigned int i = 0; i < ident; i++)
+        if (config.autotab == 1)
         {
-            lines[cy].data[i] = ' ';
-        }
+            const unsigned int ident = lines[cy - 1].ident;
+            lines[cy].ident = ident;
+            lines[cy].len += ident;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+            memmove(&lines[cy].data[ident], lines[cy].data, lines[cy].real_length + 1);
 
-        lines[cy].length += ident;
-        lines[cy].real_length += ident;
-        
-        for (unsigned int i = 0; i < ident; i++)
-        {
-            process_keypress(KEY_RIGHT);
-        }
+            for (unsigned int i = 0; i < ident; i++)
+                lines[cy].data[i] = ' ';
+            lines[cy].length += ident;
+            lines[cy].real_length += ident;
 
+            for (unsigned int i = 0; i < ident; i++)
+                process_keypress(KEY_RIGHT);
+        }
+        else
+            lines[cy].ident = 0;
     }
 }
