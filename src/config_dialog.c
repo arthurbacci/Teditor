@@ -121,7 +121,7 @@ void config_dialog()
             else if (strcmp(answer1, "FALSE") == 0 || strcmp(answer1, "0") == 0)
                 config.autotab = 0;
             else
-                message("Incalid option");
+                message("Invalid option");
             free(answer1);
         }
     }
