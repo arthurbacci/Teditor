@@ -1,7 +1,6 @@
 #include "ted.h"
 
-void config_dialog()
-{
+void config_dialog() {
     char msg[1000];
     snprintf(msg, 1000, "Configure: ");
 
@@ -10,8 +9,7 @@ void config_dialog()
     if (answer == NULL)
         return;
 
-    if (strcmp(answer, "tablen") == 0)
-    {
+    if (strcmp(answer, "tablen") == 0) {
         char msg1[1000];
         snprintf(msg1, 1000, "tablen: ");
 
@@ -19,8 +17,7 @@ void config_dialog()
 
         if (answer1 == NULL)
             message("Canceled");
-        else
-        {
+        else {
             int answer_int = atoi(answer1);
 
             if (answer_int > 0)
@@ -31,16 +28,14 @@ void config_dialog()
             free(answer1);
         }
     }
-    else if (strcmp(answer, "linebreak") == 0)
-    {
+    else if (strcmp(answer, "linebreak") == 0) {
         char msg1[1000];
         snprintf(msg1, 1000, "linebreak (LF, CR, CRLF): ");
         char *answer1 = prompt(msg1);
 
         if (answer1 == NULL)
             message("Canceled");
-        else
-        {
+        else {
             if (strcmp(answer1, "LF") == 0)
                 config.line_break_type = 0;
             else if (strcmp(answer1, "CRLF") == 0)
@@ -53,16 +48,14 @@ void config_dialog()
             free(answer1);
         }
     }
-    else if (strcmp(answer, "use_spaces") == 0)
-    {
+    else if (strcmp(answer, "use_spaces") == 0) {
         char msg1[1000];
         snprintf(msg1, 1000, "use_spaces (0/FALSE, 1/TRUE): ");
         char *answer1 = prompt(msg1);
 
         if (answer1 == NULL)
             message("Canceled");
-        else
-        {
+        else {
             if (strcmp(answer1, "TRUE") == 0 || strcmp(answer1, "1") == 0)
                 config.use_spaces = 1;
             else if (strcmp(answer1, "FALSE") == 0 || strcmp(answer1, "0") == 0)
@@ -73,16 +66,14 @@ void config_dialog()
             free(answer1);
         }
     }
-    else if (strcmp(answer, "autotab") == 0)
-    {
+    else if (strcmp(answer, "autotab") == 0) {
         char msg1[1000];
         snprintf(msg1, 1000, "autotab (0/FALSE, 1/TRUE): ");
         char *answer1 = prompt(msg1);
         
         if (answer1 == NULL)
             message("Canceled");
-        else
-        {
+        else {
             if (strcmp(answer1, "TRUE") == 0 || strcmp(answer1, "1") == 0)
                 config.autotab = 1;
             else if (strcmp(answer1, "FALSE") == 0 || strcmp(answer1, "0") == 0)
