@@ -1,168 +1,110 @@
 #include "ted.h"
 
-void process_keypress(int c)
-{
-    switch (c)
-    {
+void process_keypress(int c) {
+    switch (c) {
         case KEY_UP:
             cursor.y -= (cursor.y > 0);
 
-            if (cursor.x < last_cursor_x)
-            {
+            if (cursor.x < last_cursor_x) {
                 cursor.x = last_cursor_x;
                 last_cursor_x = 0;
             }
 
-            if (cursor.x > lines[cursor.y].length)
-            {
+            if (cursor.x > lines[cursor.y].length) {
                 last_cursor_x = cursor.x;
                 cursor.x = lines[cursor.y].length;
             }
             if (cursor.y < text_scroll.y)
-            {
                 text_scroll.y = cursor.y;
-            }
 
                 
 
             if (cursor.x < text_scroll.x)
-            {
                 text_scroll.x = cursor.x;
-            }
             else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-            {
                 text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-            }
             break;
         case KEY_DOWN:
             cursor.y += (cursor.y < num_lines - 1);
 
-            if (cursor.x < last_cursor_x)
-            {
+            if (cursor.x < last_cursor_x) {
                 cursor.x = last_cursor_x;
                 last_cursor_x = 0;
             }
 
-            if (cursor.x > lines[cursor.y].length)
-            {
+            if (cursor.x > lines[cursor.y].length) {
                 last_cursor_x = cursor.x;
                 cursor.x = lines[cursor.y].length;
             }
             if (cursor.y > text_scroll.y + config.LINES - 1)
-            {
                 text_scroll.y = cursor.y + 1 - config.LINES;
-            }
 
             if (cursor.x < text_scroll.x)
-            {
                 text_scroll.x = cursor.x;
-            }
             else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-            {
                 text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-            }
             break;
         case KEY_LEFT:
             cursor.x -= (cursor.x > 0);
             if (cursor.x < text_scroll.x)
-            {
                 text_scroll.x = cursor.x;
-            }
             break;
         case KEY_RIGHT:
             cursor.x += (cursor.x < lines[cursor.y].length);
             if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-            {
                 text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-            }
             break;
         case KEY_HOME:
             cursor.x = 0;
             if (cursor.x < text_scroll.x)
-            {
                 text_scroll.x = cursor.x;
-            }
             break;
         case KEY_END:
             cursor.x = lines[cursor.y].length;
             if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-            {
                 text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
-            }
             break;
         case ctrl('s'):
             savefile();
             break;
         case '\t':
-            if (config.use_spaces == 1)
-            {
+            if (config.use_spaces == 1) {
                 for (unsigned int i = 0; i < config.tablen; i++)
-                {
                     process_keypress(' ');
-                }
                 return;
-            }
-            // else, it will pass though and be add to the buffer
+            } // else, it will pass though and be add to the buffer
             break;
         case ctrl('h'):
             config_dialog();
             break;
-        case KEY_PPAGE:
-        {
+        case KEY_PPAGE: {
             unsigned int ccy = cy;
-            for (
-                unsigned int i = 0;
-                i < (unsigned int)(ccy % config.LINES + config.LINES);
-                i++
-            )
-            {
+            for (unsigned int i = 0; i < (unsigned int)(ccy % config.LINES + config.LINES); i++)
                 process_keypress(KEY_UP);
-            }
             break;
         }
-        case KEY_NPAGE:
-        {
+        case KEY_NPAGE: {
             unsigned int ccy = cy;
-            for (
-                unsigned int i = 0;
-                i < (unsigned int)(config.LINES - (ccy % config.LINES) - 1 + config.LINES);
-                i++
-            )
-            {
+            for (unsigned int i = 0; i < (unsigned int)(config.LINES - (ccy % config.LINES) - 1 + config.LINES); i++)
                 process_keypress(KEY_DOWN);
-            }
             break;
         }
-        case CTRL_KEY_RIGHT:
-        {
+        case CTRL_KEY_RIGHT: {
             unsigned int trash;
             char passed_spaces = 0;
-            while (
-                lines[cy].data[calculate_real_cx(&trash)] != '\0' &&
-                !(lines[cy].data[calculate_real_cx(&trash)] == ' ' && passed_spaces)
-            )
-            {
+            while (lines[cy].data[calculate_real_cx(&trash)] != '\0' && !(lines[cy].data[calculate_real_cx(&trash)] == ' ' && passed_spaces)) {
                 if (lines[cy].data[calculate_real_cx(&trash)] != ' ')
-                {
                     passed_spaces = 1;
-                }
                 process_keypress(KEY_RIGHT);
             }
             break;
         }
-        case CTRL_KEY_LEFT:
-        {
+        case CTRL_KEY_LEFT: {
             unsigned int trash;
             char passed_spaces = 0;
-            while (
-                calculate_real_cx(&trash) > 0 &&
-                !(lines[cy].data[calculate_real_cx(&trash) - 1] == ' ' && passed_spaces)
-            )
-            {
+            while (calculate_real_cx(&trash) > 0 && !(lines[cy].data[calculate_real_cx(&trash) - 1] == ' ' && passed_spaces)) {
                 if (lines[cy].data[calculate_real_cx(&trash) - 1] != ' ')
-                {
                     passed_spaces = 1;
-                }
                 process_keypress(KEY_LEFT);
             }
             break;
