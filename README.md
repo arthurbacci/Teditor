@@ -43,6 +43,7 @@ and press Enter. Commands may require an argument.
 Config dialog commands:
 
 **tablen** Set tab length (expects argument)
+**use_spaces** Tab or Space?
 <br>  
 <br>  
 ## Contributing
