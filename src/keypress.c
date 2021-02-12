@@ -1,4 +1,5 @@
 #include "ted.h"
+
 void process_keypress(int c) {
     switch (c) {
     case KEY_UP:
@@ -62,10 +63,8 @@ void process_keypress(int c) {
             process_keypress(KEY_DOWN);
         break;
     }
-    
-    
     }
-
+    
     unsigned int last_one_size;
     unsigned int real_cx = calculate_real_cx(&last_one_size);
 
@@ -77,8 +76,7 @@ void process_keypress(int c) {
             process_keypress(KEY_LEFT);
             real_cx = calculate_real_cx(&last_one_size);
         }
-    }
-    else if (c == CTRL_KEY_RIGHT) {
+    } else if (c == CTRL_KEY_RIGHT) {
         char passed_spaces = 0;
         while (lines[cy].data[real_cx] != '\0' && !(lines[cy].data[real_cx] == ' ' && passed_spaces)) {
             if (lines[cy].data[real_cx] != ' ')
@@ -86,8 +84,7 @@ void process_keypress(int c) {
             process_keypress(KEY_RIGHT);
             real_cx = calculate_real_cx(&last_one_size);
         }
-    }
-    else if (isprint(c) || c == '\t') {
+    } else if (isprint(c) || c == '\t') {
         if (c == ' ' && cx <= lines[cy].ident)
             lines[cy].ident++;
 
@@ -105,13 +102,11 @@ void process_keypress(int c) {
         lines[cy].length++;
 
         process_keypress(KEY_RIGHT);
-    }
-    else if (c >= 0xC0 && c <= 0xDF) {
-        while (lines[cy].len <= lines[cy].real_length + 2)
-            {
-                lines[cy].len += READ_BLOCKSIZE;
-                lines[cy].data = realloc(lines[cy].data, lines[cy].len);
-            }
+    } else if (c >= 0xC0 && c <= 0xDF) {
+        while (lines[cy].len <= lines[cy].real_length + 2) {
+            lines[cy].len += READ_BLOCKSIZE;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+        }
 
         memmove(&lines[cy].data[real_cx + 2], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
 
@@ -124,226 +119,176 @@ void process_keypress(int c) {
         lines[cy].length++;
 
         process_keypress(KEY_RIGHT);
-    }
-    else if (c >= 0xE0 && c <= 0xEF)
-        {
-            while (lines[cy].len <= lines[cy].real_length + 3)
-                {
-                    lines[cy].len += READ_BLOCKSIZE;
-                    lines[cy].data = realloc(lines[cy].data, lines[cy].len);
-                }
-
-            memmove(&lines[cy].data[real_cx + 3], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
-
-            lines[cy].data[real_cx] = c;
-            lines[cy].data[real_cx + 1] = getch();
-            lines[cy].data[real_cx + 2] = getch();
-            lines[cy].data[lines[cy].real_length + 3] = '\0';
-
-            lines[cy].real_length += 3;
-
-            lines[cy].length++;
-
-            process_keypress(KEY_RIGHT);
+    } else if (c >= 0xE0 && c <= 0xEF) {
+        while (lines[cy].len <= lines[cy].real_length + 3) {
+            lines[cy].len += READ_BLOCKSIZE;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
         }
-    else if (c >= 0xF0 && c <= 0xF7)
-        {
-            while (lines[cy].len <= lines[cy].real_length + 4)
-                {
-                    lines[cy].len += READ_BLOCKSIZE;
-                    lines[cy].data = realloc(lines[cy].data, lines[cy].len);
-                }
 
-            memmove(&lines[cy].data[real_cx + 4], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
+        memmove(&lines[cy].data[real_cx + 3], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
 
-            lines[cy].data[real_cx] = c;
-            lines[cy].data[real_cx + 1] = getch();
-            lines[cy].data[real_cx + 2] = getch();
-            lines[cy].data[real_cx + 3] = getch();
-            lines[cy].data[lines[cy].real_length + 4] = '\0';
+        lines[cy].data[real_cx] = c;
+        lines[cy].data[real_cx + 1] = getch();
+        lines[cy].data[real_cx + 2] = getch();
+        lines[cy].data[lines[cy].real_length + 3] = '\0';
 
-            lines[cy].real_length += 4;
+        lines[cy].real_length += 3;
 
-            lines[cy].length++;
+        lines[cy].length++;
 
-            process_keypress(KEY_RIGHT);
+        process_keypress(KEY_RIGHT);
+    } else if (c >= 0xF0 && c <= 0xF7) {
+        while (lines[cy].len <= lines[cy].real_length + 4) {
+            lines[cy].len += READ_BLOCKSIZE;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
         }
-    else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127)
-        {
-            if (cx <= lines[cy].ident && cx > 0)
-                {
-                    lines[cy].ident--;
-                }
 
-            if (real_cx >= last_one_size)
-                {
-                    memmove(
-                        &lines[cy].data[real_cx - last_one_size],
-                        &lines[cy].data[real_cx],
-                        lines[cy].real_length - real_cx
-                        );
-                    lines[cy].real_length -= last_one_size;
-                    lines[cy].length--;
-                    lines[cy].data[lines[cy].real_length] = '\0';
+        memmove(&lines[cy].data[real_cx + 4], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
 
-                    process_keypress(KEY_LEFT);
-                }
-            else if (cy > 0)
-                {
-                    unsigned char *del_line = lines[cy].data;
-                    unsigned int del_line_len = lines[cy].real_length;
+        lines[cy].data[real_cx] = c;
+        lines[cy].data[real_cx + 1] = getch();
+        lines[cy].data[real_cx + 2] = getch();
+        lines[cy].data[real_cx + 3] = getch();
+        lines[cy].data[lines[cy].real_length + 4] = '\0';
 
-                    memmove(
-                        &lines[cy],
-                        &lines[cy + 1],
-                        (num_lines - cy - 1) * sizeof(struct LINE)
-                        );
+        lines[cy].real_length += 4;
 
-                    num_lines--;
-                    lines = realloc(lines, num_lines * sizeof(struct LINE));
+        lines[cy].length++;
 
-    
-                    process_keypress(KEY_UP);
+        process_keypress(KEY_RIGHT);
+    } else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
+        if (cx <= lines[cy].ident && cx > 0)
+            lines[cy].ident--;
 
-                    cursor.x = lines[cy].length;
-            
-                    process_keypress(KEY_RIGHT);
-
-                    while (lines[cy].len <= lines[cy].real_length + del_line_len)
-                        {
-                            lines[cy].len += READ_BLOCKSIZE;
-                            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
-                        }
-
-            
-                    for (unsigned int i = 0; i < del_line_len; i++)
-                        {
-                            lines[cy].data[lines[cy].real_length + i] = del_line[i];
-
-                            lines[cy].length++;
-
-                            unsigned char cc = del_line[i];
-                            if (cc >= 0xC0 && cc <= 0xDF)
-                                {
-                                    lines[cy].length--;
-                                }
-                            else if (cc >= 0xE0 && cc <= 0xEF)
-                                {
-                                    lines[cy].length -= 2;
-                                }
-                            else if (cc >= 0xF0 && cc <= 0xF7)
-                                {
-                                    lines[cy].length -= 3;
-                                }
-
-                        }
-
-                    lines[cy].real_length += del_line_len;
-                    lines[cy].data[lines[cy].real_length] = '\0';
-
-                    free(del_line);
-                }
-
-            lines[cy].ident = 0;
-            for (unsigned int i = 0; lines[cy].data[i] != '\0'; i++)
-                {
-                    if (lines[cy].data[i] != ' ')
-                        {
-                            break;
-                        }
-                    lines[cy].ident++;
-                }
-        }
-    else if (c == '\n' || c == KEY_ENTER || c == '\r')
-        {
-            lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
-    
-            memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
-
-            num_lines++;
-
-            cursor.x = 0;
-            last_cursor_x = 0;
-            process_keypress(KEY_DOWN);
-
-            lines[cy].len = READ_BLOCKSIZE;
-            lines[cy].data = malloc(lines[cy].len);
-
-            lines[cy].length = 0;
-            lines[cy].real_length = 0;
-        
-
-            for (unsigned int i = 0; i < lines[cy - 1].real_length - real_cx; i++)
-                {
-                    int cc = lines[cy - 1].data[i + real_cx];
-
-                    lines[cy].real_length++;
-                    lines[cy].length++;
-                    while (lines[cy].real_length >= lines[cy].len)
-                        {
-                            lines[cy].len += READ_BLOCKSIZE;
-                            lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(struct LINE));
-                        }
-                    lines[cy].data[i] = lines[cy - 1].data[i + real_cx];
-            
-                    if (cc >= 0xC0 && cc <= 0xDF)
-                        {
-                            lines[cy].length--;
-                        }
-                    else if (cc >= 0xE0 && cc <= 0xEF)
-                        {
-                            lines[cy].length -= 2;
-                        }
-                    else if (cc >= 0xF0 && cc <= 0xF7)
-                        {
-                            lines[cy].length -= 3;
-                        }
-                }
+        if (real_cx >= last_one_size) {
+            memmove(&lines[cy].data[real_cx - last_one_size], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
+            lines[cy].real_length -= last_one_size;
+            lines[cy].length--;
             lines[cy].data[lines[cy].real_length] = '\0';
 
-            lines[cy - 1].length = real_cx;
-            lines[cy - 1].real_length = real_cx;
+            process_keypress(KEY_LEFT);
+        } else if (cy > 0) {
+            unsigned char *del_line = lines[cy].data;
+            unsigned int del_line_len = lines[cy].real_length;
 
-            for (unsigned int i = 0; i < lines[cy - 1].real_length; i++)
-                {
-                    int cc = lines[cy - 1].data[i];
+            memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
 
-                    if (cc >= 0xC0 && cc <= 0xDF)
-                        {
-                            lines[cy - 1].length--;
-                        }
-                    else if (cc >= 0xE0 && cc <= 0xEF)
-                        {
-                            lines[cy - 1].length -= 2;
-                        }
-                    else if (cc >= 0xF0 && cc <= 0xF7)
-                        {
-                            lines[cy - 1].length -= 3;
-                        }
-                }
+            num_lines--;
+            lines = realloc(lines, num_lines * sizeof(struct LINE));
 
-            lines[cy - 1].data[lines[cy - 1].real_length] = '\0';
+    
+            process_keypress(KEY_UP);
 
-            char tmp[50];
-            len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
+            cursor.x = lines[cy].length;
+            
+            process_keypress(KEY_RIGHT);
 
-            if (config.autotab == 1)
-                {
-                    const unsigned int ident = lines[cy - 1].ident;
-                    lines[cy].ident = ident;
-                    lines[cy].len += ident;
-                    lines[cy].data = realloc(lines[cy].data, lines[cy].len);
-                    memmove(&lines[cy].data[ident], lines[cy].data, lines[cy].real_length + 1);
+            while (lines[cy].len <= lines[cy].real_length + del_line_len) {
+                lines[cy].len += READ_BLOCKSIZE;
+                lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+            }
 
-                    for (unsigned int i = 0; i < ident; i++)
-                        lines[cy].data[i] = ' ';
-                    lines[cy].length += ident;
-                    lines[cy].real_length += ident;
+            
+            for (unsigned int i = 0; i < del_line_len; i++) {
+                lines[cy].data[lines[cy].real_length + i] = del_line[i];
 
-                    for (unsigned int i = 0; i < ident; i++)
-                        process_keypress(KEY_RIGHT);
-                }
-            else
-                lines[cy].ident = 0;
+                lines[cy].length++;
+
+                unsigned char cc = del_line[i];
+                if (cc >= 0xC0 && cc <= 0xDF)
+                    lines[cy].length--;
+                else if (cc >= 0xE0 && cc <= 0xEF)
+                    lines[cy].length -= 2;
+                else if (cc >= 0xF0 && cc <= 0xF7)
+                    lines[cy].length -= 3;
+
+            }
+
+            lines[cy].real_length += del_line_len;
+            lines[cy].data[lines[cy].real_length] = '\0';
+
+            free(del_line);
         }
+
+        lines[cy].ident = 0;
+        for (unsigned int i = 0; lines[cy].data[i] != '\0'; i++) {
+            if (lines[cy].data[i] != ' ')
+                break;
+            lines[cy].ident++;
+        }
+    } else if (c == '\n' || c == KEY_ENTER || c == '\r') {
+        lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
+    
+        memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
+
+        num_lines++;
+
+        cursor.x = 0;
+        last_cursor_x = 0;
+        process_keypress(KEY_DOWN);
+
+        lines[cy].len = READ_BLOCKSIZE;
+        lines[cy].data = malloc(lines[cy].len);
+
+        lines[cy].length = 0;
+        lines[cy].real_length = 0;
+        
+
+        for (unsigned int i = 0; i < lines[cy - 1].real_length - real_cx; i++) {
+            int cc = lines[cy - 1].data[i + real_cx];
+
+            lines[cy].real_length++;
+            lines[cy].length++;
+            while (lines[cy].real_length >= lines[cy].len) {
+                lines[cy].len += READ_BLOCKSIZE;
+                lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(struct LINE));
+            }
+            lines[cy].data[i] = lines[cy - 1].data[i + real_cx];
+            
+            if (cc >= 0xC0 && cc <= 0xDF)
+                lines[cy].length--;
+            else if (cc >= 0xE0 && cc <= 0xEF)
+                lines[cy].length -= 2;
+            else if (cc >= 0xF0 && cc <= 0xF7)
+                lines[cy].length -= 3;
+        }
+        lines[cy].data[lines[cy].real_length] = '\0';
+
+        lines[cy - 1].length = real_cx;
+        lines[cy - 1].real_length = real_cx;
+
+        for (unsigned int i = 0; i < lines[cy - 1].real_length; i++) {
+            int cc = lines[cy - 1].data[i];
+
+            if (cc >= 0xC0 && cc <= 0xDF)
+                lines[cy - 1].length--;
+            else if (cc >= 0xE0 && cc <= 0xEF)
+                lines[cy - 1].length -= 2;
+            else if (cc >= 0xF0 && cc <= 0xF7)
+                lines[cy - 1].length -= 3;
+        }
+
+        lines[cy - 1].data[lines[cy - 1].real_length] = '\0';
+
+        char tmp[50];
+        len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
+
+        if (config.autotab == 1) {
+            const unsigned int ident = lines[cy - 1].ident;
+            lines[cy].ident = ident;
+            lines[cy].len += ident;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+            memmove(&lines[cy].data[ident], lines[cy].data, lines[cy].real_length + 1);
+
+            for (unsigned int i = 0; i < ident; i++)
+                lines[cy].data[i] = ' ';
+            lines[cy].length += ident;
+            lines[cy].real_length += ident;
+
+            for (unsigned int i = 0; i < ident; i++)
+                process_keypress(KEY_RIGHT);
+        }
+        else
+            lines[cy].ident = 0;
+    }
 }
