@@ -13,35 +13,25 @@ char *filename;
 char colors_on;
 char needs_to_free_filename;
 
-void setcolor(int c)
-{
+void setcolor(int c) {
     if (colors_on)
-    {
         attrset(c);
-    }
 }
 
 unsigned int last_cursor_x = 0;
 
 struct CFG config = {4, 0, 0, 1, 0};
 
-unsigned int display_cx()
-{
+unsigned int display_cx() {
     unsigned int ret = cx;
     for (unsigned int i = 0; i < cx; i++)
-    {
         if (lines[cy].data[i] == '\t')
-        {
             ret += config.tablen - 1;
-        }
-    }
     return ret;
 }
 
-int main(int argc, char **argv)
-{
-    if (argc < 2)
-    {
+int main(int argc, char **argv) {
+    if (argc < 2) {
         struct stat st = {0};
 
         char *home = getenv("HOME");
@@ -51,11 +41,8 @@ int main(int argc, char **argv)
         strcpy(config, home);
         strcat(config, "/.config/");
 
-
         if (stat(config, &st) == -1)
-        {
             mkdir(config, 0777);
-        }
 
         char config_ted[strlen(config) + strlen("ted/") + 1];
 
@@ -63,9 +50,7 @@ int main(int argc, char **argv)
         strcat(config_ted, "ted/");
 
         if (stat(config_ted, &st) == -1)
-        {
             mkdir(config_ted, 0777);
-        }
 
         filename = malloc(strlen(config_ted) + strlen("buffer") + 1);
         
@@ -73,8 +58,7 @@ int main(int argc, char **argv)
         strcat(filename, "buffer");
 
         needs_to_free_filename = 1;
-    }
-    else {
+    } else {
         filename = argv[1];
         needs_to_free_filename = 0;
     }
@@ -94,31 +78,21 @@ int main(int argc, char **argv)
     read_lines();
 
     if (fp != NULL)
-    {
         fclose(fp);
-    }
 
-    {
-        char tmp[50];
-        len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
-    }
+    char tmp[50];
+    len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
 
 
     if (!has_colors())
-    {
         colors_on = 0;
-    }
     else if (start_color() != OK)
-    {
         colors_on = 0;
-    }
-    else {
+    else
         colors_on = 1;
-    }
 
 
-    if (colors_on)
-    {
+    if (colors_on) {
         use_default_colors();
         init_pair(1, COLOR_RED, -1);
         init_pair(2, -1, -1);
@@ -126,8 +100,7 @@ int main(int argc, char **argv)
 
 
     int c;
-    while (1)
-    {
+    while (1) {
         config.LINES = LINES - 1;
 
         show_lines();
@@ -138,20 +111,15 @@ int main(int argc, char **argv)
         c = getch();
 
         if (c == ctrl('c'))
-        {
             break;
-        }
 
         process_keypress(c);
     }
 
-
     free_lines();
 
     if (needs_to_free_filename == 1)
-    {
         free(filename);
-    }
 
     endwin();
     return 0;
