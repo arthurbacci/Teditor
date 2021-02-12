@@ -74,7 +74,7 @@ void process_keypress(int c) {
                 return;
             } // else, it will pass though and be add to the buffer
             break;
-        case ctrl('h'):
+        case ctrl('g'):
             config_dialog();
             break;
         case KEY_PPAGE: {
@@ -200,7 +200,7 @@ void process_keypress(int c) {
 
         process_keypress(KEY_RIGHT);
     }
-    else if (c == KEY_BACKSPACE)
+    else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127)
     {
         if (cx <= lines[cy].ident && cx > 0)
         {
