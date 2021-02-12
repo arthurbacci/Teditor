@@ -45,6 +45,12 @@ void process_keypress(int c);
 // utils.c
 unsigned int calculate_real_cx(unsigned int *last_one_size);
 
+// cursor_in_valid_position.c
+void cursor_in_valid_position();
+
+// mouse.c
+void processMouseEvent(MEVENT ev);
+
 struct CFG
 {
     unsigned int tablen;
