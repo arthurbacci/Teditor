@@ -87,6 +87,7 @@ int main(int argc, char **argv)
     noecho();
     keypad(stdscr, TRUE);
     mousemask(ALL_MOUSE_EVENTS, NULL);
+    mouseinterval(1);
     
     fp = fopen(filename, "r");
 
