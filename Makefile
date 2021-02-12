@@ -1,11 +1,11 @@
 all: ted
 
-ted: src/*
-	$(CC) -o ted src/* -lncursesw -Wall -W -pedantic -std=c99
+ted: src/*.c
+	$(CC) -o ted src/*.c -lncursesw -Wall -W -pedantic -std=c99 -O2
 
-dev: src/*
-	$(CC) -o ted src/* -lncursesw -Wall -W -pedantic -std=c99 -fsanitize=address
+dev: src/*.c
+	$(CC) -o ted src/*.c -lncursesw -Wall -W -pedantic -std=c99 -fsanitize=address
 
 clean:
-	rm ted
+	rm ted -f
 

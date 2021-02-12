@@ -8,9 +8,8 @@ void processMouseEvent(MEVENT ev) {
         else
             cursor.x = 0;
         cursor_in_valid_position();
-    } else if (ev.bstate & BUTTON4_PRESSED) {
+    } else if (ev.bstate & BUTTON4_PRESSED)
         process_keypress(KEY_UP);
-    } else if (ev.bstate & 0x200000) {
+    else if (ev.bstate & 0x200000)
         process_keypress(KEY_DOWN);
-    }
 }
