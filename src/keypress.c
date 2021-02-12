@@ -63,6 +63,13 @@ void process_keypress(int c) {
             process_keypress(KEY_DOWN);
         break;
     }
+    case KEY_MOUSE: {
+        MEVENT event;
+        if (getmouse(&event) == OK)
+            processMouseEvent(event);
+        
+        break;
+    }
     }
     
     unsigned int last_one_size;
