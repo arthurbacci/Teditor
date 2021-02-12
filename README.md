@@ -35,7 +35,7 @@ make dev
 ```
 
 ## Shortcuts
-**Ctrl+H** Opens the config dialog.
+**Ctrl+G** Opens the config dialog.
 
 **Ctrl+S** Saves the file.
 <br>  
@@ -44,8 +44,9 @@ and press Enter. Commands may require an argument.
 
 Config dialog commands:
 
-**tablen** Set tab length (expects argument)
+**tablen** Set tab length
 **use_spaces** Tab or Space?
+**autotab** Toggle autotab
 <br>  
 <br>  
 ## Contributing
