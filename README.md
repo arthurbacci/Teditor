@@ -5,6 +5,8 @@
 
 A simple text and code editor made in ncurses with UTF-8 support, mouse events (including scroll and clicks), autotab and a permanent stratch buffer (just run `ted`, without any argument). All this with only less than 1000 lines of code (counting with cloc).
 
+### [Discord Server](https://discord.gg/r6qssZRMP9)
+
 ### Compiling
 
 ```
