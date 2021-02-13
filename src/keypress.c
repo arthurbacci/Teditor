@@ -3,7 +3,7 @@
 void expandLine(unsigned int at) {
     if (lines[at].len <= lines[at].length + 1) {
         lines[at].len += READ_BLOCKSIZE;
-        lines[at].data = realloc(lines[cy].data, lines[cy].len);
+        lines[at].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
     }
 }
 
@@ -57,7 +57,7 @@ void process_keypress(int c) {
         break;
     case ctrl('g'):
         config_dialog();
-        break;
+break;
     case KEY_PPAGE: {
         unsigned int ccy = cy;
         for (unsigned int i = 0; i < (unsigned int)(ccy % config.LINES + config.LINES); i++)
@@ -97,9 +97,9 @@ void process_keypress(int c) {
         if (c == ' ' && cx <= lines[cy].ident)
             lines[cy].ident++;
 
-        expandLile(cy);
+        expandLine(cy);
 
-        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], lines[cy].length - cx);
+        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
 
         lines[cy].data[cx] = c;
         lines[cy].data[lines[cy].length + 1] = '\0';
@@ -110,7 +110,7 @@ void process_keypress(int c) {
     } else if (c >= 0xC0 && c <= 0xDF) {
         expandLine(cy);
 
-        memmove(&lines[cy].data[cx + 2], &lines[cy].data[cx], lines[cy].length - cx);
+        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
 
         lines[cy].data[cx] = c;
         lines[cy].data[cx] += getch() << 8;
@@ -120,23 +120,23 @@ void process_keypress(int c) {
     } else if (c >= 0xE0 && c <= 0xEF) {
         expandLine(cy);
 
-        memmove(&lines[cy].data[real_cx + 3], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
+        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
 
-        lines[cy].data[real_cx] = c;
-        lines[cy].data[real_cx] += getch() << 8;
-        lines[cy].data[real_cx] += getch() << 16;
+        lines[cy].data[cx] = c;
+        lines[cy].data[cx] += getch() << 8;
+        lines[cy].data[cx] += getch() << 16;
         lines[cy].data[++lines[cy].length] = '\0';
 
         process_keypress(KEY_RIGHT);
     } else if (c >= 0xF0 && c <= 0xF7) {
         expandLine(cy);
 
-        memmove(&lines[cy].data[real_cx + 4], &lines[cy].data[real_cx], lines[cy].real_length - real_cx);
+        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
 
-        lines[cy].data[real_cx] = c;
-        lines[cy].data[real_cx] = getch() << 8;
-        lines[cy].data[real_cx] = getch() << 16;
-        lines[cy].data[real_cx] = getch() << 24;
+        lines[cy].data[cx] = c;
+        lines[cy].data[cx] = getch() << 8;
+        lines[cy].data[cx] = getch() << 16;
+        lines[cy].data[cx] = getch() << 24;
         lines[cy].data[++lines[cy].length] = '\0';
 
         process_keypress(KEY_RIGHT);
@@ -145,12 +145,12 @@ void process_keypress(int c) {
             lines[cy].ident--;
 
         if (cx >= 1) {
-            memmove(&lines[cy].data[cx - 1], &lines[cy].data[cx], lines[cy].length - cx);
-            lines[cy].data[lines[cy].length--] = '\0';
+            memmove(&lines[cy].data[cx - 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
+            lines[cy].data[--lines[cy].length] = '\0';
 
             process_keypress(KEY_LEFT);
         } else if (cy > 0) {
-            unsigned uchar32_t *del_line = lines[cy].data;
+            uchar32_t *del_line = lines[cy].data;
             unsigned int del_line_len = lines[cy].length;
 
             memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
@@ -166,11 +166,11 @@ void process_keypress(int c) {
 
             while (lines[cy].len <= lines[cy].length + del_line_len) {
                 lines[cy].len += READ_BLOCKSIZE;
-                lines[cy].data = realloc(lines[cy].data, lines[cy].len);
+                lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
             }
 
 
-            memmove(&lines[cy].data[lines[cy].length], del_line, del_line_len);
+            memmove(&lines[cy].data[lines[cy].length], del_line, del_line_len * sizeof(uchar32_t));
             lines[cy].length += del_line_len;
 
             lines[cy].data[lines[cy].length] = '\0';
@@ -191,27 +191,28 @@ void process_keypress(int c) {
 
         num_lines++;
 
+        unsigned int lcx = cx;
         cursor.x = 0;
         last_cursor_x = 0;
         process_keypress(KEY_DOWN);
 
         lines[cy].len = READ_BLOCKSIZE;
-        lines[cy].data = malloc(lines[cy].len);
+        lines[cy].data = malloc(lines[cy].len * sizeof(uchar32_t));
 
         lines[cy].length = 0;
-
         
 
-        while (lines[cy].length + lines[cy - 1].length - cx >= lines[cy].len) {
+        while (lines[cy].length + lines[cy - 1].length - lcx + 1 >= lines[cy].len) {
             lines[cy].len += READ_BLOCKSIZE;
-            lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(struct LINE));
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
         }
-        memcpy(lines[cy].data, &lines[cy - 1].data[cx], lines[cy - 1].length - cx);
-        lines[cy].length += lines[cy - 1].length - cx;
+        memcpy(lines[cy].data, &lines[cy - 1].data[lcx], (lines[cy - 1].length - lcx) * sizeof(uchar32_t));
+        
+        lines[cy].length += lines[cy - 1].length - lcx;
         
         lines[cy].data[lines[cy].length] = '\0';
 
-        lines[cy - 1].length = cx;
+        lines[cy - 1].length = lcx;
 
         lines[cy - 1].data[lines[cy - 1].length] = '\0';
 
@@ -221,9 +222,9 @@ void process_keypress(int c) {
         if (config.autotab == 1) {
             const unsigned int ident = lines[cy - 1].ident;
             lines[cy].ident = ident;
-            lines[cy].len += ident;
-            lines[cy].data = realloc(lines[cy].data, lines[cy].len);
-            memmove(&lines[cy].data[ident], lines[cy].data, lines[cy].real_length + 1);
+            lines[cy].len += ident + 1;
+            lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
+            memmove(&lines[cy].data[ident], lines[cy].data, (lines[cy].length + 1) * sizeof(uchar32_t));
 
             for (unsigned int i = 0; i < ident; i++)
                 lines[cy].data[i] = ' ';
@@ -234,5 +235,7 @@ void process_keypress(int c) {
         }
         else
             lines[cy].ident = 0;
+
+        
     }
 }

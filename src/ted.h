@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <stdint.h>
 
 #define READ_BLOCKSIZE 10
 #define ctrl(x) ((x) & 0x1f)
@@ -17,7 +18,7 @@
 #define CTRL_KEY_RIGHT 0x232
 #define CTRL_KEY_LEFT  0x223
 
-typedef unsigned int uchar32_t
+typedef uint32_t uchar32_t;
 
 // message_and_prompt.c
 int message(char *msg);
@@ -42,6 +43,7 @@ void show_lines();
 void free_lines();
 
 // keypress.c
+void expandLine(unsigned int at);
 void process_keypress(int c);
 
 // cursor_in_valid_position.c
@@ -51,7 +53,8 @@ void cursor_in_valid_position();
 void processMouseEvent(MEVENT ev);
 
 // utf8.c
-void utf8ReadFile(unsigned char lc, FILE *fp);
+void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
+uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
 
 struct CFG {
     unsigned int tablen;

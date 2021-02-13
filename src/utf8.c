@@ -1,6 +1,6 @@
 #include "ted.h"
 
-void utf8ReadFile(unsigned char uc, unsigned int lc, FILE *fp) {
+void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp) {
     if (uc >= 0xC0 && uc <= 0xDF) {
         lines[i].data[lc] = uc;
         lines[i].data[lc] += fgetc(fp) << 8;
@@ -15,5 +15,19 @@ void utf8ReadFile(unsigned char uc, unsigned int lc, FILE *fp) {
         lines[i].data[lc] += fgetc(fp) << 24;
     } else
         lines[i].data[lc] = uc;
-    return 0;
+}
+
+uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out) {
+    out[0] = c % (1 << 8);
+    out[1] = (c >> 8) % (1 << 8);
+    out[2] = (c >> 16) % (1 << 8);
+    out[3] = (c >> 24);
+
+    if (out[0] >= 0xC0 && out[0] <= 0xDF)
+        return 2;
+    if (out[0] >= 0xE0 && out[0] <= 0xEF)
+        return 3;
+    if (out[0] >= 0xF0 && out[0] <= 0xF7)
+        return 4;
+    return 1;
 }

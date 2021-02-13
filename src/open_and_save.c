@@ -11,9 +11,12 @@ void savefile() {
 
         return;
     }
-    /*
+    
     for (unsigned int i = 0; i < num_lines; i++) {
-        fputs((const char *)lines[i].data, fpw);
+        for (unsigned int j = 0; j < lines[i].length; j++) {
+            unsigned char b[4];
+            fwrite(b, sizeof(unsigned char), utf8ToMultibyte(lines[i].data[j], b), fpw);
+        }
         if (num_lines > 1) {
             if (config.line_break_type == 0)
                 fputc('\n', fpw);
@@ -23,7 +26,7 @@ void savefile() {
                 fputc('\r', fpw);
         }
     }
-    */
+    
 
     fclose(fpw);
 }
@@ -57,7 +60,7 @@ void read_lines() {
         lines = realloc(lines, ++num_lines * sizeof(struct LINE));
 
         lines[i].len = READ_BLOCKSIZE;
-        lines[i].data = malloc(lines[i].len);
+        lines[i].data = malloc(lines[i].len * sizeof(uchar32_t));
         lines[i].length = 0;
         lines[i].ident = 0;
 
@@ -69,7 +72,7 @@ void read_lines() {
 
             if (j >= lines[i].len) {
                 lines[i].len += READ_BLOCKSIZE;
-                lines[i].data = realloc(lines[i].data, lines[i].len);
+                lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(uchar32_t));
             }
 
             if (passed_spaces == 0 && c != ' ')
@@ -79,14 +82,14 @@ void read_lines() {
 
             unsigned char uc = *(unsigned char *)&c;
 
-            utf8ReadFile(uc, j, fp);
+            utf8ReadFile(uc, j, i, fp);
 
             lines[i].length++;
         }
 
         if (j >= lines[i].len) {
             lines[i].len += READ_BLOCKSIZE;
-            lines[i].data = realloc(lines[i].data, lines[i].len);
+            lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(uchar32_t));
         }
 
         lines[i].data[j] = '\0';

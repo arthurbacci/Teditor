@@ -61,38 +61,8 @@ void show_lines() {
                 size++;
                 continue;
             }
-
-            if (lines[i].data[j] >= 0xC0 && lines[i].data[j] <= 0xDF) {
-                if (lines[i].data[j] == '\0') {
-                    addch(' ');
-                    passed_limit = 1;
-                    size++;
-                    continue;
-                }
-                if (size >= text_scroll.x)
-                    printw("%.2s", &lines[i].data[j]);
-                j++;
-            } else if (lines[i].data[j] >= 0xE0 && lines[i].data[j] <= 0xEF) {
-                if (lines[i].data[j] == '\0') {
-                    addch(' ');
-                    passed_limit = 1;
-                    size++;
-                    continue;
-                }
-                if (size >= text_scroll.x)
-                    printw("%.3s", &lines[i].data[j]);
-                j += 2;
-            } else if (lines[i].data[j] >= 0xF0 && lines[i].data[j] <= 0xF7) {
-                if (lines[i].data[j] == '\0') {
-                    addch(' ');
-                    passed_limit = 1;
-                    size++;
-                    continue;
-                }
-                if (size >= text_scroll.x)
-                    printw("%.4s", &lines[i].data[j]);
-                j += 3;
-            } else {
+            
+            if (isprint(lines[i].data[j]) || lines[i].data[j] == '\t') {
                 if (size >= text_scroll.x) {
                     if (lines[i].data[j] == '\t') {
                         for (unsigned int k = 0; k < config.tablen; k++)
@@ -101,6 +71,9 @@ void show_lines() {
                     } else
                         addch(lines[i].data[j]);                    
                 }
+            } else {
+                unsigned char b[4];
+                printw("%.*s", utf8ToMultibyte(lines[i].data[j], b), b);
             }
             
             if (lines[i].data[j] == '\0') {
