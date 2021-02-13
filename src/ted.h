@@ -43,7 +43,7 @@ void show_lines();
 void free_lines();
 
 // keypress.c
-void expandLine(unsigned int at);
+void expandLine(unsigned int at, int x);
 void process_keypress(int c);
 
 // cursor_in_valid_position.c
