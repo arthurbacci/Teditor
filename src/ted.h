@@ -17,6 +17,8 @@
 #define CTRL_KEY_RIGHT 0x232
 #define CTRL_KEY_LEFT  0x223
 
+typedef unsigned int uchar32_t
+
 // message_and_prompt.c
 int message(char *msg);
 char *prompt(char *msg);
@@ -42,17 +44,16 @@ void free_lines();
 // keypress.c
 void process_keypress(int c);
 
-// utils.c
-unsigned int calculate_real_cx(unsigned int *last_one_size);
-
 // cursor_in_valid_position.c
 void cursor_in_valid_position();
 
 // mouse.c
 void processMouseEvent(MEVENT ev);
 
-struct CFG
-{
+// utf8.c
+void utf8ReadFile(unsigned char lc, FILE *fp);
+
+struct CFG {
     unsigned int tablen;
     unsigned int LINES;
     unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
@@ -60,23 +61,19 @@ struct CFG
     unsigned char autotab : 1;
 };
 
-struct LINE
-{
+struct LINE {
     unsigned int len;
-    unsigned char *data;
+    uchar32_t *data;
     unsigned int length;
-    unsigned int real_length;
     unsigned int ident;
 };
 
-struct CURSOR
-{
+struct CURSOR {
     unsigned int x;
     unsigned int y;
 };
 
-struct TEXT_SCROLL
-{
+struct TEXT_SCROLL {
     unsigned int x;
     unsigned int y;
 };
