@@ -67,6 +67,7 @@ struct CFG {
 struct LINE {
     unsigned int len;
     uchar32_t *data;
+    unsigned char *color;
     unsigned int length;
     unsigned int ident;
 };

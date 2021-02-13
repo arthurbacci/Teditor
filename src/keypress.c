@@ -12,38 +12,36 @@ void process_keypress(int c) {
     case KEY_UP:
         cursor.y -= (cursor.y > 0);
 
-        if (cursor.x < last_cursor_x) {
-            cursor.x = last_cursor_x;
-            last_cursor_x = 0;
-        }
+        cursor.x = last_cursor_x;
         
         cursor_in_valid_position();
         break;
     case KEY_DOWN:
         cursor.y += 1;
 
-        if (cursor.x < last_cursor_x) {
-            cursor.x = last_cursor_x;
-            last_cursor_x = 0;
-        }
+        cursor.x = last_cursor_x;
         
         cursor_in_valid_position();
         break;
     case KEY_LEFT:
         cursor.x -= (cursor.x > 0);
         cursor_in_valid_position();
+        last_cursor_x = cx;
         break;
     case KEY_RIGHT:
         cursor.x++;
         cursor_in_valid_position();
+        last_cursor_x = cx;
         break;
     case KEY_HOME:
         cursor.x = 0;
         cursor_in_valid_position();
+        last_cursor_x = cx;
         break;
     case KEY_END:
         cursor.x = lines[cursor.y].length;
         cursor_in_valid_position();
+        last_cursor_x = cx;
         break;
     case ctrl('s'):
         savefile();
@@ -57,7 +55,7 @@ void process_keypress(int c) {
         break;
     case ctrl('g'):
         config_dialog();
-break;
+        break;
     case KEY_PPAGE: {
         unsigned int ccy = cy;
         for (unsigned int i = 0; i < (unsigned int)(ccy % config.LINES + config.LINES); i++)
