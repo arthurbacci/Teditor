@@ -3,8 +3,7 @@
 void savefile() {
     FILE *fpw = fopen(filename, "w");
 
-    if (fpw == NULL)
-    {
+    if (fpw == NULL) {
         char buf[1000];
         snprintf(buf, 1000, "Could not open the file\nErrno: %d\nPress any key", errno);
 
@@ -12,9 +11,12 @@ void savefile() {
 
         return;
     }
-
+    
     for (unsigned int i = 0; i < num_lines; i++) {
-        fputs((const char *)lines[i].data, fpw);
+        for (unsigned int j = 0; j < lines[i].length; j++) {
+            unsigned char b[4];
+            fwrite(b, sizeof(unsigned char), utf8ToMultibyte(lines[i].data[j], b), fpw);
+        }
         if (num_lines > 1) {
             if (config.line_break_type == 0)
                 fputc('\n', fpw);
@@ -24,6 +26,7 @@ void savefile() {
                 fputc('\r', fpw);
         }
     }
+    
 
     fclose(fpw);
 }
@@ -36,7 +39,6 @@ void read_lines() {
         lines[0].len = READ_BLOCKSIZE;
         lines[0].data = malloc(lines[0].len);
         lines[0].length = 0;
-        lines[0].real_length = 0;
         lines[0].data[0] = '\0';
         lines[0].ident = 0;
 
@@ -45,10 +47,7 @@ void read_lines() {
 
     detect_linebreak();
 
-    char lineend = '\n';
-
-    if (config.line_break_type != 0)
-        lineend = '\r';
+    char lineend = config.line_break_type == 0 ? '\n' : '\r';
 
     num_lines = 0;
     for (unsigned int i = 0; !feof(fp); i++) {
@@ -61,7 +60,7 @@ void read_lines() {
         lines = realloc(lines, ++num_lines * sizeof(struct LINE));
 
         lines[i].len = READ_BLOCKSIZE;
-        lines[i].data = malloc(lines[i].len);
+        lines[i].data = malloc(lines[i].len * sizeof(uchar32_t));
         lines[i].length = 0;
         lines[i].ident = 0;
 
@@ -69,12 +68,11 @@ void read_lines() {
         unsigned int j;
         char passed_spaces = 0;
 
-
         for (j = 0; (c = fgetc(fp)) != lineend && c != EOF; j++) {
 
             if (j >= lines[i].len) {
                 lines[i].len += READ_BLOCKSIZE;
-                lines[i].data = realloc(lines[i].data, lines[i].len);
+                lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(uchar32_t));
             }
 
             if (passed_spaces == 0 && c != ' ')
@@ -84,60 +82,16 @@ void read_lines() {
 
             unsigned char uc = *(unsigned char *)&c;
 
-            
-            if (!(isprint(uc) || (uc >= 0xC0 && uc <= 0xDF) || (uc >= 0xE0 && uc <= 0xEF) || (uc >= 0xF0 && uc <= 0xF7) || uc == '\r' || uc == '\t'))
-                lines[i].data[j] = '+';
-            else if (uc >= 0xC0 && uc <= 0xDF) {
-                if (uc == '\0')
-                    break;
-                if (j + 1 >= lines[i].len) {
-                    lines[i].len += READ_BLOCKSIZE;
-                    lines[i].data = realloc(lines[i].data, lines[i].len);
-                }
-                for (unsigned int k = 0; k < 2; k++) {
-                    lines[i].data[j + k] = c;
-                    if (k < 1)
-                        c = fgetc(fp);
-                }
-                j++;
-            } else if (uc >= 0xE0 && uc <= 0xEF) {
-                if (uc == '\0')
-                    break;
-                if (j + 2 >= lines[i].len) {
-                    lines[i].len += READ_BLOCKSIZE;
-                    lines[i].data = realloc(lines[i].data, lines[i].len);
-                }
-                for (unsigned int k = 0; k < 3; k++) {
-                    lines[i].data[j + k] = c;
-                    if (k < 2)
-                        c = fgetc(fp);
-                }
-                j += 2;
-            } else if (uc >= 0xF0 && uc <= 0xF7) {
-                if (uc == '\0')
-                    break;
-                if (j + 3 >= lines[i].len) {
-                    lines[i].len += READ_BLOCKSIZE;
-                    lines[i].data = realloc(lines[i].data, lines[i].len);
-                }
-                for (unsigned int k = 0; k < 4; k++) {
-                    lines[i].data[j + k] = c;
-                    if (k < 3)
-                        c = fgetc(fp);
-                }
-                j += 3;
-            } else
-                lines[i].data[j] = uc;
+            utf8ReadFile(uc, j, i, fp);
 
             lines[i].length++;
         }
 
         if (j >= lines[i].len) {
             lines[i].len += READ_BLOCKSIZE;
-            lines[i].data = realloc(lines[i].data, lines[i].len);
+            lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(uchar32_t));
         }
 
-        lines[i].real_length = j;
         lines[i].data[j] = '\0';
 
         if (config.line_break_type == 1)
@@ -162,5 +116,5 @@ void detect_linebreak() {
             break;
         }
     }
-    fseek(fp, 0, SEEK_SET);
+    rewind(fp);
 }

@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <stdint.h>
 
 #define READ_BLOCKSIZE 10
 #define ctrl(x) ((x) & 0x1f)
@@ -16,6 +17,8 @@
 
 #define CTRL_KEY_RIGHT 0x232
 #define CTRL_KEY_LEFT  0x223
+
+typedef uint32_t uchar32_t;
 
 // message_and_prompt.c
 int message(char *msg);
@@ -40,10 +43,8 @@ void show_lines();
 void free_lines();
 
 // keypress.c
+void expandLine(unsigned int at);
 void process_keypress(int c);
-
-// utils.c
-unsigned int calculate_real_cx(unsigned int *last_one_size);
 
 // cursor_in_valid_position.c
 void cursor_in_valid_position();
@@ -51,8 +52,11 @@ void cursor_in_valid_position();
 // mouse.c
 void processMouseEvent(MEVENT ev);
 
-struct CFG
-{
+// utf8.c
+void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
+uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
+
+struct CFG {
     unsigned int tablen;
     unsigned int LINES;
     unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
@@ -60,23 +64,19 @@ struct CFG
     unsigned char autotab : 1;
 };
 
-struct LINE
-{
+struct LINE {
     unsigned int len;
-    unsigned char *data;
+    uchar32_t *data;
     unsigned int length;
-    unsigned int real_length;
     unsigned int ident;
 };
 
-struct CURSOR
-{
+struct CURSOR {
     unsigned int x;
     unsigned int y;
 };
 
-struct TEXT_SCROLL
-{
+struct TEXT_SCROLL {
     unsigned int x;
     unsigned int y;
 };
