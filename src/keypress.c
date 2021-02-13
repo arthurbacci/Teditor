@@ -149,6 +149,7 @@ void process_keypress(int c) {
             process_keypress(KEY_LEFT);
         } else if (cy > 0) {
             uchar32_t *del_line = lines[cy].data;
+            unsigned char *del_line_color = lines[cy].color;
             unsigned int del_line_len = lines[cy].length;
 
             memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
@@ -165,6 +166,7 @@ void process_keypress(int c) {
             while (lines[cy].len <= lines[cy].length + del_line_len) {
                 lines[cy].len += READ_BLOCKSIZE;
                 lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
+                lines[cy].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
             }
 
 
@@ -174,6 +176,7 @@ void process_keypress(int c) {
             lines[cy].data[lines[cy].length] = '\0';
 
             free(del_line);
+            free(del_line_color);
         }
 
         lines[cy].ident = 0;

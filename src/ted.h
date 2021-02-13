@@ -64,6 +64,17 @@ struct CFG {
     unsigned char autotab : 1;
 };
 
+
+/*
+ffffbbbb
+00010001 == default with default background
+00100001 == color1 with default background
+00110001 == color2 with default background
+00010010 == default with color1 background
+
+There are 16 foreground colors and 16 background colors
+This is good for now, in case where more colors be need, color can be changed from `unsigned char *` to `uint16_t *` (256 foregrounds + 256 backgrounds)
+*/
 struct LINE {
     unsigned int len;
     uchar32_t *data;
