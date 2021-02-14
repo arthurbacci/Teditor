@@ -172,7 +172,6 @@ void process_keypress(int c) {
         lines[cy].len = READ_BLOCKSIZE;
         lines[cy].data = malloc(lines[cy].len * sizeof(uchar32_t));
         lines[cy].color = malloc(lines[cy].len * sizeof(unsigned char));
-
         lines[cy].length = 0;
         
         expandLine(cy, lines[cy - 1].length - lcx + 1);
@@ -198,7 +197,8 @@ void process_keypress(int c) {
             lines[cy].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
             memmove(&lines[cy].data[ident], lines[cy].data, (lines[cy].length + 1) * sizeof(uchar32_t));
 
-            memset(lines[cy].data, ' ', ident * sizeof(uchar32_t));
+            for (unsigned int i = 0; i < ident; i++)
+                lines[cy].data[i] = ' ';
             lines[cy].length += ident;
 
             for (unsigned int i = 0; i < ident; i++)
@@ -208,5 +208,6 @@ void process_keypress(int c) {
             lines[cy].ident = 0;
 
         syntaxHighlight(cy);
+        syntaxHighlight(cy - 1);
     }
 }
