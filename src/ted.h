@@ -56,6 +56,9 @@ void processMouseEvent(MEVENT ev);
 void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
 uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
 
+// color.c
+void syntaxHighlight(unsigned int at);
+
 struct CFG {
     unsigned int tablen;
     unsigned int LINES;

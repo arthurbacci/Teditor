@@ -42,6 +42,8 @@ void read_lines() {
         lines[0].length = 0;
         lines[0].data[0] = '\0';
         lines[0].ident = 0;
+        
+        syntaxHighlight(0);
 
         return;
     }
@@ -65,6 +67,7 @@ void read_lines() {
         lines[i].color = malloc(lines[i].len * sizeof(unsigned char));
         lines[i].length = 0;
         lines[i].ident = 0;
+        syntaxHighlight(i);
 
         char c;
         unsigned int j;

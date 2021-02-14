@@ -5,6 +5,7 @@ void expandLine(unsigned int at, int x) {
         lines[at].len += READ_BLOCKSIZE;
         lines[at].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
         lines[at].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
+        syntaxHighlight(at);
     }
 }
 
