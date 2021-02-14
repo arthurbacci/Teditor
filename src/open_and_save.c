@@ -37,10 +37,13 @@ void read_lines() {
         lines = malloc(sizeof(struct LINE));
 
         lines[0].len = READ_BLOCKSIZE;
-        lines[0].data = malloc(lines[0].len);
+        lines[0].data = malloc(lines[0].len * sizeof(uchar32_t));
+        lines[0].color = malloc(lines[0].len * sizeof(unsigned char));
         lines[0].length = 0;
         lines[0].data[0] = '\0';
         lines[0].ident = 0;
+        
+        syntaxHighlight(0);
 
         return;
     }
@@ -61,6 +64,7 @@ void read_lines() {
 
         lines[i].len = READ_BLOCKSIZE;
         lines[i].data = malloc(lines[i].len * sizeof(uchar32_t));
+        lines[i].color = malloc(lines[i].len * sizeof(unsigned char));
         lines[i].length = 0;
         lines[i].ident = 0;
 
@@ -70,9 +74,10 @@ void read_lines() {
 
         for (j = 0; (c = fgetc(fp)) != lineend && c != EOF; j++) {
 
-            if (j >= lines[i].len) {
+            if (j + 1 >= lines[i].len) {
                 lines[i].len += READ_BLOCKSIZE;
                 lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(uchar32_t));
+                lines[i].color = realloc(lines[i].color, lines[i].len * sizeof(unsigned char));
             }
 
             if (passed_spaces == 0 && c != ' ')
@@ -87,12 +92,9 @@ void read_lines() {
             lines[i].length++;
         }
 
-        if (j >= lines[i].len) {
-            lines[i].len += READ_BLOCKSIZE;
-            lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(uchar32_t));
-        }
-
         lines[i].data[j] = '\0';
+
+        syntaxHighlight(i);
 
         if (config.line_break_type == 1)
             fgetc(fp);

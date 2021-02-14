@@ -43,7 +43,7 @@ void show_lines();
 void free_lines();
 
 // keypress.c
-void expandLine(unsigned int at);
+void expandLine(unsigned int at, int x);
 void process_keypress(int c);
 
 // cursor_in_valid_position.c
@@ -56,6 +56,10 @@ void processMouseEvent(MEVENT ev);
 void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
 uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
 
+// color.c
+void syntaxHighlight(unsigned int at);
+void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
+
 struct CFG {
     unsigned int tablen;
     unsigned int LINES;
@@ -64,9 +68,21 @@ struct CFG {
     unsigned char autotab : 1;
 };
 
+
+/*
+ffffbbbb
+00000000 == default with default background
+00010000 == color1 with default background
+00100000 == color2 with default background
+00000001 == default with color1 background
+
+There are 16 foreground colors and 16 background colors
+This is good for now, in case where more colors be need, color can be changed from `unsigned char *` to `uint16_t *` (256 foregrounds + 256 backgrounds)
+*/
 struct LINE {
     unsigned int len;
     uchar32_t *data;
+    unsigned char *color;
     unsigned int length;
     unsigned int ident;
 };

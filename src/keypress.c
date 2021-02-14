@@ -1,9 +1,11 @@
 #include "ted.h"
 
-void expandLine(unsigned int at) {
-    if (lines[at].len <= lines[at].length + 1) {
+void expandLine(unsigned int at, int x) {
+    while (lines[at].len <= lines[at].length + x) {
         lines[at].len += READ_BLOCKSIZE;
         lines[at].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
+        lines[at].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
+        syntaxHighlight(at);
     }
 }
 
@@ -12,38 +14,36 @@ void process_keypress(int c) {
     case KEY_UP:
         cursor.y -= (cursor.y > 0);
 
-        if (cursor.x < last_cursor_x) {
-            cursor.x = last_cursor_x;
-            last_cursor_x = 0;
-        }
+        cursor.x = last_cursor_x;
         
         cursor_in_valid_position();
         break;
     case KEY_DOWN:
         cursor.y += 1;
 
-        if (cursor.x < last_cursor_x) {
-            cursor.x = last_cursor_x;
-            last_cursor_x = 0;
-        }
+        cursor.x = last_cursor_x;
         
         cursor_in_valid_position();
         break;
     case KEY_LEFT:
         cursor.x -= (cursor.x > 0);
         cursor_in_valid_position();
+        last_cursor_x = cx;
         break;
     case KEY_RIGHT:
         cursor.x++;
         cursor_in_valid_position();
+        last_cursor_x = cx;
         break;
     case KEY_HOME:
         cursor.x = 0;
         cursor_in_valid_position();
+        last_cursor_x = cx;
         break;
     case KEY_END:
         cursor.x = lines[cursor.y].length;
         cursor_in_valid_position();
+        last_cursor_x = cx;
         break;
     case ctrl('s'):
         savefile();
@@ -57,7 +57,7 @@ void process_keypress(int c) {
         break;
     case ctrl('g'):
         config_dialog();
-break;
+        break;
     case KEY_PPAGE: {
         unsigned int ccy = cy;
         for (unsigned int i = 0; i < (unsigned int)(ccy % config.LINES + config.LINES); i++)
@@ -93,52 +93,27 @@ break;
                 passed_spaces = 1;
             process_keypress(KEY_RIGHT);
         }
-    } else if (isprint(c) || c == '\t') {
+    } else if (isprint(c) || c == '\t' || (c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) {
         if (c == ' ' && cx <= lines[cy].ident)
             lines[cy].ident++;
 
-        expandLine(cy);
+        expandLine(cy, 1);
 
         memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
 
         lines[cy].data[cx] = c;
-        lines[cy].data[lines[cy].length + 1] = '\0';
+        
+        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
+            lines[cy].data[cx] += getch() << 8;
+        
+        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
+            lines[cy].data[cx] += getch() << 16;
 
-        lines[cy].length++;
-
-        process_keypress(KEY_RIGHT);
-    } else if (c >= 0xC0 && c <= 0xDF) {
-        expandLine(cy);
-
-        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-
-        lines[cy].data[cx] = c;
-        lines[cy].data[cx] += getch() << 8;
+        if (c >= 0xF0 && c <= 0xF7)
+            lines[cy].data[cx] = getch() << 24;
+        
         lines[cy].data[++lines[cy].length] = '\0';
-
-        process_keypress(KEY_RIGHT);
-    } else if (c >= 0xE0 && c <= 0xEF) {
-        expandLine(cy);
-
-        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-
-        lines[cy].data[cx] = c;
-        lines[cy].data[cx] += getch() << 8;
-        lines[cy].data[cx] += getch() << 16;
-        lines[cy].data[++lines[cy].length] = '\0';
-
-        process_keypress(KEY_RIGHT);
-    } else if (c >= 0xF0 && c <= 0xF7) {
-        expandLine(cy);
-
-        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-
-        lines[cy].data[cx] = c;
-        lines[cy].data[cx] = getch() << 8;
-        lines[cy].data[cx] = getch() << 16;
-        lines[cy].data[cx] = getch() << 24;
-        lines[cy].data[++lines[cy].length] = '\0';
-
+        syntaxHighlight(cy);
         process_keypress(KEY_RIGHT);
     } else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
         if (cx <= lines[cy].ident && cx > 0)
@@ -151,12 +126,12 @@ break;
             process_keypress(KEY_LEFT);
         } else if (cy > 0) {
             uchar32_t *del_line = lines[cy].data;
+            unsigned char *del_line_color = lines[cy].color;
             unsigned int del_line_len = lines[cy].length;
 
             memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
-
-            num_lines--;
-            lines = realloc(lines, num_lines * sizeof(struct LINE));
+            
+            lines = realloc(lines, --num_lines * sizeof(struct LINE));
 
             process_keypress(KEY_UP);
 
@@ -164,11 +139,7 @@ break;
             
             process_keypress(KEY_RIGHT);
 
-            while (lines[cy].len <= lines[cy].length + del_line_len) {
-                lines[cy].len += READ_BLOCKSIZE;
-                lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
-            }
-
+            expandLine(cy, del_line_len);
 
             memmove(&lines[cy].data[lines[cy].length], del_line, del_line_len * sizeof(uchar32_t));
             lines[cy].length += del_line_len;
@@ -176,6 +147,7 @@ break;
             lines[cy].data[lines[cy].length] = '\0';
 
             free(del_line);
+            free(del_line_color);
         }
 
         lines[cy].ident = 0;
@@ -184,6 +156,7 @@ break;
                 break;
             lines[cy].ident++;
         }
+        syntaxHighlight(cy);
     } else if (c == '\n' || c == KEY_ENTER || c == '\r') {
         lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
     
@@ -198,14 +171,11 @@ break;
 
         lines[cy].len = READ_BLOCKSIZE;
         lines[cy].data = malloc(lines[cy].len * sizeof(uchar32_t));
-
+        lines[cy].color = malloc(lines[cy].len * sizeof(unsigned char));
         lines[cy].length = 0;
         
-
-        while (lines[cy].length + lines[cy - 1].length - lcx + 1 >= lines[cy].len) {
-            lines[cy].len += READ_BLOCKSIZE;
-            lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
-        }
+        expandLine(cy, lines[cy - 1].length - lcx + 1);
+        
         memcpy(lines[cy].data, &lines[cy - 1].data[lcx], (lines[cy - 1].length - lcx) * sizeof(uchar32_t));
         
         lines[cy].length += lines[cy - 1].length - lcx;
@@ -224,6 +194,7 @@ break;
             lines[cy].ident = ident;
             lines[cy].len += ident + 1;
             lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
+            lines[cy].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
             memmove(&lines[cy].data[ident], lines[cy].data, (lines[cy].length + 1) * sizeof(uchar32_t));
 
             for (unsigned int i = 0; i < ident; i++)
@@ -236,6 +207,7 @@ break;
         else
             lines[cy].ident = 0;
 
-        
+        syntaxHighlight(cy);
+        syntaxHighlight(cy - 1);
     }
 }
