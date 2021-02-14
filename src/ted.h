@@ -58,6 +58,7 @@ uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
 
 // color.c
 void syntaxHighlight(unsigned int at);
+void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
 struct CFG {
     unsigned int tablen;
@@ -70,10 +71,10 @@ struct CFG {
 
 /*
 ffffbbbb
-00010001 == default with default background
-00100001 == color1 with default background
-00110001 == color2 with default background
-00010010 == default with color1 background
+00000000 == default with default background
+00010000 == color1 with default background
+00100000 == color2 with default background
+00000001 == default with color1 background
 
 There are 16 foreground colors and 16 background colors
 This is good for now, in case where more colors be need, color can be changed from `unsigned char *` to `uint16_t *` (256 foregrounds + 256 backgrounds)

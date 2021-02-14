@@ -67,7 +67,6 @@ void read_lines() {
         lines[i].color = malloc(lines[i].len * sizeof(unsigned char));
         lines[i].length = 0;
         lines[i].ident = 0;
-        syntaxHighlight(i);
 
         char c;
         unsigned int j;
@@ -94,6 +93,8 @@ void read_lines() {
         }
 
         lines[i].data[j] = '\0';
+
+        syntaxHighlight(i);
 
         if (config.line_break_type == 1)
             fgetc(fp);

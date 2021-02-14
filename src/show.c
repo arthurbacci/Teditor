@@ -61,7 +61,11 @@ void show_lines() {
                 size++;
                 continue;
             }
+            unsigned char fg, bg;
+            readColor(i, j, &fg, &bg);
             
+            if (fg > 0)
+                setcolor(COLOR_PAIR(1));
             if (isprint(lines[i].data[j]) || lines[i].data[j] == '\t') {
                 if (size >= text_scroll.x) {
                     if (lines[i].data[j] == '\t') {
@@ -75,6 +79,9 @@ void show_lines() {
                 unsigned char b[4];
                 printw("%.*s", utf8ToMultibyte(lines[i].data[j], b), b);
             }
+            
+            if (fg > 0)
+                setcolor(COLOR_PAIR(2));
             
             if (lines[i].data[j] == '\0') {
                 addch(' ');
