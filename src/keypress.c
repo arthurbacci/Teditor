@@ -113,7 +113,7 @@ void process_keypress(int c) {
             lines[cy].data[cx] = getch() << 24;
         
         lines[cy].data[++lines[cy].length] = '\0';
-
+        syntaxHighlight(cy);
         process_keypress(KEY_RIGHT);
     } else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
         if (cx <= lines[cy].ident && cx > 0)
@@ -156,6 +156,7 @@ void process_keypress(int c) {
                 break;
             lines[cy].ident++;
         }
+        syntaxHighlight(cy);
     } else if (c == '\n' || c == KEY_ENTER || c == '\r') {
         lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
     
@@ -197,8 +198,7 @@ void process_keypress(int c) {
             lines[cy].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
             memmove(&lines[cy].data[ident], lines[cy].data, (lines[cy].length + 1) * sizeof(uchar32_t));
 
-            for (unsigned int i = 0; i < ident; i++)
-                lines[cy].data[i] = ' ';
+            memset(lines[cy].data, ' ', ident * sizeof(uchar32_t));
             lines[cy].length += ident;
 
             for (unsigned int i = 0; i < ident; i++)
@@ -207,6 +207,6 @@ void process_keypress(int c) {
         else
             lines[cy].ident = 0;
 
-        
+        syntaxHighlight(cy);
     }
 }
