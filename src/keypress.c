@@ -93,7 +93,7 @@ void process_keypress(int c) {
                 passed_spaces = 1;
             process_keypress(KEY_RIGHT);
         }
-    } else if (isprint(c) || c == '\t') {
+    } else if (isprint(c) || c == '\t' || (c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) {
         if (c == ' ' && cx <= lines[cy].ident)
             lines[cy].ident++;
 
@@ -102,41 +102,16 @@ void process_keypress(int c) {
         memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
 
         lines[cy].data[cx] = c;
-        lines[cy].data[lines[cy].length + 1] = '\0';
+        
+        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
+            lines[cy].data[cx] += getch() << 8;
+        
+        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
+            lines[cy].data[cx] += getch() << 16;
 
-        lines[cy].length++;
-
-        process_keypress(KEY_RIGHT);
-    } else if (c >= 0xC0 && c <= 0xDF) {
-        expandLine(cy, 1);
-
-        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-
-        lines[cy].data[cx] = c;
-        lines[cy].data[cx] += getch() << 8;
-        lines[cy].data[++lines[cy].length] = '\0';
-
-        process_keypress(KEY_RIGHT);
-    } else if (c >= 0xE0 && c <= 0xEF) {
-        expandLine(cy, 1);
-
-        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-
-        lines[cy].data[cx] = c;
-        lines[cy].data[cx] += getch() << 8;
-        lines[cy].data[cx] += getch() << 16;
-        lines[cy].data[++lines[cy].length] = '\0';
-
-        process_keypress(KEY_RIGHT);
-    } else if (c >= 0xF0 && c <= 0xF7) {
-        expandLine(cy, 1);
-
-        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-
-        lines[cy].data[cx] = c;
-        lines[cy].data[cx] = getch() << 8;
-        lines[cy].data[cx] = getch() << 16;
-        lines[cy].data[cx] = getch() << 24;
+        if (c >= 0xF0 && c <= 0xF7)
+            lines[cy].data[cx] = getch() << 24;
+        
         lines[cy].data[++lines[cy].length] = '\0';
 
         process_keypress(KEY_RIGHT);
