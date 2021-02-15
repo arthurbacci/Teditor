@@ -10,7 +10,7 @@ struct TEXT_SCROLL text_scroll = {0, 0};
 
 char *filename;
 
-char colors_on;
+bool colors_on;
 char needs_to_free_filename;
 
 void setcolor(int c) {
@@ -101,12 +101,14 @@ int main(int argc, char **argv) {
 
     int c;
     while (1) {
+        curs_set(0);
         config.LINES = LINES - 1;
 
         show_lines();
         show_menu();
         move(cursor.y - text_scroll.y, display_cx() - text_scroll.x + len_line_number + 1);
         refresh();
+        curs_set(1);
 
         c = getch();
 

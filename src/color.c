@@ -1,7 +1,8 @@
 #include "ted.h"
 
 void syntaxHighlight(unsigned int at) {
-    const char *strings[] = {"if", "else", "int ", "char ", "*", "\"", "\'", "//", "unsigned ", "long ", "double ", "float ", "struct ", "const ", "return", ";"};
+    const char *strings[] = {"if", "else", "int ", "char ", "*" , "\"", "\'", "//", "unsigned ", "long ", "double ", "float ", "struct ", "const ", "return", ";" };
+    uint8_t colors[]      = {0x10, 0x10  , 0x20  , 0x20   , 0x30, 0x40, 0x40, 0x50, 0x20       , 0x20   , 0x20     , 0x20    , 0x20     , 0x20    , 0x30    , 0x30};
     unsigned int slen = sizeof(strings) / sizeof(char *);
     for (unsigned int i = 0; i < lines[at].length; i++) {
         lines[at].color[i] = 0x0;
@@ -17,7 +18,7 @@ void syntaxHighlight(unsigned int at) {
             if (c)
                 continue;
             for (unsigned int j = 0; j < strlen(strings[k]); j++)
-                lines[at].color[i + j] = 0x10;
+                lines[at].color[i + j] = colors[k];
             i += strlen(strings[k]) - 1;
             break;
         }

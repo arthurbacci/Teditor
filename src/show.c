@@ -63,9 +63,14 @@ void show_lines() {
             }
             unsigned char fg, bg;
             readColor(i, j, &fg, &bg);
-            
-            if (fg > 0)
-                setcolor(COLOR_PAIR(1));
+            int palette[] = {-1, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_MAGENTA, COLOR_CYAN};
+            if (colors_on) {
+                init_pair(3 + lines[i].color[j], palette[fg], palette[bg]);
+            }
+            if (fg || bg)
+                setcolor(COLOR_PAIR(3 + lines[i].color[j]));
+            else
+                setcolor(COLOR_PAIR(2));
             if (isprint(lines[i].data[j]) || lines[i].data[j] == '\t') {
                 if (size >= text_scroll.x) {
                     if (lines[i].data[j] == '\t') {
@@ -79,9 +84,6 @@ void show_lines() {
                 unsigned char b[4];
                 printw("%.*s", utf8ToMultibyte(lines[i].data[j], b), b);
             }
-            
-            if (fg > 0)
-                setcolor(COLOR_PAIR(2));
             
             if (lines[i].data[j] == '\0') {
                 addch(' ');
