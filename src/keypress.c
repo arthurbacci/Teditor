@@ -77,6 +77,17 @@ void process_keypress(int c) {
         
         break;
     }
+    case 0x209: {
+        if (num_lines > 1) {
+            memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
+            lines = realloc(lines, --num_lines * sizeof(struct LINE));
+        } else {
+            lines[cy].data[0] = '\0';
+            lines[cy].length = 0;
+        }
+        cursor_in_valid_position();
+        break;
+    }
     }
 
     if (c == CTRL_KEY_LEFT) {
