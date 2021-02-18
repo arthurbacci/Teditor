@@ -40,6 +40,9 @@ make dev
 **Ctrl+G** Opens the config dialog.
 
 **Ctrl+S** Saves the file.
+
+**Ctrl+DEL**: delete the selected line.
+
 <br>  
 If you open the config dialog, type the command you want
 and press Enter. Commands may require an argument.
