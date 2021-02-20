@@ -1,25 +1,23 @@
 #include "ted.h"
 
 void syntaxHighlight(unsigned int at) {
-    const char *strings[] = {"if", "else", "int ", "char ", "*" , "\"", "\'", "//", "unsigned ", "long ", "double ", "float ", "struct ", "const ", "return", ";" };
-    uint8_t colors[]      = {0x10, 0x10  , 0x20  , 0x20   , 0x30, 0x40, 0x40, 0x50, 0x20       , 0x20   , 0x20     , 0x20    , 0x20     , 0x20    , 0x30    , 0x30};
-    unsigned int slen = sizeof(strings) / sizeof(char *);
     for (unsigned int i = 0; i < lines[at].length; i++) {
         lines[at].color[i] = 0x0;
-        for (unsigned int k = 0; k < slen; k++) {
-            if (lines[at].length - i < strlen(strings[k]))
+        for (unsigned int k = 0; k < config.kwdlen; k++) {
+            unsigned int stringlen = strlen(config.keywords[k].string);
+            if (lines[at].length - i < stringlen)
                 continue;
             bool c = 0;
-            for (unsigned int j = 0; j < strlen(strings[k]); j++)
-                if ((uchar32_t)strings[k][j] != lines[at].data[i + j]) {
+            for (unsigned int j = 0; j < stringlen; j++)
+                if ((uchar32_t)config.keywords[k].string[j] != lines[at].data[i + j]) {
                     c = 1;
                     break;
                 }
             if (c)
                 continue;
-            for (unsigned int j = 0; j < strlen(strings[k]); j++)
-                lines[at].color[i + j] = colors[k];
-            i += strlen(strings[k]) - 1;
+            for (unsigned int j = 0; j < stringlen; j++)
+                lines[at].color[i + j] = config.keywords[k].color;
+            i += stringlen - 1;
             break;
         }
     }
