@@ -60,12 +60,19 @@ uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
 void syntaxHighlight(unsigned int at);
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
+struct KWD {
+    const char *string;
+    uint8_t color;
+};
+
 struct CFG {
     unsigned int tablen;
     unsigned int LINES;
     unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
     unsigned char use_spaces : 1;
     unsigned char autotab : 1;
+    unsigned int kwdlen;
+    struct KWD keywords[];
 };
 
 
