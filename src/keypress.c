@@ -12,7 +12,7 @@ void expandLine(unsigned int at, int x) {
 void process_keypress(int c) {
     switch (c) {
     case KEY_UP:
-        cursor.y -= (cursor.y > 0);
+        cursor.y -= cursor.y > 0;
 
         cursor.x = last_cursor_x;
         

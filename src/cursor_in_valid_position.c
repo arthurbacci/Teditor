@@ -8,9 +8,8 @@ void cursor_in_valid_position() {
     if (cursor.y >= num_lines)
         cursor.y = num_lines - 1;
     // x
-    if (cursor.x > lines[cursor.y].length) {
+    if (cursor.x > lines[cursor.y].length)
         cursor.x = lines[cursor.y].length;
-    }
 
     /* Scroll related */
     // y
@@ -23,4 +22,5 @@ void cursor_in_valid_position() {
         text_scroll.x = cursor.x;
     else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
         text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+    
 }

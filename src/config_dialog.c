@@ -6,8 +6,10 @@ void config_dialog() {
 
     char *answer = prompt(msg);
 
-    if (answer == NULL)
+    if (answer == NULL) {
+        beep();
         return;
+    }
 
     if (strcmp(answer, "tablen") == 0) {
         char msg1[1000];
@@ -16,9 +18,9 @@ void config_dialog() {
         char *answer1 = prompt(msg1);
 
         if (answer1 == NULL)
-            message("Canceled");
+            beep();
         else {
-            int answer_int = atoi(answer1);
+            const int answer_int = atoi(answer1);
 
             if (answer_int > 0)
                 config.tablen = answer_int;
@@ -27,14 +29,13 @@ void config_dialog() {
 
             free(answer1);
         }
-    }
-    else if (strcmp(answer, "linebreak") == 0) {
+    } else if (strcmp(answer, "linebreak") == 0) {
         char msg1[1000];
         snprintf(msg1, 1000, "linebreak (LF, CR, CRLF): ");
         char *answer1 = prompt(msg1);
 
         if (answer1 == NULL)
-            message("Canceled");
+            beep();
         else {
             if (strcmp(answer1, "LF") == 0)
                 config.line_break_type = 0;
@@ -47,14 +48,13 @@ void config_dialog() {
 
             free(answer1);
         }
-    }
-    else if (strcmp(answer, "use_spaces") == 0) {
+    } else if (strcmp(answer, "use-spaces") == 0) {
         char msg1[1000];
         snprintf(msg1, 1000, "use_spaces (0/FALSE, 1/TRUE): ");
         char *answer1 = prompt(msg1);
 
         if (answer1 == NULL)
-            message("Canceled");
+            beep();
         else {
             if (strcmp(answer1, "TRUE") == 0 || strcmp(answer1, "1") == 0)
                 config.use_spaces = 1;
@@ -65,14 +65,13 @@ void config_dialog() {
 
             free(answer1);
         }
-    }
-    else if (strcmp(answer, "autotab") == 0) {
+    } else if (strcmp(answer, "autotab") == 0) {
         char msg1[1000];
         snprintf(msg1, 1000, "autotab (0/FALSE, 1/TRUE): ");
         char *answer1 = prompt(msg1);
         
         if (answer1 == NULL)
-            message("Canceled");
+            beep();
         else {
             if (strcmp(answer1, "TRUE") == 0 || strcmp(answer1, "1") == 0)
                 config.autotab = 1;
@@ -84,7 +83,7 @@ void config_dialog() {
         }
     }
     else
-        message("This option does not exist");
+        beep();
 
     free(answer);
 }

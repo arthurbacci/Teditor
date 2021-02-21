@@ -6,5 +6,6 @@ void free_lines() {
         free(lines[i].color);
         lines[i].len = 0;
     }
+    free(lines);
 }
 
