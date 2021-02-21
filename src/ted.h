@@ -72,7 +72,7 @@ struct CFG {
     unsigned char use_spaces : 1;
     unsigned char autotab : 1;
     unsigned int kwdlen;
-    struct KWD keywords[];
+    struct KWD *keywords;
 };
 
 
