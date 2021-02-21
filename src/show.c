@@ -1,6 +1,7 @@
 #include "ted.h"
 
 void show_menu() {
+    setcolor(COLOR_PAIR(2));
     move(config.LINES, 0);
     for (unsigned int i = 0; i < (unsigned int)COLS; i++)
         addch(' ');
