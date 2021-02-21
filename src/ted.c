@@ -21,9 +21,12 @@ void setcolor(int c) {
 unsigned int last_cursor_x = 0;
 
 struct KWD kwd[] = {
-    {"if", 0x10}, {"else", 0x10}, {"int", 0x20}, {"char", 0x20}, {"unsigned", 0x20},
-    {"double", 0x20}, {"float", 0x20}, {"struct", 0x20}, {"const", 0x20}, {"return", 0x20},
-    {"*", 0x30}, {"\"", 0x40}, {"\'", 0x40}, {"//", 0x50}, {";", 0x30}, {"!", 0x30}
+    {"if", 0x10}, {"else", 0x10},
+    {"int", 0x20}, {"char", 0x20}, {"unsigned", 0x20}, {"double", 0x20}, {"float", 0x20}, {"struct", 0x20}, {"const", 0x20}, {"return", 0x20},
+    {"*", 0x30}, {";", 0x30},
+    {"(", 0x04}, {")", 0x04},
+    {"\"", 0x40}, {"\'", 0x40},
+    {"//", 0x50}, {"/*", 0x50}, {"*/", 0x50}
 };
 
 struct CFG config = {

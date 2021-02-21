@@ -85,7 +85,8 @@ void show_lines() {
                 unsigned char b[4];
                 printw("%.*s", utf8ToMultibyte(lines[i].data[j], b), b);
             }
-            
+            if (bg > 0)
+                setcolor(COLOR_PAIR(2));
             if (lines[i].data[j] == '\0') {
                 addch(' ');
                 passed_limit = 1;
