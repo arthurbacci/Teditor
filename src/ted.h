@@ -69,8 +69,9 @@ struct CFG {
     unsigned int tablen;
     unsigned int LINES;
     unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
-    unsigned char use_spaces : 1;
-    unsigned char autotab : 1;
+    bool use_spaces : 1;
+    bool autotab : 1;
+    const char *word_separators;
     unsigned int kwdlen;
     struct KWD *keywords;
 };

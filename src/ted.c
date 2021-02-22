@@ -31,6 +31,7 @@ struct KWD kwd[] = {
 
 struct CFG config = {
     4, 0, 0, 1, 1,
+    " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     0, // kwdlen is automatically calculated
     kwd
 };

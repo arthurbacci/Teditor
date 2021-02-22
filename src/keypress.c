@@ -21,7 +21,7 @@ void process_keypress(int c) {
         break;
     case KEY_DOWN:
     case ctrl('n'):
-        cursor.y += 1;
+        cursor.y++;
 
         cursor.x = last_cursor_x;
         
@@ -42,13 +42,11 @@ void process_keypress(int c) {
     case KEY_HOME:
     case ctrl('a'):
         cursor.x = 0;
-        cursor_in_valid_position();
         last_cursor_x = cx;
         break;
     case KEY_END:
     case ctrl('e'):
         cursor.x = lines[cursor.y].length;
-        cursor_in_valid_position();
         last_cursor_x = cx;
         break;
     case ctrl('s'):
@@ -69,21 +67,18 @@ void process_keypress(int c) {
         for (unsigned int i = 0; i < (unsigned int)(ccy % config.LINES + config.LINES); i++)
             process_keypress(KEY_UP);
         break;
-    }
-    case KEY_NPAGE: {
+    } case KEY_NPAGE: {
         unsigned int ccy = cy;
         for (unsigned int i = 0; i < (unsigned int)(config.LINES - (ccy % config.LINES) - 1 + config.LINES); i++)
             process_keypress(KEY_DOWN);
         break;
-    }
-    case KEY_MOUSE: {
+    } case KEY_MOUSE: {
         MEVENT event;
         if (getmouse(&event) == OK)
             processMouseEvent(event);
         
         break;
-    }
-    case 0x209: {
+    } case 0x209: {
         if (num_lines > 1) {
             free(lines[cy].data);
             free(lines[cy].color);
@@ -100,11 +95,11 @@ void process_keypress(int c) {
     case ctrl('w'): { // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
         bool passed_spaces = 0;
         process_keypress(KEY_LEFT);
-        while ((lines[cy].data[cx] != ' ' && lines[cy].data[cx] != '\t' && lines[cy].data[cx] != '\0') || !passed_spaces) {
+        while (!strchr(config.word_separators, lines[cy].data[cx]) || !passed_spaces) {
             process_keypress(KEY_RIGHT);
             process_keypress(KEY_BACKSPACE);
             process_keypress(KEY_LEFT);
-            if (lines[cy].data[cx] != ' ')
+            if (!strchr(config.word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
         }
         process_keypress(KEY_RIGHT);
@@ -135,15 +130,15 @@ void process_keypress(int c) {
 
     if (c == CTRL_KEY_LEFT) {
         char passed_spaces = 0;
-        while (cx > 0 && !(lines[cy].data[cx - 1] == ' ' && passed_spaces)) {
-            if (lines[cy].data[cx - 1] != ' ')
+        while (cx > 0 && !(strchr(config.word_separators, lines[cy].data[cx]) && passed_spaces)) {
+            if (!strchr(config.word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
             process_keypress(KEY_LEFT);
         }
     } else if (c == CTRL_KEY_RIGHT) {
         char passed_spaces = 0;
-        while (lines[cy].data[cx] != '\0' && !(lines[cy].data[cx] == ' ' && passed_spaces)) {
-            if (lines[cy].data[cx] != ' ')
+        while (lines[cy].data[cx] != '\0' && !(strchr(config.word_separators, lines[cy].data[cx]) && passed_spaces)) {
+            if (!strchr(config.word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
             process_keypress(KEY_RIGHT);
         }
