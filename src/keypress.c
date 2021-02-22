@@ -94,6 +94,19 @@ void process_keypress(int c) {
         cursor_in_valid_position();
         break;
     }
+    case ctrl('w'): {
+        bool passed_spaces = 0;
+        process_keypress(KEY_LEFT);
+        while ((lines[cy].data[cx] != ' ' && lines[cy].data[cx] != '\t' && lines[cy].data[cx] != '\0') || !passed_spaces) {
+            process_keypress(KEY_RIGHT);
+            process_keypress(KEY_BACKSPACE);
+            process_keypress(KEY_LEFT);
+            if (lines[cy].data[cx] != ' ')
+                passed_spaces = 1;
+        }
+        process_keypress(KEY_RIGHT);
+        break;
+    }
     }
 
     if (c == CTRL_KEY_LEFT) {
