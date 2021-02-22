@@ -6,11 +6,16 @@ char *prompt(char *msg) {
 
     int c;
     int i;
-    for (i = 0; (c = message(msg)) != '\n' && i < 999 - (int)len; i++) {
+    message(msg);
+    show_menu(menu_message);
+    refresh();
+    for (i = 0; (c = getch()) != '\n' && i < 999 - (int)len; i++) {
+        message(msg);
         if (c == KEY_BACKSPACE)
             i -= 1 + (i > 0);
         else if (c == ctrl('c')) {
             free(ret);
+            menu_message = "";
             return NULL;
         }
 
@@ -21,32 +26,14 @@ char *prompt(char *msg) {
             msg[len + i] = c;
             ret[i] = c;
         }
+        
+        show_menu(menu_message);
+        refresh();
     }
-
+    menu_message = "";
     return ret;
 }
 
-int message(char *msg) {
-    unsigned int len = strlen(msg);
-
-    unsigned int lines = 0;
-    for (unsigned int i = 0; i < len; i++)
-        if (msg[i] == '\n')
-            lines++;
-
-    char *s = strtok(msg, "\n");
-
-    clear();
-    setcolor(COLOR_PAIR(1));
-    attron(A_BOLD);
-    for (unsigned int i = (config.LINES - lines) / 2; s != NULL; i++) {
-        mvprintw(i, (COLS - strlen(s)) / 2, "%s", s);
-
-        s = strtok(NULL, "\n");
-    }
-    attroff(A_BOLD);
-    setcolor(COLOR_PAIR(2));
-    refresh();
-    
-    return getch();
+void message(char *msg) {
+    menu_message = msg;
 }

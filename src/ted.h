@@ -21,7 +21,7 @@
 typedef uint32_t uchar32_t;
 
 // message_and_prompt.c
-int message(char *msg);
+void message(char *msg);
 char *prompt(char *msg);
 
 // ted.c
@@ -36,7 +36,7 @@ void read_lines();
 void detect_linebreak();
 
 // show.c
-void show_menu();
+void show_menu(char *message);
 void show_lines();
 
 // free.c
@@ -116,3 +116,4 @@ extern struct TEXT_SCROLL text_scroll;
 extern unsigned int last_cursor_x;
 extern bool colors_on;
 extern bool needs_to_free_filename;
+extern char *menu_message;

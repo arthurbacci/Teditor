@@ -1,28 +1,18 @@
 #include "ted.h"
 
-void show_menu() {
+void show_menu(char *message) {
     setcolor(COLOR_PAIR(2));
     move(config.LINES, 0);
     for (unsigned int i = 0; i < (unsigned int)COLS; i++)
         addch(' ');
 
     move(config.LINES, 0);
-    printw("I:%u", lines[cy].ident);
-
-    char buf[100];
-    switch (config.line_break_type) {
-    case 0:
-        snprintf(buf, 100, "LF");
-        break;
-    case 1:
-        snprintf(buf, 100, "CRLF");
-        break;
-    case 2:
-        snprintf(buf, 100, "CR");
-        break;
-    }
-    move(config.LINES, COLS - strlen(buf));
-    printw("%s", buf);
+    if (!*message) {
+        printw("I:%u", lines[cy].ident);
+        move(config.LINES, COLS - (config.line_break_type == 1 ? 4 : 2));
+        printw("%s", config.line_break_type == 0 ? "LF" : (config.line_break_type == 1 ? "CRLF" : "CR"));
+    } else
+        printw("%s", message);
 }
 
 void show_lines() {

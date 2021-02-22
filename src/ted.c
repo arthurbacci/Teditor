@@ -9,6 +9,7 @@ struct CURSOR cursor = {0, 0};
 struct TEXT_SCROLL text_scroll = {0, 0};
 
 char *filename;
+char *menu_message = "";
 
 bool colors_on;
 bool needs_to_free_filename;
@@ -114,14 +115,13 @@ int main(int argc, char **argv) {
         init_pair(2, -1, -1);
     }
 
-
     int c;
     while (1) {
         curs_set(0);
         config.LINES = LINES - 1;
 
         show_lines();
-        show_menu();
+        show_menu(menu_message);
         move(cursor.y - text_scroll.y, display_cx() - text_scroll.x + len_line_number + 1);
         refresh();
         curs_set(1);
