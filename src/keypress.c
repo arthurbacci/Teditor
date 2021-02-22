@@ -85,6 +85,8 @@ void process_keypress(int c) {
     }
     case 0x209: {
         if (num_lines > 1) {
+            free(lines[cy].data);
+            free(lines[cy].color);
             memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
             lines = realloc(lines, --num_lines * sizeof(struct LINE));
         } else {
@@ -92,9 +94,10 @@ void process_keypress(int c) {
             lines[cy].length = 0;
         }
         cursor_in_valid_position();
+        syntaxHighlight(cy);
         break;
     }
-    case ctrl('w'): {
+    case ctrl('w'): { // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
         bool passed_spaces = 0;
         process_keypress(KEY_LEFT);
         while ((lines[cy].data[cx] != ' ' && lines[cy].data[cx] != '\t' && lines[cy].data[cx] != '\0') || !passed_spaces) {

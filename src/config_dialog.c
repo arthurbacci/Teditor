@@ -1,5 +1,65 @@
 #include "ted.h"
 
+
+void tablen(char *data) {
+    const int answer_int = atoi(data);
+    
+    if (answer_int > 0)
+        config.tablen = answer_int;
+    else
+        beep();
+    
+    free(data);
+}
+void linebreak(char *data) {
+    if (strcmp(data, "LF") == 0)
+        config.line_break_type = 0;
+    else if (strcmp(data, "CRLF") == 0)
+        config.line_break_type = 1;
+    else if (strcmp(data, "CR") == 0)
+        config.line_break_type = 2;
+    else
+        beep();
+    free(data);
+}
+void use_spaces(char *data) {
+    if (strcmp(data, "TRUE") == 0 || strcmp(data, "1") == 0)
+        config.use_spaces = 1;
+    else if (strcmp(data, "FALSE") == 0 || strcmp(data, "0") == 0)
+        config.use_spaces = 0;
+    else
+        beep();
+    free(data);
+}
+void autotab(char *data) {
+    if (strcmp(data, "TRUE") == 0 || strcmp(data, "1") == 0)
+        config.autotab = 1;
+    else if (strcmp(data, "FALSE") == 0 || strcmp(data, "0") == 0)
+        config.autotab = 0;
+    else
+        beep();
+    free(data);
+}
+void save_as(char *data) {
+    if (needs_to_free_filename)
+        free(filename);
+    filename = data;
+    needs_to_free_filename = 1;
+    // 'data' should not be freed here
+}
+
+struct {
+    const char *name;
+    const char *message;
+    void (*function)(char *data);
+} fns[] = {
+    {"tablen"    , "tablen: "                      , tablen    },
+    {"linebreak" , "linebreak (LF, CR, CRLF): "    , linebreak },
+    {"use-spaces", "use-spaces (0/FALSE, 1/TRUE): ", use_spaces},
+    {"autotab"   , "autotab (0/FALSE, 1/TRUE): "   , autotab   },
+    {"save-as"   , "save-as: "                     , save_as   }
+};
+
 void config_dialog() {
     char msg[1000];
     snprintf(msg, 1000, "Configure: ");
@@ -10,91 +70,26 @@ void config_dialog() {
         beep();
         return;
     }
-
-    if (strcmp(answer, "tablen") == 0) {
-        char msg1[1000];
-        snprintf(msg1, 1000, "tablen: ");
-
-        char *answer1 = prompt(msg1);
-
-        if (answer1 == NULL)
-            beep();
-        else {
-            const int answer_int = atoi(answer1);
-
-            if (answer_int > 0)
-                config.tablen = answer_int;
+    
+    bool did = 0;
+    const unsigned int fnslen = sizeof fns / sizeof *fns;
+    for (unsigned int i = 0; i < fnslen; i++) {
+        if (strcmp(answer, fns[i].name) == 0) {
+            char msg1[1000];
+            strcpy(msg1, fns[i].message);
+            char *answer1 = prompt(msg1);
+            
+            if (answer1 == NULL)
+                beep();
             else
-                message("Needs to be greater than zero");
-
-            free(answer1);
+                fns[i].function(answer1);
+            
+            did = 1;
+            break;
         }
-    } else if (strcmp(answer, "linebreak") == 0) {
-        char msg1[1000];
-        snprintf(msg1, 1000, "linebreak (LF, CR, CRLF): ");
-        char *answer1 = prompt(msg1);
-
-        if (answer1 == NULL)
-            beep();
-        else {
-            if (strcmp(answer1, "LF") == 0)
-                config.line_break_type = 0;
-            else if (strcmp(answer1, "CRLF") == 0)
-                config.line_break_type = 1;
-            else if (strcmp(answer1, "CR") == 0)
-                config.line_break_type = 2;
-            else
-                message("Needs to be LF, CRLF or CR");
-
-            free(answer1);
-        }
-    } else if (strcmp(answer, "use-spaces") == 0) {
-        char msg1[1000];
-        snprintf(msg1, 1000, "use_spaces (0/FALSE, 1/TRUE): ");
-        char *answer1 = prompt(msg1);
-
-        if (answer1 == NULL)
-            beep();
-        else {
-            if (strcmp(answer1, "TRUE") == 0 || strcmp(answer1, "1") == 0)
-                config.use_spaces = 1;
-            else if (strcmp(answer1, "FALSE") == 0 || strcmp(answer1, "0") == 0)
-                config.use_spaces = 0;
-            else
-                message("Invalid option");
-
-            free(answer1);
-        }
-    } else if (strcmp(answer, "autotab") == 0) {
-        char msg1[1000];
-        snprintf(msg1, 1000, "autotab (0/FALSE, 1/TRUE): ");
-        char *answer1 = prompt(msg1);
-        
-        if (answer1 == NULL)
-            beep();
-        else {
-            if (strcmp(answer1, "TRUE") == 0 || strcmp(answer1, "1") == 0)
-                config.autotab = 1;
-            else if (strcmp(answer1, "FALSE") == 0 || strcmp(answer1, "0") == 0)
-                config.autotab = 0;
-            else
-                message("Invalid option");
-            free(answer1);
-        }
-    } else if (strcmp(answer, "save-as") == 0) {
-        char msg1[1000];
-        snprintf(msg1, 1000, "save-as: ");
-        char *answer1 = prompt(msg1);
-        
-        if (answer1 == NULL)
-            beep();
-        else {
-            if (needs_to_free_filename)
-                free(filename);
-            filename = answer1;
-            needs_to_free_filename = 1;
-        }
-    } else
+    }
+    
+    if (!did)
         beep();
 
     free(answer);
