@@ -81,8 +81,20 @@ void config_dialog() {
                 message("Invalid option");
             free(answer1);
         }
-    }
-    else
+    } else if (strcmp(answer, "save-as") == 0) {
+        char msg1[1000];
+        snprintf(msg1, 1000, "save-as: ");
+        char *answer1 = prompt(msg1);
+        
+        if (answer1 == NULL)
+            beep();
+        else {
+            if (needs_to_free_filename)
+                free(filename);
+            filename = answer1;
+            needs_to_free_filename = 1;
+        }
+    } else
         beep();
 
     free(answer);

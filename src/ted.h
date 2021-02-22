@@ -114,3 +114,4 @@ extern struct CURSOR cursor;
 extern struct TEXT_SCROLL text_scroll;
 extern unsigned int last_cursor_x;
 extern bool colors_on;
+extern bool needs_to_free_filename;

@@ -11,7 +11,7 @@ struct TEXT_SCROLL text_scroll = {0, 0};
 char *filename;
 
 bool colors_on;
-char needs_to_free_filename;
+bool needs_to_free_filename;
 
 void setcolor(int c) {
     if (colors_on)
