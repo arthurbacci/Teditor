@@ -107,6 +107,27 @@ void process_keypress(int c) {
         process_keypress(KEY_RIGHT);
         break;
     }
+    case ctrl('o'):
+        if (needs_to_free_filename)
+            free(filename);
+        
+        char msg1[1000];
+        snprintf(msg1, 1000, "open: ");
+        filename = prompt(msg1);
+        needs_to_free_filename = 1;
+    
+        cursor.x = 0;
+        cursor.y = 0;
+        last_cursor_x = 0;
+        free_lines();
+        num_lines = 0;
+        lines = NULL;
+        
+        fp = fopen(filename, "r");
+        read_lines();
+        if (fp != NULL)
+            fclose(fp);
+        break;
     }
 
     if (c == CTRL_KEY_LEFT) {
