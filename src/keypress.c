@@ -12,6 +12,7 @@ void expandLine(unsigned int at, int x) {
 void process_keypress(int c) {
     switch (c) {
     case KEY_UP:
+    case ctrl('p'):
         cursor.y -= cursor.y > 0;
 
         cursor.x = last_cursor_x;
@@ -19,6 +20,7 @@ void process_keypress(int c) {
         cursor_in_valid_position();
         break;
     case KEY_DOWN:
+    case ctrl('n'):
         cursor.y += 1;
 
         cursor.x = last_cursor_x;
@@ -26,21 +28,25 @@ void process_keypress(int c) {
         cursor_in_valid_position();
         break;
     case KEY_LEFT:
+    case ctrl('b'):
         cursor.x -= (cursor.x > 0);
         cursor_in_valid_position();
         last_cursor_x = cx;
         break;
     case KEY_RIGHT:
+    case ctrl('f'):
         cursor.x++;
         cursor_in_valid_position();
         last_cursor_x = cx;
         break;
     case KEY_HOME:
+    case ctrl('a'):
         cursor.x = 0;
         cursor_in_valid_position();
         last_cursor_x = cx;
         break;
     case KEY_END:
+    case ctrl('e'):
         cursor.x = lines[cursor.y].length;
         cursor_in_valid_position();
         last_cursor_x = cx;
