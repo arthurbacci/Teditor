@@ -1,6 +1,5 @@
 #include "ted.h"
 
-
 void tablen(char *data) {
     const int answer_int = atoi(data);
     
@@ -47,26 +46,34 @@ void save_as(char *data) {
     needs_to_free_filename = 1;
     // 'data' should not be freed here
 }
+void manual(char *data) {
+    if (!*data) {
+        openFile(home_path(".config/ted/docs/help.txt"), 1);
+    } else {
+        char fname[1000];
+        snprintf(fname, 1000, ".config/ted/docs/%s.txt", data);
+        openFile(home_path(fname), 1);
+    }
+    free(data);
+}
 
 struct {
     const char *name;
     const char *message;
     void (*function)(char *data);
 } fns[] = {
-    {"tablen"    , "tablen: "                      , tablen    },
-    {"linebreak" , "linebreak (LF, CR, CRLF): "    , linebreak },
-    {"use-spaces", "use-spaces (0/FALSE, 1/TRUE): ", use_spaces},
-    {"autotab"   , "autotab (0/FALSE, 1/TRUE): "   , autotab   },
-    {"save-as"   , "save-as: "                     , save_as   }
+    {"tablen"    , "tablen: "                       , tablen    },
+    {"linebreak" , "linebreak (LF, CR, CRLF): "     , linebreak },
+    {"use-spaces", "use-spaces (0/FALSE, 1/TRUE): " , use_spaces},
+    {"autotab"   , "autotab (0/FALSE, 1/TRUE): "    , autotab   },
+    {"save-as"   , "save-as: "                      , save_as   },
+    {"manual"    , "manual page (blank for index): ", manual    }
 };
 
 void config_dialog() {
-    char msg[1000];
-    snprintf(msg, 1000, "Configure: ");
+    char *answer = prompt("Configure: ");
 
-    char *answer = prompt(msg);
-
-    if (answer == NULL) {
+    if (!answer) {
         beep();
         return;
     }
@@ -75,11 +82,9 @@ void config_dialog() {
     const unsigned int fnslen = sizeof fns / sizeof *fns;
     for (unsigned int i = 0; i < fnslen; i++) {
         if (strcmp(answer, fns[i].name) == 0) {
-            char msg1[1000];
-            strcpy(msg1, fns[i].message);
-            char *answer1 = prompt(msg1);
+            char *answer1 = prompt(fns[i].message);
             
-            if (answer1 == NULL)
+            if (!answer1)
                 beep();
             else
                 fns[i].function(answer1);
@@ -91,6 +96,6 @@ void config_dialog() {
     
     if (!did)
         beep();
-
+    
     free(answer);
 }

@@ -63,8 +63,8 @@ void read_lines() {
         lines = realloc(lines, ++num_lines * sizeof(struct LINE));
 
         lines[i].len = READ_BLOCKSIZE;
-        lines[i].data = malloc(lines[i].len * sizeof(uchar32_t));
-        lines[i].color = malloc(lines[i].len * sizeof(unsigned char));
+        lines[i].data = malloc(lines[i].len * sizeof *(lines[i].data));
+        lines[i].color = malloc(lines[i].len * sizeof *(lines[i].color));
         lines[i].length = 0;
         lines[i].ident = 0;
 
@@ -74,7 +74,7 @@ void read_lines() {
 
         for (j = 0; (c = fgetc(fp)) != lineend && c != EOF; j++) {
 
-            if (j + 1 >= lines[i].len) {
+            if (lines[i].length + 1 >= lines[i].len) {
                 lines[i].len += READ_BLOCKSIZE;
                 lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(uchar32_t));
                 lines[i].color = realloc(lines[i].color, lines[i].len * sizeof(unsigned char));
@@ -91,11 +91,10 @@ void read_lines() {
 
             lines[i].length++;
         }
-
+        
         lines[i].data[j] = '\0';
-
+        
         syntaxHighlight(i);
-
         if (config.line_break_type == 1)
             fgetc(fp);
     }
@@ -120,3 +119,24 @@ void detect_linebreak() {
     }
     rewind(fp);
 }
+
+void openFile(char *fname, bool needs_to_free) {
+    if (needs_to_free_filename)
+        free(filename);
+    
+    filename = fname;
+    needs_to_free_filename = needs_to_free;
+    
+    cursor.x = 0;
+    cursor.y = 0;
+    last_cursor_x = 0;
+    free_lines();
+    num_lines = 0;
+    lines = NULL;
+    
+    fp = fopen(filename, "r");
+    read_lines();
+    if (fp != NULL)
+        fclose(fp);
+}
+

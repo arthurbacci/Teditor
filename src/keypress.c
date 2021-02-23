@@ -43,11 +43,13 @@ void process_keypress(int c) {
     case ctrl('a'):
         cursor.x = 0;
         last_cursor_x = cx;
+        cursor_in_valid_position();
         break;
     case KEY_END:
     case ctrl('e'):
         cursor.x = lines[cursor.y].length;
         last_cursor_x = cx;
+        cursor_in_valid_position();
         break;
     case ctrl('s'):
         savefile();
@@ -91,8 +93,7 @@ void process_keypress(int c) {
         cursor_in_valid_position();
         syntaxHighlight(cy);
         break;
-    }
-    case ctrl('w'): { // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
+    } case ctrl('w'): { // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
         bool passed_spaces = 0;
         process_keypress(KEY_LEFT);
         while (!strchr(config.word_separators, lines[cy].data[cx]) || !passed_spaces) {
@@ -104,36 +105,25 @@ void process_keypress(int c) {
         }
         process_keypress(KEY_RIGHT);
         break;
-    }
-    case ctrl('o'):
-        if (needs_to_free_filename)
-            free(filename);
+    } case ctrl('o'): {
+        char *d = prompt("open: ");
+        if (d)
+            openFile(d, 1);
         
-        char msg1[1000];
-        snprintf(msg1, 1000, "open: ");
-        filename = prompt(msg1);
-        needs_to_free_filename = 1;
-    
-        cursor.x = 0;
-        cursor.y = 0;
-        last_cursor_x = 0;
-        free_lines();
-        num_lines = 0;
-        lines = NULL;
-        
-        fp = fopen(filename, "r");
-        read_lines();
-        if (fp != NULL)
-            fclose(fp);
         break;
+    }
     }
 
     if (c == CTRL_KEY_LEFT) {
         char passed_spaces = 0;
-        while (cx > 0 && !(strchr(config.word_separators, lines[cy].data[cx]) && passed_spaces)) {
+        while (cx > 0) {
+            process_keypress(KEY_LEFT);
             if (!strchr(config.word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
-            process_keypress(KEY_LEFT);
+            if (strchr(config.word_separators, lines[cy].data[cx]) && passed_spaces) {
+                process_keypress(KEY_RIGHT);
+                break;
+            }
         }
     } else if (c == CTRL_KEY_RIGHT) {
         char passed_spaces = 0;

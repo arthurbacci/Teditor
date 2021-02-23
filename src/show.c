@@ -1,5 +1,4 @@
 #include "ted.h"
-
 void show_menu(char *message) {
     setcolor(COLOR_PAIR(2));
     move(config.LINES, 0);
@@ -29,18 +28,15 @@ void show_lines() {
             setcolor(COLOR_PAIR(2));
             continue;
         }
-        
                 
         setcolor(COLOR_PAIR(1));
 
         printw("%*d ", len_line_number, i + 1);
 
         setcolor(COLOR_PAIR(2));
-
         unsigned int size = 0;
         char passed_limit = 0;
         for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1 + text_scroll.x; j++) {
-
             if (passed_limit) {
                 addch(' ');
                 size++;
@@ -55,21 +51,20 @@ void show_lines() {
             unsigned char fg, bg;
             readColor(i, j, &fg, &bg);
             int palette[] = {-1, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_MAGENTA, COLOR_CYAN};
-            if (colors_on) {
+            if (colors_on)
                 init_pair(3 + lines[i].color[j], palette[fg], palette[bg]);
-            }
             if (fg || bg)
                 setcolor(COLOR_PAIR(3 + lines[i].color[j]));
             else
                 setcolor(COLOR_PAIR(2));
-            if (isprint(lines[i].data[j]) || lines[i].data[j] == '\t') {
+            if (lines[i].data[j] == '\t') {
                 if (size >= text_scroll.x) {
                     if (lines[i].data[j] == '\t') {
                         for (unsigned int k = 0; k < config.tablen; k++)
                             addch(' ');
                         size += config.tablen - 1;
                     } else
-                        addch(lines[i].data[j]);                    
+                        addch(lines[i].data[j]);
                 }
             } else {
                 unsigned char b[4];
@@ -85,6 +80,5 @@ void show_lines() {
             }
             size++;
         }
-
     }
 }

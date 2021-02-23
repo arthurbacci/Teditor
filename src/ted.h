@@ -22,7 +22,7 @@ typedef uint32_t uchar32_t;
 
 // message_and_prompt.c
 void message(char *msg);
-char *prompt(char *msg);
+char *prompt(const char *msg_);
 
 // ted.c
 void setcolor(int c);
@@ -34,6 +34,7 @@ void config_dialog();
 void savefile();
 void read_lines();
 void detect_linebreak();
+void openFile(char *fname, bool needs_to_free);
 
 // show.c
 void show_menu(char *message);
@@ -59,6 +60,9 @@ uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
 // color.c
 void syntaxHighlight(unsigned int at);
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
+
+// utils.c
+char *home_path(const char *path);
 
 struct KWD {
     const char *string;

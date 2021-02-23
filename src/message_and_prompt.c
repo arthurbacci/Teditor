@@ -1,6 +1,8 @@
 #include "ted.h"
 
-char *prompt(char *msg) {
+char *prompt(const char *msg_) {
+    char msg[1000];
+    strcpy(msg, msg_);
     unsigned int len = strlen(msg);
     char *ret = malloc(1000 - len);
 
@@ -30,6 +32,7 @@ char *prompt(char *msg) {
         show_menu(menu_message);
         refresh();
     }
+    ret[i] = '\0';
     menu_message = "";
     return ret;
 }
@@ -37,3 +40,4 @@ char *prompt(char *msg) {
 void message(char *msg) {
     menu_message = msg;
 }
+
