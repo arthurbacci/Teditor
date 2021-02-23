@@ -1,7 +1,4 @@
 Welcome to The Teditor Manual
-á
-á
-á
 ┃
 ┠───┬─ Keybindings
 ┃   ├── Teditor's default keybindings
