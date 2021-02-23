@@ -21,39 +21,16 @@ to run:
 ./ted
 ```
 
-to recompile:
-
-```
-make clean
-make
-```
-
 If you want to develop/contribute, use `make dev` instead of `make`
 
 ```
-make clean
-make dev
-./ted
+make dev && ./ted
 ```
 
-## Shortcuts
-**Ctrl+G** Opens the config dialog.
+## Help
 
-**Ctrl+S** Saves the file.
+Press `Ctrl-G`, type `manual`, press `ENTER` and press `ENTER` again.
 
-**Ctrl+DEL**: delete the selected line.
-
-<br>  
-If you open the config dialog, type the command you want
-and press Enter. Commands may require an argument.
-
-Config dialog commands:
-
-**tablen** Set tab length
-**use_spaces** Tab or Space?
-**autotab** Toggle autotab
-<br>  
-<br>  
 ## Contributing
 Please open a Pull Request if you have a solution or a new feature.
 
