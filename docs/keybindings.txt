@@ -1,0 +1,26 @@
+Keybings
+┃
+┠───┬─ Typing
+┃   ├── You can move with the keyboard keys or using C-F (right), C-b (left), C-n (down), C-p (up).
+┃   ├── Press HOME or C-a to go to the start of the line and END or C-e to go to the end of the line
+┃   ├── Press BACKSPACE or DELETE to delete the character before the cursor
+┃   ├── Press C-DELETE to delete the selected line
+┃   └── Press C-w to delete the word before the cursor
+┃
+┠───┬─ Config dialog
+┃   ├── You can open the config dialog with C-g
+┃   ├───┬─ The config dialog commands
+┃   │   ├───┬─ tablen
+┃   │   │   └── TODO
+┃   │   ├───┬─ linebreak
+┃   │   │   └── TODO
+┃   │   ├───┬─ use-spaces
+┃   │   │   └── TODO
+┃   │   ├───┬─ autotab
+┃   │   │   └── TODO
+┃   │   ├───┬─ save-as
+┃   │   │   └── TODO
+┃   │   ├───┬─ manual
+┃   │   │   └── TODO
+┃
+
