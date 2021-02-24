@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #define READ_BLOCKSIZE 10
 #define ctrl(x) ((x) & 0x1f)
@@ -22,7 +23,7 @@ typedef uint32_t uchar32_t;
 
 // message_and_prompt.c
 void message(char *msg);
-char *prompt(const char *msg_);
+char *prompt(const char *msgtmp, char *def);
 
 // ted.c
 void setcolor(int c);

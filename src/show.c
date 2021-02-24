@@ -7,7 +7,7 @@ void show_menu(char *message) {
 
     move(config.LINES, 0);
     if (!*message) {
-        printw("I:%u", lines[cy].ident);
+        printw("I:%u %s", lines[cy].ident, filename);
         move(config.LINES, COLS - (config.line_break_type == 1 ? 4 : 2));
         printw("%s", config.line_break_type == 0 ? "LF" : (config.line_break_type == 1 ? "CRLF" : "CR"));
     } else

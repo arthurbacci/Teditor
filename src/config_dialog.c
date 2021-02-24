@@ -72,7 +72,7 @@ struct {
 };
 
 void config_dialog() {
-    char *answer = prompt("Configure: ");
+    char *answer = prompt("Configure: ", "");
 
     if (!answer) {
         beep();
@@ -83,7 +83,7 @@ void config_dialog() {
     const unsigned int fnslen = sizeof fns / sizeof *fns;
     for (unsigned int i = 0; i < fnslen; i++) {
         if (strcmp(answer, fns[i].name) == 0) {
-            char *answer1 = prompt(fns[i].message);
+            char *answer1 = prompt(fns[i].message, strcmp(fns[i].name, "save-as") == 0 ? filename : "");
             
             if (!answer1)
                 beep();

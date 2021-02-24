@@ -106,7 +106,7 @@ void process_keypress(int c) {
         process_keypress(KEY_RIGHT);
         break;
     } case ctrl('o'): {
-        char *d = prompt("open: ");
+        char *d = prompt("open: ", filename);
         if (d)
             openFile(d, 1);
         

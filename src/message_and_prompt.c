@@ -1,17 +1,20 @@
 #include "ted.h"
 
-char *prompt(const char *msg_) {
+char *prompt(const char *msgtmp, char *def) {
     char msg[1000];
-    strcpy(msg, msg_);
+    strcpy(msg, msgtmp);
     unsigned int len = strlen(msg);
     char *ret = malloc(1000 - len);
+    strcpy(ret, def);
+    strcpy(msg + len, def);
+    unsigned int deflen = strlen(def);
 
     int c;
     int i;
     message(msg);
     show_menu(menu_message);
     refresh();
-    for (i = 0; (c = getch()) != '\n' && i < 999 - (int)len; i++) {
+    for (i = deflen; (c = getch()) != '\n' && i < 999 - (int)len; i++) {
         message(msg);
         if (c == KEY_BACKSPACE)
             i -= 1 + (i > 0);

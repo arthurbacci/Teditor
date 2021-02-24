@@ -66,8 +66,16 @@ int main(int argc, char **argv) {
         free(config);
         free(config_ted);
     } else {
-        filename = argv[1];
-        needs_to_free_filename = 0;
+        if (*argv[1] == '/') 
+            filename = argv[1];
+        else {
+            char *fname = malloc(1000 * sizeof *filename);
+            getcwd(fname, 1000);
+            filename = malloc(1000 * sizeof *filename);
+            snprintf(filename, 1000, "%s/%s", fname, argv[1]);
+            free(fname);
+        }
+        needs_to_free_filename = *argv[1] != '/';
     }
     
     setlocale(LC_ALL, "");
