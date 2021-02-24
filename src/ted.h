@@ -59,7 +59,7 @@ void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
 uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
 
 // color.c
-void syntaxHighlight(unsigned int at);
+void syntaxHighlight();
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
 // utils.c
