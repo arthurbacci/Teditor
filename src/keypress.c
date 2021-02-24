@@ -172,7 +172,7 @@ void process_keypress(int c) {
 
             expandLine(cy, del_line.length);
 
-            memmove(&lines[cy].data[lines[cy].length], del_line.data, del_line.length * sizeof uchar32_t);
+            memmove(&lines[cy].data[lines[cy].length], del_line.data, del_line.length * sizeof(uchar32_t));
             lines[cy].length += del_line.length;
 
             lines[cy].data[lines[cy].length] = '\0';
