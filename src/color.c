@@ -2,9 +2,33 @@
 
 void syntaxHighlight() {
     bool multi_line_comment = 0;
+    bool backslash = 0;
+    char string = '\0';
     for (unsigned int at = 0; at < num_lines; at++) {
         bool comment = 0;
         for (unsigned int i = 0; i <= lines[at].length; i++) {
+            if (lines[at].data[i] == '\\') {
+                lines[at].color[i] = string ? 0x40 : 0x0;
+                backslash = 1;
+                continue;
+            }
+            if (!(comment || multi_line_comment) && (lines[at].data[i] == '\"' || lines[at].data[i] == '\'') && !backslash) {
+                if (!string)
+                    string = lines[at].data[i];
+                else if (lines[at].data[i] == (uchar32_t)string) {
+                    lines[at].color[i] = 0x40;
+                    string = '\0';
+                    continue;
+                }
+            }
+            
+            backslash = 0;
+            
+            if (string) {
+                lines[at].color[i] = 0x40;
+                continue;
+            }
+        
             if (i < lines[at].length - 1 && lines[at].data[i] == '/' && lines[at].data[i + 1] == '/')
                 comment = 1;
             else if (i < lines[at].length - 1 && lines[at].data[i] == '/' && lines[at].data[i + 1] == '*')
@@ -24,8 +48,7 @@ void syntaxHighlight() {
                         c = 1;
                         break;
                     }
-                if (c)
-                    continue;
+                if (c) continue;
                 for (unsigned int j = 0; j < stringlen; j++)
                     lines[at].color[i + j] = config.keywords[k].color;
                 i += stringlen - 1;
