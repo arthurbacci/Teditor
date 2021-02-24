@@ -44,6 +44,7 @@ void save_as(char *data) {
         free(filename);
     filename = data;
     needs_to_free_filename = 1;
+    savefile();
     // 'data' should not be freed here
 }
 void manual(char *data) {

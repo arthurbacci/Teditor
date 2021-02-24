@@ -9,18 +9,28 @@ Keybings
 ┃
 ┠───┬─ Config dialog
 ┃   ├── You can open the config dialog with C-g
-┃   ├───┬─ The config dialog commands
-┃   │   ├───┬─ tablen
-┃   │   │   └── TODO
-┃   │   ├───┬─ linebreak
-┃   │   │   └── TODO
-┃   │   ├───┬─ use-spaces
-┃   │   │   └── TODO
-┃   │   ├───┬─ autotab
-┃   │   │   └── TODO
-┃   │   ├───┬─ save-as
-┃   │   │   └── TODO
-┃   │   ├───┬─ manual
-┃   │   │   └── TODO
-┃
+┃   └───┬─ The config dialog commands
+┃       │
+┃       ├───┬─ tablen
+┃       │   ├── Changes the number of spaces of the identation
+┃       │   ├── Also changes the size that the tab is displayed
+┃       │   └── Default: 4
+┃       │
+┃       ├───┬─ linebreak
+┃       │   ├── Changes the type of linebreak between LF (Linux, Mac), CRLF )Windows) and CR.
+┃       │   └── Default: depends on the file
+┃       │
+┃       ├───┬─ use-spaces
+┃       │   ├── Changes identation between tabulations (0/FALSE) and spaces (1/TRUE)
+┃       │   └── Default: 1/TRUE
+┃       │
+┃       ├───┬─ autotab
+┃       │   ├── Toggle auto tabulation behavior
+┃       │   └── Default: 1/TRUE
+┃       │
+┃       ├───┬─ save-as
+┃       │   └── Change the filename and save
+┃       │
+┃       └───┬─ manual
+┃           └── Open the manual pages
 
