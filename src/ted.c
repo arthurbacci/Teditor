@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     config.kwdlen = sizeof kwd / sizeof *kwd;
 
     char tmp[10];
-    len_line_number = snprintf(tmp, 10, "%d", num_lines + 1);
+    len_line_number = snprintf(tmp, 10, "%d ", num_lines + 1);
 
     if (has_colors() && start_color() == OK)
         colors_on = 1;
