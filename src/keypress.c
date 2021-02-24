@@ -142,21 +142,15 @@ void process_keypress(int c) {
 
         lines[cy].data[cx] = c;
         
-        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
-            lines[cy].data[cx] += getch() << 8;
-        
-        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
-            lines[cy].data[cx] += getch() << 16;
-
-        if (c >= 0xF0 && c <= 0xF7)
-            lines[cy].data[cx] = getch() << 24;
+        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) lines[cy].data[cx] += getch() << 8;
+        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))                             lines[cy].data[cx] += getch() << 16;
+        if (c >= 0xF0 && c <= 0xF7)                                                           lines[cy].data[cx] += getch() << 24;
         
         lines[cy].data[++lines[cy].length] = '\0';
         syntaxHighlight(cy);
         process_keypress(KEY_RIGHT);
     } else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
-        if (cx <= lines[cy].ident && cx > 0)
-            lines[cy].ident--;
+        lines[cy].ident -= cx <= lines[cy].ident && cx > 0;
 
         if (cx >= 1) {
             memmove(&lines[cy].data[cx - 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
@@ -164,9 +158,7 @@ void process_keypress(int c) {
 
             process_keypress(KEY_LEFT);
         } else if (cy > 0) {
-            uchar32_t *del_line = lines[cy].data;
-            unsigned char *del_line_color = lines[cy].color;
-            unsigned int del_line_len = lines[cy].length;
+            struct LINE del_line = lines[cy];
 
             memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
             
@@ -178,21 +170,20 @@ void process_keypress(int c) {
             
             process_keypress(KEY_RIGHT);
 
-            expandLine(cy, del_line_len);
+            expandLine(cy, del_line.length);
 
-            memmove(&lines[cy].data[lines[cy].length], del_line, del_line_len * sizeof(uchar32_t));
-            lines[cy].length += del_line_len;
+            memmove(&lines[cy].data[lines[cy].length], del_line.data, del_line.length * sizeof uchar32_t);
+            lines[cy].length += del_line.length;
 
             lines[cy].data[lines[cy].length] = '\0';
 
-            free(del_line);
-            free(del_line_color);
+            free(del_line.data);
+            free(del_line.color);
         }
 
         lines[cy].ident = 0;
         for (unsigned int i = 0; lines[cy].data[i] != '\0'; i++) {
-            if (lines[cy].data[i] != ' ')
-                break;
+            if (lines[cy].data[i] != ' ') break;
             lines[cy].ident++;
         }
         syntaxHighlight(cy);
