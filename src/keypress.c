@@ -108,10 +108,15 @@ void process_keypress(int c) {
     } case ctrl('o'): {
         char *d = prompt("open: ", filename);
         if (d)
-            openFile(d, 1);
-        
+            appendBuffer(d);
+        free(d);
         break;
-    }
+    } case ctrl('l'):
+        nextBuffer();
+        break;
+    case ctrl('k'):
+        prevBuffer();
+        break;
     }
 
     if (c == CTRL_KEY_LEFT) {
@@ -233,8 +238,7 @@ void process_keypress(int c) {
 
             for (unsigned int i = 0; i < ident; i++)
                 process_keypress(KEY_RIGHT);
-        }
-        else
+        } else
             lines[cy].ident = 0;
 
         syntaxHighlight(cy);

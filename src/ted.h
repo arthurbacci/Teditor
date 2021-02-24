@@ -65,6 +65,12 @@ void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned ch
 // utils.c
 char *home_path(const char *path);
 
+// buffers.c
+void appendBuffer(char *bufname);
+void nextBuffer();
+void prevBuffer();
+void freeBuffers();
+
 struct KWD {
     const char *string;
     uint8_t color;

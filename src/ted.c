@@ -37,14 +37,6 @@ struct CFG config = {
     kwd
 };
 
-unsigned int display_cx() {
-    unsigned int ret = cx;
-    for (unsigned int i = 0; i < cx; i++)
-        if (lines[cy].data[i] == '\t')
-            ret += config.tablen - 1;
-    return ret;
-}
-
 int main(int argc, char **argv) {
     if (argc < 2) {
         struct stat st = {0};
@@ -89,16 +81,9 @@ int main(int argc, char **argv) {
     mouseinterval(1);
     
     config.kwdlen = sizeof kwd / sizeof *kwd;
-    
-    fp = fopen(filename, "r");
 
-    read_lines();
-    if (fp != NULL)
-        fclose(fp);
-
-    char tmp[50];
-    len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
-
+    char tmp[10];
+    len_line_number = snprintf(tmp, 10, "%d", num_lines + 1);
 
     if (has_colors() && start_color() == OK)
         colors_on = 1;
@@ -109,6 +94,10 @@ int main(int argc, char **argv) {
         init_pair(2, -1, -1);
     }
     
+    appendBuffer(filename);
+    if (needs_to_free_filename)
+        free(filename);
+    
 
     int c;
     while (1) {
@@ -117,7 +106,7 @@ int main(int argc, char **argv) {
         
         show_lines();
         show_menu(menu_message);
-        move(cursor.y - text_scroll.y, display_cx() - text_scroll.x + len_line_number + 1);
+        move(cursor.y - text_scroll.y, cx - text_scroll.x + len_line_number + 1);
         refresh();
         curs_set(1);
 
@@ -130,6 +119,7 @@ int main(int argc, char **argv) {
     }
 
     free_lines();
+    freeBuffers();
 
     if (needs_to_free_filename == 1)
         free(filename);

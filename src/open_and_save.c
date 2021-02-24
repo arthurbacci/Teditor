@@ -130,6 +130,8 @@ void openFile(char *fname, bool needs_to_free) {
     cursor.x = 0;
     cursor.y = 0;
     last_cursor_x = 0;
+    text_scroll.x = 0;
+    text_scroll.y = 0;
     free_lines();
     num_lines = 0;
     lines = NULL;
@@ -138,5 +140,8 @@ void openFile(char *fname, bool needs_to_free) {
     read_lines();
     if (fp != NULL)
         fclose(fp);
+    
+    char tmp[10];
+    len_line_number = snprintf(tmp, 10, "%d", num_lines + 1);
 }
 
