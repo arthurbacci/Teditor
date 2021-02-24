@@ -3,7 +3,7 @@
 
 <image src="teditor.gif">
 
-A simple text and code editor made in ncurses with UTF-8 support, mouse events (including scroll and clicks), autotab, a permanent stratch buffer (just run `ted`, without any argument) and help page(s). All this with only less than 1000 lines of C code (counting with cloc).
+A simple text and code editor made in ncurses with UTF-8 support, mouse events (including scroll and clicks), autotab, a permanent stratch buffer (just run `ted`, without any argument), open, save as and help page(s). All this with only less than 1000 lines of C code (counting with cloc).
 
 ### Compiling
 
