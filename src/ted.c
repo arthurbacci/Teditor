@@ -87,8 +87,7 @@ int main(int argc, char **argv) {
     char tmp[10];
     len_line_number = snprintf(tmp, 10, "%d ", num_lines + 1);
 
-    if (has_colors() && start_color() == OK)
-        colors_on = 1;
+    colors_on = has_colors() && start_color() == OK;
 
     if (colors_on) {
         use_default_colors();
@@ -96,11 +95,10 @@ int main(int argc, char **argv) {
         init_pair(2, -1, -1);
     }
     
-    appendBuffer(filename);
-    if (needs_to_free_filename)
-        free(filename);
+    fp = fopen(filename, "r");
+    read_lines();
+    if (fp) fclose(fp);
     
-
     int c;
     while (1) {
         curs_set(0);
@@ -121,7 +119,6 @@ int main(int argc, char **argv) {
     }
 
     free_lines();
-    freeBuffers();
 
     if (needs_to_free_filename == 1)
         free(filename);

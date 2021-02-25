@@ -108,15 +108,14 @@ void process_keypress(int c) {
     } case ctrl('o'): {
         char *d = prompt("open: ", filename);
         if (d)
-            appendBuffer(d);
-        free(d);
+            openFile(d, 1);
         break;
-    } case ctrl('l'):
+    }/*case ctrl('l'):
         nextBuffer();
         break;
     case ctrl('k'):
         prevBuffer();
-        break;
+        break;*/
     }
 
     if (c == CTRL_KEY_LEFT) {
