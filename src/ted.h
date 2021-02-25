@@ -85,6 +85,11 @@ struct CFG {
     const char *word_separators;
     unsigned int kwdlen;
     struct KWD *keywords;
+    unsigned char syntax_string_color;
+    unsigned char syntax_comment_color;
+    const char *stringchars;
+    const char *singleline_comment;
+    const char *multiline_comment[2];
 };
 
 
