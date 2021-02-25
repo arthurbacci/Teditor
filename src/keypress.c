@@ -110,12 +110,7 @@ void process_keypress(int c) {
         if (d)
             openFile(d, 1);
         break;
-    }/*case ctrl('l'):
-        nextBuffer();
-        break;
-    case ctrl('k'):
-        prevBuffer();
-        break;*/
+    }
     }
 
     if (c == CTRL_KEY_LEFT) {

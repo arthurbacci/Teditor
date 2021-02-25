@@ -1,4 +1,5 @@
 #include "ted.h"
+
 void show_menu(char *message) {
     setcolor(COLOR_PAIR(2));
     move(config.LINES, 0);
@@ -15,7 +16,6 @@ void show_menu(char *message) {
 }
 
 void show_lines() {
-    
     for (unsigned int i = text_scroll.y; i < text_scroll.y + config.LINES; i++) {
         move(i - text_scroll.y, 0);
         if (i >= num_lines) {
@@ -28,56 +28,45 @@ void show_lines() {
             setcolor(COLOR_PAIR(2));
             continue;
         }
-                
+        
         setcolor(COLOR_PAIR(1));
 
-        printw("%*d ", len_line_number, i + 1);
+        printw("%*d ", len_line_number + 1, i + 1);
 
         setcolor(COLOR_PAIR(2));
         unsigned int size = 0;
-        char passed_limit = 0;
-        for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1 + text_scroll.x; j++) {
-            if (passed_limit) {
+        for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1; j++) {
+            if (text_scroll.x + j >= lines[i].length) {
                 addch(' ');
                 size++;
                 continue;
             }
-            if (lines[i].data[j] == '\0') {
-                addch(' ');
-                passed_limit = 1;
-                size++;
-                continue;
-            }
+            uchar32_t el = lines[i].data[text_scroll.x + j];
+            
             unsigned char fg, bg;
-            readColor(i, j, &fg, &bg);
+            readColor(i, text_scroll.x + j, &fg, &bg);
             int palette[] = {-1, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_MAGENTA, COLOR_CYAN};
             if (colors_on)
-                init_pair(3 + lines[i].color[j], palette[fg], palette[bg]);
+                init_pair(3 + lines[i].color[text_scroll.x + j], palette[fg], palette[bg]);
+            
             if (fg || bg)
-                setcolor(COLOR_PAIR(3 + lines[i].color[j]));
+                setcolor(COLOR_PAIR(3 + lines[i].color[text_scroll.x + j]));
             else
                 setcolor(COLOR_PAIR(2));
-            if (lines[i].data[j] == '\t') {
-                if (size >= text_scroll.x) {
-                    if (lines[i].data[j] == '\t') {
-                        for (unsigned int k = 0; k < config.tablen; k++)
-                            addch(' ');
-                        size += config.tablen - 1;
-                    } else
-                        addch(lines[i].data[j]);
-                }
+            
+            
+            if (el == '\t') {
+                for (unsigned int k = 0; k < config.tablen; k++)
+                    addch(' ');
+                size += config.tablen - 1;
             } else {
                 unsigned char b[4];
-                printw("%.*s", utf8ToMultibyte(lines[i].data[j], b), b);
+                printw("%.*s", utf8ToMultibyte(el, b), b);
             }
+            
             if (bg)
                 setcolor(COLOR_PAIR(2));
-            if (lines[i].data[j] == '\0') {
-                addch(' ');
-                passed_limit = 1;
-                size++;
-                continue;
-            }
+            
             size++;
         }
     }

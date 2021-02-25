@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
         
         show_lines();
         show_menu(menu_message);
-        move(cursor.y - text_scroll.y, cx - text_scroll.x + len_line_number + 1);
+        move(cursor.y - text_scroll.y, cx - text_scroll.x + len_line_number + 2);
         refresh();
         curs_set(1);
 

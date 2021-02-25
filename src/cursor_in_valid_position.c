@@ -20,7 +20,7 @@ void cursor_in_valid_position() {
     // x
     if (cursor.x < text_scroll.x)
         text_scroll.x = cursor.x;
-    else if (cursor.x - text_scroll.x >= (unsigned int)COLS - len_line_number - 1)
-        text_scroll.x += (cursor.x - text_scroll.x) - ((unsigned int)COLS - len_line_number - 2);
+    else if (cursor.x > text_scroll.x + (COLS - len_line_number - 3))
+        text_scroll.x = cursor.x - (COLS - len_line_number - 3);
     
 }
