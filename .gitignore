@@ -2,3 +2,5 @@ ted
 *.backup
 *.tar.zst
 pkg/
+log.txt
+
