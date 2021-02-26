@@ -79,9 +79,10 @@ struct KWD {
 struct CFG {
     unsigned int tablen;
     unsigned int LINES;
-    unsigned char line_break_type : 2; // 0: LF  1: CRLF  2: CR
-    bool use_spaces : 1;
-    bool autotab : 1;
+    unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
+    bool use_spaces;
+    bool autotab;
+    bool syntax_on;
     const char *word_separators;
     unsigned int kwdlen;
     struct KWD *keywords;

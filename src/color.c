@@ -5,6 +5,11 @@ void syntaxHighlight() {
     bool backslash = 0;
     char string = '\0';
     for (unsigned int at = 0; at < num_lines; at++) {
+        if (!config.syntax_on) {
+            for (unsigned int i = 0; i <= lines[at].length; i++)
+                lines[at].color[i] = 0x0;
+            continue;
+        }
         bool comment = 0;
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {

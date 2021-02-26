@@ -57,18 +57,29 @@ void manual(char *data) {
     }
     free(data);
 }
+void syntax (char *data) {
+    if (strcmp(data, "TRUE") == 0 || strcmp(data, "1") == 0)
+        config.syntax_on = 1;
+    else if (strcmp(data, "FALSE") == 0 || strcmp(data, "0") == 0)
+        config.syntax_on = 0;
+    else
+        beep();
+    syntaxHighlight();
+    free(data);
+}
 
 struct {
     const char *name;
     const char *message;
     void (*function)(char *data);
 } fns[] = {
-    {"tablen"    , "tablen: "                       , tablen    },
-    {"linebreak" , "linebreak (LF, CR, CRLF): "     , linebreak },
-    {"use-spaces", "use-spaces (0/FALSE, 1/TRUE): " , use_spaces},
-    {"autotab"   , "autotab (0/FALSE, 1/TRUE): "    , autotab   },
-    {"save-as"   , "save-as: "                      , save_as   },
-    {"manual"    , "manual page (blank for index): ", manual    }
+    {"tablen"    , "tablen: "                            , tablen    },
+    {"linebreak" , "linebreak (LF, CR, CRLF): "          , linebreak },
+    {"use-spaces", "use-spaces (0/FALSE, 1/TRUE): "      , use_spaces},
+    {"autotab"   , "autotab (0/FALSE, 1/TRUE): "         , autotab   },
+    {"save-as"   , "save-as: "                           , save_as   },
+    {"manual"    , "manual page (blank for index): "     , manual    },
+    {"syntax"    , "syntax highlight (0/FALSE, 1/TRUE): ", syntax    }
 };
 
 void config_dialog() {

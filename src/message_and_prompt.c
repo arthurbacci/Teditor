@@ -16,7 +16,7 @@ char *prompt(const char *msgtmp, char *def) {
     refresh();
     for (i = deflen; (c = getch()) != '\n' && i < 999 - (int)len; i++) {
         message(msg);
-        if (c == KEY_BACKSPACE)
+        if (c == KEY_BACKSPACE || c == ctrl('h') || c == '\b')
             i -= 1 + (i > 0);
         else if (c == ctrl('c')) {
             free(ret);
@@ -30,7 +30,7 @@ char *prompt(const char *msgtmp, char *def) {
         if (isprint(c)) {
             msg[len + i] = c;
             ret[i] = c;
-        } else
+        } else if (c != KEY_BACKSPACE && c != ctrl('h') && c != '\b')
             i--;
         
         show_menu(menu_message);
