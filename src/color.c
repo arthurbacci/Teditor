@@ -4,6 +4,7 @@ void syntaxHighlight() {
     bool multi_line_comment = 0;
     bool backslash = 0;
     char string = '\0';
+    unsigned int waiting_to_close = 0;
     for (unsigned int at = 0; at < num_lines; at++) {
         if (!config.syntax_on) {
             for (unsigned int i = 0; i <= lines[at].length; i++)
@@ -56,7 +57,46 @@ void syntaxHighlight() {
             
             lines[at].color[i] = comment || multi_line_comment ? config.syntax_comment_color : 0x0;
             if (comment || multi_line_comment) continue;
-        
+            
+            // if lines[at].data[i] is a null byte, strchr will return
+            if (lines[at].data[i] && 
+                (strchr(config.match[0], lines[at].data[i]) || strchr(config.match[1], lines[at].data[i]))
+            ) {
+                bool opening = strchr(config.match[0], lines[at].data[i]);
+                
+                if (waiting_to_close && !opening) {
+                    if (waiting_to_close == 1)
+                        lines[at].color[i] = config.match_color;
+                    waiting_to_close--;
+                    continue;
+                } else if (waiting_to_close && opening)
+                    waiting_to_close++;
+                
+                if (at == cursor.y && i + 1 == cursor.x) {
+                    lines[at].color[i] = config.match_color;
+                    if (opening) {
+                        waiting_to_close = 1;
+                    } else {
+                        unsigned int lay = 1;
+                        for (int _at = at; _at >= 0; _at--) {
+                            for (int _i = (int)at == _at ? i : lines[_at].length - 1; _i >= 0; _i--) {
+                                if (strchr(config.match[0], lines[_at].data[_i])) {
+                                    lay--;
+                                    if (lay == 1) {
+                                        lines[_at].color[_i] = config.match_color;
+                                        _at = -1;
+                                        break;
+                                    }
+                                } else if (strchr(config.match[1], lines[_at].data[_i])) {
+                                    lay++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            
             for (unsigned int k = 0; k < config.kwdlen; k++) {
                 unsigned int stringlen = strlen(config.keywords[k].string);
                 if (lines[at].length - i < stringlen) continue;

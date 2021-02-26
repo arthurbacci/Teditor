@@ -25,7 +25,6 @@ struct KWD kwd[] = {
     {"if", 0x10}, {"else", 0x10},
     {"int", 0x20}, {"char", 0x20}, {"unsigned", 0x20}, {"double", 0x20}, {"float", 0x20}, {"struct", 0x20}, {"const", 0x20}, {"return", 0x20},
     {"*", 0x30}, {";", 0x30},
-    {"(", 0x04}, {")", 0x04},
 };
 
 struct CFG config = {
@@ -34,9 +33,10 @@ struct CFG config = {
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     0, // kwdlen is automatically calculated
     kwd,
-    0x40, 0x50,
+    0x40, 0x50, 0x05,
     "\"\'`", // Strings charaters
-    "//", {"/*", "*/"} // Comments
+    "//", {"/*", "*/"}, // Comments
+    {"{[(", ")]}"}
 };
 
 int main(int argc, char **argv) {
@@ -124,6 +124,7 @@ int main(int argc, char **argv) {
             break;
 
         process_keypress(c);
+        syntaxHighlight();
     }
 
     free_lines();
