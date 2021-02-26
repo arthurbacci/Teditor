@@ -34,8 +34,8 @@ struct CFG config = {
     0, // kwdlen is automatically calculated
     kwd,
     0x40, 0x50,
-    "\"\'",
-    "//", {"/*", "*/"}
+    "\"\'`", // Strings charaters
+    "//", {"/*", "*/"} // Comments
 };
 
 int main(int argc, char **argv) {
@@ -99,9 +99,19 @@ int main(int argc, char **argv) {
     read_lines();
     if (fp) fclose(fp);
     
+    int last_LINES = LINES;
+    int last_COLS = COLS;
+    
+    config.LINES = LINES - 1;
+    
     int c;
     while (1) {
-        config.LINES = LINES - 1;
+        if (last_LINES != LINES || last_COLS != COLS) {
+            last_LINES = LINES;
+            last_COLS = COLS;
+            config.LINES = LINES - 1;
+            cursor_in_valid_position();
+        }
         
         show_lines();
         show_menu(menu_message);
