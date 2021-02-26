@@ -30,7 +30,8 @@ char *prompt(const char *msgtmp, char *def) {
         if (isprint(c)) {
             msg[len + i] = c;
             ret[i] = c;
-        }
+        } else
+            i--;
         
         show_menu(menu_message);
         refresh();
