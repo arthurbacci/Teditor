@@ -1,2 +1,4 @@
 ted
 *.backup
+*.tar.zst
+pkg/
