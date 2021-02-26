@@ -43,9 +43,10 @@ Just do:
 
 ```
 rm ~/.config/ted -rf
-rm /usr/bin/ted -rf
-rm ~/.local/bin/ted -rf
+sudo rm $(which ted) -rf
 ```
+
+If you installed locally, you does not need to use `sudo`.
 
 ## Help
 
