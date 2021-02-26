@@ -15,6 +15,6 @@ install: src/*.c
 	$(CC) -o ted src/*.c -lncursesw -std=c99 -O2
 	cp ted ~/.local/bin
 	mkdir -p ~/.config/ted/
-	rm ~/.config/ted/docs/ -r
+	rm ~/.config/ted/docs/ -rf
 	cp docs/ ~/.config/ted/ -r
 
