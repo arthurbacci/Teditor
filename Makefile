@@ -17,6 +17,7 @@ clean:
 install: src/*.c
 	rm ted -f
 	$(CC) -o ted $^ $(CFLAGS) $(LIBS)
+	mkdir -p $(DESTDIR)$(PREFIX)/bin/
 	cp ted $(DESTDIR)$(PREFIX)/bin/
 	mkdir -p ~/.config/ted/
 	rm ~/.config/ted/docs/ -rf
