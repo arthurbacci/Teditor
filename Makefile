@@ -1,20 +1,24 @@
-all: clean ted
+all: ted
+
+CFLAGS=-Wall -W -pedantic -std=c99 -O2
+LIBS=-lncursesw
+
+PREFIX=/usr/local
 
 ted: src/*.c
-	$(CC) -o ted src/*.c -lncursesw -Wall -W -pedantic -std=c99 -O2
+	$(CC) -o ted $^ $(CFLAGS) $(LIBS)
 
-dev: src/*.c
-	rm ted -f
-	$(CC) -o ted src/*.c -lncursesw -Wall -W -pedantic -std=c99 -fsanitize=address
+asan: src/*.c
+	$(CC) -o ted $^ $(CFLAGS) $(LIBS) -fsanitize=address
 
 clean:
 	rm ted -f
 
 install: src/*.c
 	rm ted -f
-	$(CC) -o ted src/*.c -lncursesw -std=c99 -O2
-	cp ted ~/.local/bin
+	$(CC) -o ted $^ $(CFLAGS) $(LIBS)
+	cp ted $(PREFIX)/bin/
 	mkdir -p ~/.config/ted/
-	rm ~/.config/ted/docs/ -r
+	rm ~/.config/ted/docs/ -rf
 	cp docs/ ~/.config/ted/ -r
 
