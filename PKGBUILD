@@ -3,7 +3,7 @@
 _pkgname=Teditor
 _binname=ted
 pkgname=$_pkgname-git
-pkgver=0.1.93463bc
+pkgver=0.1.5a556d0
 pkgrel=1
 pkgdesc="Teditor - A simple text/code editor"
 url="https://github.com/ArthurBacci64/Teditor"
