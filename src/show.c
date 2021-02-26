@@ -37,7 +37,10 @@ void show_lines() {
         unsigned int size = 0;
         for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1; j++) {
             if (text_scroll.x + j >= lines[i].length) {
+                if (j == cursor.x && i == cursor.y)
+                    attron(A_REVERSE);
                 addch(' ');
+                attroff(A_REVERSE);
                 size++;
                 continue;
             }
@@ -54,6 +57,8 @@ void show_lines() {
             else
                 setcolor(COLOR_PAIR(2));
             
+            if (j == cursor.x && i == cursor.y)
+                attron(A_REVERSE);
             
             if (el == '\t') {
                 for (unsigned int k = 0; k < config.tablen; k++)
@@ -64,8 +69,11 @@ void show_lines() {
                 printw("%.*s", utf8ToMultibyte(el, b), b);
             }
             
+            if (j == cursor.x && i == cursor.y)
+                attroff(A_REVERSE);
             if (bg)
                 setcolor(COLOR_PAIR(2));
+            
             
             size++;
         }

@@ -26,7 +26,6 @@ struct KWD kwd[] = {
     {"int", 0x20}, {"char", 0x20}, {"unsigned", 0x20}, {"double", 0x20}, {"float", 0x20}, {"struct", 0x20}, {"const", 0x20}, {"return", 0x20},
     {"*", 0x30}, {";", 0x30},
     {"(", 0x04}, {")", 0x04},
-    {"//", 0x50}, {"/*", 0x50}, {"*/", 0x50}
 };
 
 struct CFG config = {
@@ -81,6 +80,7 @@ int main(int argc, char **argv) {
     keypad(stdscr, TRUE);
     mousemask(ALL_MOUSE_EVENTS, NULL);
     mouseinterval(1);
+    curs_set(0);
     
     config.kwdlen = sizeof kwd / sizeof *kwd;
 
@@ -101,14 +101,11 @@ int main(int argc, char **argv) {
     
     int c;
     while (1) {
-        curs_set(0);
         config.LINES = LINES - 1;
         
         show_lines();
         show_menu(menu_message);
-        move(cursor.y - text_scroll.y, cx - text_scroll.x + len_line_number + 2);
         refresh();
-        curs_set(1);
 
         c = getch();
 
