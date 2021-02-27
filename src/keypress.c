@@ -93,17 +93,14 @@ void process_keypress(int c) {
         cursor_in_valid_position();
         syntaxHighlight(cy);
         break;
-    } case ctrl('w'): { // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
+    } case ctrl('w'): {
+        // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
         bool passed_spaces = 0;
-        process_keypress(KEY_LEFT);
-        while (!strchr(config.word_separators, lines[cy].data[cx]) || !passed_spaces) {
-            process_keypress(KEY_RIGHT);
+        while (cx > 0 && (!strchr(config.word_separators, lines[cy].data[cx - 1]) || !passed_spaces)) {
             process_keypress(KEY_BACKSPACE);
-            process_keypress(KEY_LEFT);
-            if (!strchr(config.word_separators, lines[cy].data[cx]))
+            if (cx > 0 && !strchr(config.word_separators, lines[cy].data[cx - 1]))
                 passed_spaces = 1;
         }
-        process_keypress(KEY_RIGHT);
         break;
     } case ctrl('o'): {
         char *d = prompt("open: ", filename);
@@ -112,7 +109,7 @@ void process_keypress(int c) {
         break;
     }
     }
-
+    
     if (c == CTRL_KEY_LEFT) {
         char passed_spaces = 0;
         while (cx > 0) {
