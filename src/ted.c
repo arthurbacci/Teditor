@@ -22,14 +22,16 @@ void setcolor(int c) {
 unsigned int last_cursor_x = 0;
 
 struct KWD kwd[] = {
-    {"if", 0x10}, {"else", 0x10},
-    {"int", 0x20}, {"char", 0x20}, {"unsigned", 0x20}, {"double", 0x20}, {"float", 0x20}, {"struct", 0x20}, {"const", 0x20}, {"return", 0x20},
-    {"*", 0x30}, {";", 0x30},
+    {"if", 0x10}, {"else", 0x10}, {"while", 0x10}, {"for", 0x10},
+    {"int", 0x20}, {"char", 0x20}, {"unsigned", 0x20}, {"double", 0x20},
+    {"float", 0x20}, {"struct", 0x20}, {"const", 0x20}, {"return", 0x20},
+    {"void", 0x20},
+    {"*", 0x30}, {";", 0x30}, {",", 0x30}
 };
 
 struct CFG config = {
     4, 0, 0, 1, 1,
-    1, // Syntax ON or OFF
+    0, // Syntax ON or OFF (It is changed to ON if the file ends with .c, .cpp, .h or .hpp
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     0, // kwdlen is automatically calculated
     kwd,
@@ -84,6 +86,14 @@ int main(int argc, char **argv) {
     curs_set(0);
     
     config.kwdlen = sizeof kwd / sizeof *kwd;
+    unsigned int filename_length = strlen(filename);
+    if  (   (filename_length >= 2 && strcmp(&filename[filename_length - 2], ".c"  ) == 0) ||
+            (filename_length >= 2 && strcmp(&filename[filename_length - 2], ".h"  ) == 0) ||
+            (filename_length >= 4 && strcmp(&filename[filename_length - 4], ".cpp") == 0) ||
+            (filename_length >= 4 && strcmp(&filename[filename_length - 4], ".hpp") == 0)
+        )
+        config.syntax_on = 1;
+        
 
     char tmp[10];
     len_line_number = snprintf(tmp, 10, "%d ", num_lines + 1);
