@@ -15,7 +15,7 @@ void show_menu(char *message) {
         printw("%s", message);
 }
 
-void show_lines() {
+void show_lines(void) {
     for (unsigned int i = text_scroll.y; i < text_scroll.y + config.LINES; i++) {
         move(i - text_scroll.y, 0);
         if (i >= num_lines) {

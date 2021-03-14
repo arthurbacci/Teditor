@@ -29,27 +29,27 @@ char *prompt(const char *msgtmp, char *def);
 void setcolor(int c);
 
 // config_dialog.c
-void config_dialog();
+void config_dialog(void);
 
 // open_and_save.c
-void savefile();
-void read_lines();
-void detect_linebreak();
+void savefile(void);
+void read_lines(void);
+void detect_linebreak(void);
 void openFile(char *fname, bool needs_to_free);
 
 // show.c
 void show_menu(char *message);
-void show_lines();
+void show_lines(void);
 
 // free.c
-void free_lines();
+void free_lines(void);
 
 // keypress.c
 void expandLine(unsigned int at, int x);
 void process_keypress(int c);
 
 // cursor_in_valid_position.c
-void cursor_in_valid_position();
+void cursor_in_valid_position(void);
 
 // mouse.c
 void processMouseEvent(MEVENT ev);
@@ -59,7 +59,7 @@ void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
 uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
 
 // color.c
-void syntaxHighlight();
+void syntaxHighlight(void);
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
 // utils.c
@@ -67,9 +67,9 @@ char *home_path(const char *path);
 
 // buffers.c
 void appendBuffer(char *bufname);
-void nextBuffer();
-void prevBuffer();
-void freeBuffers();
+void nextBuffer(void);
+void prevBuffer(void);
+void freeBuffers(void);
 
 struct KWD {
     const char *string;
@@ -78,7 +78,7 @@ struct KWD {
 
 struct CFG {
     unsigned int tablen;
-    unsigned int LINES;
+    int LINES;
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
     bool use_spaces;
     bool autotab;

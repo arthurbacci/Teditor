@@ -5,7 +5,7 @@ void expandLine(unsigned int at, int x) {
         lines[at].len += READ_BLOCKSIZE;
         lines[at].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
         lines[at].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
-        syntaxHighlight(at);
+        syntaxHighlight();
     }
 }
 
@@ -91,7 +91,7 @@ void process_keypress(int c) {
             lines[cy].length = 0;
         }
         cursor_in_valid_position();
-        syntaxHighlight(cy);
+        syntaxHighlight();
         break;
     } case ctrl('w'): {
         // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
@@ -143,7 +143,7 @@ void process_keypress(int c) {
         if (c >= 0xF0 && c <= 0xF7)                                                           lines[cy].data[cx] += getch() << 24;
         
         lines[cy].data[++lines[cy].length] = '\0';
-        syntaxHighlight(cy);
+        syntaxHighlight();
         process_keypress(KEY_RIGHT);
     } else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
         lines[cy].ident -= cx <= lines[cy].ident && cx > 0;
@@ -182,7 +182,7 @@ void process_keypress(int c) {
             if (lines[cy].data[i] != ' ') break;
             lines[cy].ident++;
         }
-        syntaxHighlight(cy);
+        syntaxHighlight();
     } else if (c == '\n' || c == KEY_ENTER || c == '\r') {
         lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
     
@@ -232,7 +232,7 @@ void process_keypress(int c) {
         } else
             lines[cy].ident = 0;
 
-        syntaxHighlight(cy);
-        syntaxHighlight(cy - 1);
+        syntaxHighlight();
+        syntaxHighlight();
     }
 }

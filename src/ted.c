@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     curs_set(0);
     
     config.kwdlen = sizeof kwd / sizeof *kwd;
-    unsigned int filename_length = strlen(filename);
+    unsigned int filename_length = (unsigned int)strlen(filename);
     if  (   (filename_length >= 2 && strcmp(&filename[filename_length - 2], ".c"  ) == 0) ||
             (filename_length >= 2 && strcmp(&filename[filename_length - 2], ".h"  ) == 0) ||
             (filename_length >= 4 && strcmp(&filename[filename_length - 4], ".cpp") == 0) ||

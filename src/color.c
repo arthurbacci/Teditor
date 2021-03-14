@@ -1,6 +1,6 @@
 #include "ted.h"
 
-void syntaxHighlight() {
+void syntaxHighlight(void) {
     bool multi_line_comment = 0;
     bool backslash = 0;
     char string = '\0';

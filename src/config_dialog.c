@@ -82,7 +82,7 @@ struct {
     {"syntax"    , "syntax highlight (0/FALSE, 1/TRUE): ", syntax    }
 };
 
-void config_dialog() {
+void config_dialog(void) {
     char *answer = prompt("Configure: ", "");
 
     if (!answer) {

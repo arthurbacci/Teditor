@@ -1,6 +1,6 @@
 #include "ted.h"
 
-void savefile() {
+void savefile(void) {
     FILE *fpw = fopen(filename, "w");
 
     if (fpw == NULL) {
@@ -31,7 +31,7 @@ void savefile() {
     fclose(fpw);
 }
 
-void read_lines() {
+void read_lines(void) {
     if (fp == NULL) {
         num_lines = 1;
         lines = malloc(sizeof(struct LINE));
@@ -43,7 +43,7 @@ void read_lines() {
         lines[0].data[0] = '\0';
         lines[0].ident = 0;
         
-        syntaxHighlight(0);
+        syntaxHighlight();
 
         return;
     }
@@ -94,13 +94,13 @@ void read_lines() {
         
         lines[i].data[j] = '\0';
         
-        syntaxHighlight(i);
+        syntaxHighlight();
         if (config.line_break_type == 1)
             fgetc(fp);
     }
 }
 
-void detect_linebreak() {
+void detect_linebreak(void) {
     char c;
     while (!feof(fp)) {
         c = fgetc(fp);

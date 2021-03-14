@@ -1,7 +1,7 @@
 #include "ted.h"
 
 // Should be called after changing cursor position
-void cursor_in_valid_position() {
+void cursor_in_valid_position(void) {
 
     /* Check if cursor is inside the borders */
     // y
