@@ -66,12 +66,12 @@ void process_keypress(int c) {
         break;
     case KEY_PPAGE: {
         unsigned int ccy = cy;
-        for (unsigned int i = 0; i < (unsigned int)(ccy % config.LINES + config.LINES); i++)
+        for (unsigned int i = 0; i < (unsigned int)(ccy % config.lines + config.lines); i++)
             process_keypress(KEY_UP);
         break;
     } case KEY_NPAGE: {
         unsigned int ccy = cy;
-        for (unsigned int i = 0; i < (unsigned int)(config.LINES - (ccy % config.LINES) - 1 + config.LINES); i++)
+        for (unsigned int i = 0; i < (unsigned int)(config.lines - (ccy % config.lines) - 1 + config.lines); i++)
             process_keypress(KEY_DOWN);
         break;
     } case KEY_MOUSE: {

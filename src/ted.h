@@ -78,7 +78,7 @@ struct KWD {
 
 struct CFG {
     unsigned int tablen;
-    int LINES;
+    int lines;
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
     bool use_spaces;
     bool autotab;

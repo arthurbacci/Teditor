@@ -113,14 +113,14 @@ int main(int argc, char **argv) {
     int last_LINES = LINES;
     int last_COLS = COLS;
     
-    config.LINES = LINES - 1;
+    config.lines = LINES - 1;
     
     int c;
     while (1) {
         if (last_LINES != LINES || last_COLS != COLS) {
             last_LINES = LINES;
             last_COLS = COLS;
-            config.LINES = LINES - 1;
+            config.lines = LINES - 1;
             cursor_in_valid_position();
         }
         

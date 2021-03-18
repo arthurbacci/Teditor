@@ -2,21 +2,21 @@
 
 void show_menu(char *message) {
     setcolor(COLOR_PAIR(2));
-    move(config.LINES, 0);
+    move(config.lines, 0);
     for (unsigned int i = 0; i < (unsigned int)COLS; i++)
         addch(' ');
 
-    move(config.LINES, 0);
+    move(config.lines, 0);
     if (!*message) {
         printw("I:%u %s", lines[cy].ident, filename);
-        move(config.LINES, COLS - (config.line_break_type == 1 ? 4 : 2));
+        move(config.lines, COLS - (config.line_break_type == 1 ? 4 : 2));
         printw("%s", config.line_break_type == 0 ? "LF" : (config.line_break_type == 1 ? "CRLF" : "CR"));
     } else
         printw("%s", message);
 }
 
 void show_lines(void) {
-    for (unsigned int i = text_scroll.y; i < text_scroll.y + config.LINES; i++) {
+    for (unsigned int i = text_scroll.y; i < text_scroll.y + config.lines; i++) {
         move(i - text_scroll.y, 0);
         if (i >= num_lines) {
             setcolor(COLOR_PAIR(1));
