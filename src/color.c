@@ -96,10 +96,14 @@ void syntaxHighlight(void) {
                 }
             }
             
-            
             for (unsigned int k = 0; k < config.current_syntax->kwdlen; k++) {
                 unsigned int stringlen = strlen(config.current_syntax->keywords[k].string);
                 if (lines[at].length - i < stringlen) continue;
+
+                if ((i != 0 && !strchr(config.current_syntax->word_separators, lines[at].data[i - 1]))
+                    || !strchr(config.current_syntax->word_separators, lines[at].data[i + stringlen]))
+                    continue;
+
                 bool c = 0;
                 for (unsigned int j = 0; j < stringlen; j++)
                     if ((uchar32_t)config.current_syntax->keywords[k].string[j] != lines[at].data[i + j]) {
@@ -120,4 +124,3 @@ void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned ch
     *fg = (lines[at].color[at1] & 0xF0) >> 4;
     *bg = lines[at].color[at1] & 0x0F;
 }
-
