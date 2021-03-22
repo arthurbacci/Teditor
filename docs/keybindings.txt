@@ -17,7 +17,7 @@ Keybings
 ┃       │   └── Default: 4
 ┃       │
 ┃       ├───┬─ linebreak
-┃       │   ├── Changes the type of linebreak between LF (Linux, Mac), CRLF )Windows) and CR.
+┃       │   ├── Changes the type of linebreak between LF (Linux, Mac), CRLF (Windows) and CR.
 ┃       │   └── Default: depends on the file
 ┃       │
 ┃       ├───┬─ use-spaces
@@ -31,6 +31,9 @@ Keybings
 ┃       ├───┬─ save-as
 ┃       │   └── Change the filename and save
 ┃       │
-┃       └───┬─ manual
-┃           └── Open the manual pages
-
+┃       ├───┬─ manual
+┃       │   └── Open the manual pages
+┃       │
+┃       └───┬─ syntax
+┃           ├── Change highlighting syntax language
+┃           └── Default syntax is chosen in relation to the file extension
