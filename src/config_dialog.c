@@ -60,6 +60,7 @@ void manual(char *data) {
 void syntax (char *data) {
     if (!*data) {
         config.syntax_on = 0;
+        free(data);
         return;
     }
 
