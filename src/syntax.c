@@ -12,7 +12,7 @@ static struct KWD c_cpp_kwd[] = {
     {"*", 0x30}, {";", 0x30}, {",", 0x30}
 };
 
-static const char *c_cpp_exts[] = {".c", ".h", ".cpp", ".hpp", ".cc", ".hh"};
+static const char *c_cpp_exts[] = {"c", "h", "cpp", "hpp", "cc", "hh"};
 
 static struct SHD c_cpp_syntax = {
     sizeof c_cpp_exts / sizeof *c_cpp_exts, c_cpp_exts,

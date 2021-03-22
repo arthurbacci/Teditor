@@ -79,7 +79,9 @@ int main(int argc, char **argv) {
 
         for (unsigned int j = 0; j < syntax->exts_len; ++j) {
             unsigned int ext_len = (unsigned int)strlen(syntax->extensions[j]);
-            if (filename_len >= ext_len && strcmp(&filename[filename_len - ext_len], ".c"  ) == 0) {
+            if (filename_len >= ext_len + 1 &&
+                filename[filename_len - (ext_len + 1)] == '.' &&
+                strcmp(&filename[filename_len - ext_len], syntax->extensions[j]) == 0) {
                 config.syntax_on = 1;
                 config.current_syntax = syntax;
                 goto out;
