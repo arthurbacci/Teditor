@@ -1,3 +1,6 @@
+#ifndef TED_HEADER
+#define TED_HEADER
+
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,13 +79,12 @@ struct KWD {
     uint8_t color;
 };
 
-struct CFG {
-    unsigned int tablen;
-    int lines;
-    unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
-    bool use_spaces;
-    bool autotab;
-    bool syntax_on;
+/*
+Syntax Highlighting Descriptor
+*/
+struct SHD {
+    unsigned int exts_len;
+    const char **extensions;
     const char *word_separators;
     unsigned int kwdlen;
     struct KWD *keywords;
@@ -95,6 +97,17 @@ struct CFG {
     const char *match[2];
 };
 
+struct CFG {
+    unsigned int tablen;
+    int lines;
+    unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
+    bool use_spaces;
+    bool autotab;
+    bool syntax_on;
+    struct SHD *current_syntax;
+    unsigned int syntax_len;
+    struct SHD **syntaxes;
+};
 
 /*
 ffffbbbb
@@ -136,3 +149,5 @@ extern unsigned int last_cursor_x;
 extern bool colors_on;
 extern bool needs_to_free_filename;
 extern char *menu_message;
+
+#endif
