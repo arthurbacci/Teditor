@@ -58,13 +58,28 @@ void manual(char *data) {
     free(data);
 }
 void syntax (char *data) {
-    if (strcmp(data, "TRUE") == 0 || strcmp(data, "1") == 0)
-        config.syntax_on = 1;
-    else if (strcmp(data, "FALSE") == 0 || strcmp(data, "0") == 0)
+    if (!*data) {
         config.syntax_on = 0;
-    else
-        beep();
-    syntaxHighlight();
+        return;
+    }
+
+    unsigned int len = (unsigned int)strlen(data);
+    for (unsigned int i = 0; i < config.syntax_len; ++i) {
+        struct SHD *syntax = config.syntaxes[i];
+
+        for (unsigned int j = 0; j < syntax->exts_len; ++j) {
+            unsigned int ext_len = (unsigned int)strlen(syntax->extensions[j]);
+            if (len == ext_len && strcmp(data, syntax->extensions[j]) == 0) {
+                config.syntax_on = 1;
+                config.current_syntax = syntax;
+                syntaxHighlight();
+                free(data);
+                return;
+            }
+        }
+    }
+
+    beep();
     free(data);
 }
 
@@ -73,13 +88,13 @@ struct {
     const char *message;
     void (*function)(char *data);
 } fns[] = {
-    {"tablen"    , "tablen: "                            , tablen    },
-    {"linebreak" , "linebreak (LF, CR, CRLF): "          , linebreak },
-    {"use-spaces", "use-spaces (0/FALSE, 1/TRUE): "      , use_spaces},
-    {"autotab"   , "autotab (0/FALSE, 1/TRUE): "         , autotab   },
-    {"save-as"   , "save-as: "                           , save_as   },
-    {"manual"    , "manual page (blank for index): "     , manual    },
-    {"syntax"    , "syntax highlight (0/FALSE, 1/TRUE): ", syntax    }
+    {"tablen"    , "tablen: "                                , tablen    },
+    {"linebreak" , "linebreak (LF, CR, CRLF): "              , linebreak },
+    {"use-spaces", "use-spaces (0/FALSE, 1/TRUE): "          , use_spaces},
+    {"autotab"   , "autotab (0/FALSE, 1/TRUE): "             , autotab   },
+    {"save-as"   , "save-as: "                               , save_as   },
+    {"manual"    , "manual page (blank for index): "         , manual    },
+    {"syntax"    , "syntax highlight (blank for disabling): ", syntax    }
 };
 
 void config_dialog(void) {
