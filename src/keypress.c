@@ -96,9 +96,9 @@ void process_keypress(int c) {
     } case ctrl('w'): {
         // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
         bool passed_spaces = 0;
-        while (cx > 0 && (!strchr(config.word_separators, lines[cy].data[cx - 1]) || !passed_spaces)) {
+        while (cx > 0 && (!(config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1])) || !passed_spaces)) {
             process_keypress(KEY_BACKSPACE);
-            if (cx > 0 && !strchr(config.word_separators, lines[cy].data[cx - 1]))
+            if (cx > 0 && !(config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1])))
                 passed_spaces = 1;
         }
         break;
@@ -114,17 +114,17 @@ void process_keypress(int c) {
         char passed_spaces = 0;
         while (cx > 0) {
             process_keypress(KEY_LEFT);
-            if (!strchr(config.word_separators, lines[cy].data[cx]))
+            if (!(config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx])))
                 passed_spaces = 1;
-            if (strchr(config.word_separators, lines[cy].data[cx]) && passed_spaces) {
+            if ((config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx])) && passed_spaces) {
                 process_keypress(KEY_RIGHT);
                 break;
             }
         }
     } else if (c == CTRL_KEY_RIGHT) {
         char passed_spaces = 0;
-        while (lines[cy].data[cx] != '\0' && !(strchr(config.word_separators, lines[cy].data[cx]) && passed_spaces)) {
-            if (!strchr(config.word_separators, lines[cy].data[cx]))
+        while (lines[cy].data[cx] != '\0' && !((config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx])) && passed_spaces)) {
+            if (!(config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx])))
                 passed_spaces = 1;
             process_keypress(KEY_RIGHT);
         }
