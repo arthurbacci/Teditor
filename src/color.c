@@ -100,9 +100,11 @@ void syntaxHighlight(void) {
                 unsigned int stringlen = strlen(config.current_syntax->keywords[k].string);
                 if (lines[at].length - i < stringlen) continue;
 
-                if ((i != 0 && !strchr(config.current_syntax->word_separators, lines[at].data[i - 1]))
-                    || !strchr(config.current_syntax->word_separators, lines[at].data[i + stringlen]))
-                    continue;
+                if (!config.current_syntax->keywords[k].operator) {
+                    if ((i != 0 && !strchr(config.current_syntax->word_separators, lines[at].data[i - 1]))
+                        || !strchr(config.current_syntax->word_separators, lines[at].data[i + stringlen]))
+                        continue;
+                }
 
                 bool c = 0;
                 for (unsigned int j = 0; j < stringlen; j++)
