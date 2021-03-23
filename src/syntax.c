@@ -26,15 +26,48 @@ static struct SHD c_cpp_syntax = {
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_cpp_kwd / sizeof *c_cpp_kwd, c_cpp_kwd, //Keywords
     0x40, 0x50, 0x05,
-    "\"\'`", // Strings charaters
+    "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", ")]}"}
 };
 
 /*
+Python syntax highlighting descriptor
+*/
+
+static struct KWD python_kwd[] = {
+    KEYWORD("if", 0x10), KEYWORD("else", 0x10), KEYWORD("elif", 0x10),
+    KEYWORD("while", 0x10), KEYWORD("for", 0x10), KEYWORD("in", 0x10),
+    KEYWORD("with", 0x10), KEYWORD("class", 0x10), KEYWORD("return", 0x10),
+    KEYWORD("try", 0x10), KEYWORD("except", 0x10), KEYWORD("def", 0x10),
+
+    KEYWORD("None", 0x20), KEYWORD("False", 0x20), KEYWORD("True", 0x20),
+
+    OPERATOR("*", 0x30), OPERATOR(";", 0x30), OPERATOR(",", 0x30),
+
+    KEYWORD("import", 0x40), KEYWORD("self", 0x40)
+
+//    OPERATOR("(", 0x50), OPERATOR(")", 0x50)
+//    FIXME
+};
+
+static const char *python_exts[] = {"py", "py3", "pyw", "pyd", "pyde"};
+
+static struct SHD python_syntax = {
+    sizeof python_exts / sizeof *python_exts, python_exts,
+    " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
+    sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
+    0x40, 0x50, 0x05,
+    "\"\'`", // Strings charaters
+    "#", {"\"\"\"", "\"\"\""}, // Comments
+    {"{[(", ")]}"}
+};
+
+
+/*
 Global syntaxes
 */
-struct SHD *syntaxes[] = {&c_cpp_syntax};
+struct SHD *syntaxes[] = {&c_cpp_syntax, &python_syntax};
 
 void register_syntax(void) {
     config.syntaxes = syntaxes;
