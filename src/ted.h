@@ -76,7 +76,8 @@ void freeBuffers(void);
 
 struct KWD {
     const char *string;
-    uint8_t color;
+    unsigned int color;
+    bool operator;
 };
 
 /*

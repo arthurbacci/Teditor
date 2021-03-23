@@ -5,11 +5,18 @@ C and C++ syntax highlighting descriptor
 */
 
 static struct KWD c_cpp_kwd[] = {
-    {"if", 0x10}, {"else", 0x10}, {"while", 0x10}, {"for", 0x10},
-    {"int", 0x20}, {"char", 0x20}, {"unsigned", 0x20}, {"double", 0x20},
-    {"float", 0x20}, {"struct", 0x20}, {"const", 0x20}, {"return", 0x20},
-    {"void", 0x20},
-    {"*", 0x30}, {";", 0x30}, {",", 0x30}
+    KEYWORD("if", 0x10), KEYWORD("else", 0x10), KEYWORD("while", 0x10),
+    KEYWORD("for", 0x10), KEYWORD("return", 0x10), KEYWORD("static", 0x10),
+
+    KEYWORD("int", 0x20), KEYWORD("char", 0x20), KEYWORD("unsigned", 0x20), 
+    KEYWORD("long", 0x20), KEYWORD("double", 0x20), KEYWORD("float", 0x20), 
+    KEYWORD("struct", 0x20), KEYWORD("const", 0x20), KEYWORD("void", 0x20), 
+
+    OPERATOR("*", 0x30), OPERATOR(",", 0x30), OPERATOR(";", 0x30), 
+    OPERATOR("!", 0x30), OPERATOR("&&", 0x30), OPERATOR("||", 0x30),
+    OPERATOR("&", 0x30), OPERATOR("|", 0x30), OPERATOR("~", 0x30),
+    OPERATOR("^", 0x30), OPERATOR(">>", 0x30), OPERATOR("<<", 0x30),
+    OPERATOR("+", 0x30), OPERATOR("-", 0x30), OPERATOR("/", 0x30),
 };
 
 static const char *c_cpp_exts[] = {"c", "h", "cpp", "hpp", "cc", "hh"};
