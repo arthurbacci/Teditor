@@ -105,11 +105,19 @@ void config_dialog(void) {
         beep();
         return;
     }
-    
+
+    unsigned int len = strlen(answer);
+    unsigned int endlen = len;
+    unsigned int startlen = 0;
+
+    while (isspace(answer[endlen - 1])) --endlen;
+    while (isspace(answer[startlen])) ++startlen;
+    unsigned int truelen = endlen - startlen;
+
     bool did = 0;
     const unsigned int fnslen = sizeof fns / sizeof *fns;
     for (unsigned int i = 0; i < fnslen; i++) {
-        if (strcmp(answer, fns[i].name) == 0) {
+        if (truelen == strlen(fns[i].name) && strncmp(&answer[startlen], fns[i].name, truelen) == 0) {
             char *answer1 = prompt(fns[i].message, strcmp(fns[i].name, "save-as") == 0 ? filename : "");
             
             if (!answer1)
