@@ -5,7 +5,7 @@ void syntaxHighlight(void) {
     bool backslash = 0;
     char string = '\0';
     unsigned int waiting_to_close = 0;
-    for (unsigned int at = 0; at < num_lines; at++) {
+    for (unsigned int at = text_scroll.y; at < text_scroll.y + config.lines; at++) {
         if (!config.syntax_on) {
             for (unsigned int i = 0; i <= lines[at].length; i++)
                 lines[at].color[i] = 0x0;

@@ -101,7 +101,9 @@ out:;
         init_pair(1, COLOR_RED, -1);
         init_pair(2, -1, -1);
     }
-    
+
+    config.lines = LINES - 1;
+
     fp = fopen(filename, "r");
     read_lines();
     if (fp) fclose(fp);
@@ -109,8 +111,7 @@ out:;
     int last_LINES = LINES;
     int last_COLS = COLS;
     
-    config.lines = LINES - 1;
-    
+
     int c;
     while (1) {
         if (last_LINES != LINES || last_COLS != COLS) {
