@@ -94,10 +94,10 @@ void read_lines(void) {
         
         lines[i].data[j] = '\0';
         
-        syntaxHighlight();
         if (config.line_break_type == 1)
             fgetc(fp);
     }
+    syntaxHighlight();
 }
 
 void detect_linebreak(void) {

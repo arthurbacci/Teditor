@@ -7,33 +7,33 @@ Keybings
 ┃   ├── Press C-DELETE to delete the selected line
 ┃   └── Press C-w to delete the word before the cursor
 ┃
-┠───┬─ Config dialog
-┃   ├── You can open the config dialog with C-g
-┃   └───┬─ The config dialog commands
-┃       │
-┃       ├───┬─ tablen
-┃       │   ├── Changes the number of spaces of the identation
-┃       │   ├── Also changes the size that the tab is displayed
-┃       │   └── Default: 4
-┃       │
-┃       ├───┬─ linebreak
-┃       │   ├── Changes the type of linebreak between LF (Linux, Mac), CRLF (Windows) and CR.
-┃       │   └── Default: depends on the file
-┃       │
-┃       ├───┬─ use-spaces
-┃       │   ├── Changes identation between tabulations (0/FALSE) and spaces (1/TRUE)
-┃       │   └── Default: 1/TRUE
-┃       │
-┃       ├───┬─ autotab
-┃       │   ├── Toggle auto tabulation behavior
-┃       │   └── Default: 1/TRUE
-┃       │
-┃       ├───┬─ save-as
-┃       │   └── Change the filename and save
-┃       │
-┃       ├───┬─ manual
-┃       │   └── Open the manual pages
-┃       │
-┃       └───┬─ syntax
-┃           ├── Change highlighting syntax language
-┃           └── Default syntax is chosen in relation to the file extension
+┖───┬─ Config dialog
+    ├── You can open the config dialog with C-g
+    └───┬─ The config dialog commands
+        │
+        ├───┬─ tablen
+        │   ├── Changes the number of spaces of the identation
+        │   ├── Also changes the size that the tab is displayed
+        │   └── Default: 4
+        │
+        ├───┬─ linebreak
+        │   ├── Changes the type of linebreak between LF (Linux, Mac), CRLF (Windows) and CR.
+        │   └── Default: depends on the file
+        │
+        ├───┬─ use-spaces
+        │   ├── Changes identation between tabulations (0/FALSE) and spaces (1/TRUE)
+        │   └── Default: 1/TRUE
+        │
+        ├───┬─ autotab
+        │   ├── Toggle auto tabulation behavior
+        │   └── Default: 1/TRUE
+        │
+        ├───┬─ save-as
+        │   └── Change the filename and save
+        │
+        ├───┬─ manual
+        │   └── Open the manual pages
+        │
+        └───┬─ syntax
+            ├── Change highlighting syntax language
+            └── Default syntax is chosen in relation to the file extension

@@ -60,6 +60,7 @@ static struct SHD python_syntax = {
     0x40, 0x50, 0x05,
     "\"\'`", // Strings charaters
     "#", {"\"\"\"", "\"\"\""}, // Comments
+    // TODO ''' is also a multi-line string, need to allow multiple types of comments, like {{"\"\"\"", "\"\"\""}, {"'''", "'''"}}
     {"{[(", ")]}"}
 };
 
