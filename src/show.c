@@ -38,15 +38,15 @@ void show_lines(void) {
             
         printw("%*d ", len_line_number + 1, i + 1);
         
-        if (i == cy) {
-            setcolor(COLOR_PAIR(2));
+        if (i == cy)
             attroff(A_BOLD);
-        }
-
+    
         setcolor(COLOR_PAIR(2));
+        
         unsigned int size = 0;
         for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1; j++) {
             if (text_scroll.x + j >= lines[i].length) {
+                setcolor(COLOR_PAIR(2));
                 if (j + text_scroll.x == cursor.x && i == cursor.y)
                     attron(A_REVERSE);
                     
@@ -67,6 +67,8 @@ void show_lines(void) {
             
             if (fg || bg)
                 setcolor(COLOR_PAIR(NUM_PAIRS + lines[i].color[text_scroll.x + j]));
+            else if (i == cy && text_scroll.x + j < lines[i].ident && (el == ' ' || el == '\t'))
+                setcolor(COLOR_PAIR(4));
             else
                 setcolor(COLOR_PAIR(2));
             

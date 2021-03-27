@@ -23,8 +23,7 @@ static struct KWD c_cpp_kwd[] = {
     
     OPERATOR("(", 0x50), OPERATOR(")", 0x50),
     OPERATOR("{", 0x50), OPERATOR("}", 0x50),
-    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
-    OPERATOR("<", 0x50), OPERATOR(">", 0x50)
+    OPERATOR("[", 0x50), OPERATOR("]", 0x50)
 };
 
 static const char *c_cpp_exts[] = {"c", "h", "cpp", "hpp", "cc", "hh"};
@@ -36,7 +35,7 @@ static struct SHD c_cpp_syntax = {
     0x40, 0x50, 0x05,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
-    {"{[(<", ">)]}"}
+    {"{[(", ")]}"}
 };
 
 /*
@@ -57,8 +56,7 @@ static struct KWD python_kwd[] = {
     
     OPERATOR("(", 0x50), OPERATOR(")", 0x50),
     OPERATOR("{", 0x50), OPERATOR("}", 0x50),
-    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
-    OPERATOR("<", 0x50), OPERATOR(">", 0x50)
+    OPERATOR("[", 0x50), OPERATOR("]", 0x50)
 };
 
 static const char *python_exts[] = {"py", "py3", "pyw", "pyd", "pyde"};

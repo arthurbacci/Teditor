@@ -22,7 +22,7 @@
 #define CTRL_KEY_RIGHT 0x232
 #define CTRL_KEY_LEFT  0x223
 
-#define NUM_PAIRS 4
+#define NUM_PAIRS 5
 
 typedef uint32_t uchar32_t;
 
