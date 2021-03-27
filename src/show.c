@@ -31,7 +31,17 @@ void show_lines(void) {
         
         setcolor(COLOR_PAIR(1));
 
+        if (i == cy) {
+            setcolor(COLOR_PAIR(3));
+            attron(A_BOLD);
+        }
+            
         printw("%*d ", len_line_number + 1, i + 1);
+        
+        if (i == cy) {
+            setcolor(COLOR_PAIR(2));
+            attroff(A_BOLD);
+        }
 
         setcolor(COLOR_PAIR(2));
         unsigned int size = 0;
@@ -49,12 +59,14 @@ void show_lines(void) {
             
             unsigned char fg, bg;
             readColor(i, text_scroll.x + j, &fg, &bg);
+            
             int palette[] = {-1, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_MAGENTA, COLOR_CYAN};
+            
             if (colors_on)
-                init_pair(3 + lines[i].color[text_scroll.x + j], palette[fg], palette[bg]);
+                init_pair(NUM_PAIRS + lines[i].color[text_scroll.x + j], palette[fg], palette[bg]);
             
             if (fg || bg)
-                setcolor(COLOR_PAIR(3 + lines[i].color[text_scroll.x + j]));
+                setcolor(COLOR_PAIR(NUM_PAIRS + lines[i].color[text_scroll.x + j]));
             else
                 setcolor(COLOR_PAIR(2));
             
