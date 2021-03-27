@@ -21,7 +21,10 @@ static struct KWD c_cpp_kwd[] = {
     KEYWORD("#include", 0x40), KEYWORD("#define", 0x40), KEYWORD("#ifdef", 0x40),
     KEYWORD("#ifndef", 0x40), KEYWORD("#endif", 0x40),
     
-    OPERATOR("(", 0x30), OPERATOR(")", 0x30)
+    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
+    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
+    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
+    OPERATOR("<", 0x50), OPERATOR(">", 0x50)
 };
 
 static const char *c_cpp_exts[] = {"c", "h", "cpp", "hpp", "cc", "hh"};
@@ -50,10 +53,12 @@ static struct KWD python_kwd[] = {
 
     OPERATOR("*", 0x30), OPERATOR(";", 0x30), OPERATOR(",", 0x30),
 
-    KEYWORD("import", 0x40), KEYWORD("self", 0x40)
-
-//    OPERATOR("(", 0x50), OPERATOR(")", 0x50)
-//    FIXME
+    KEYWORD("import", 0x40), KEYWORD("self", 0x40),
+    
+    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
+    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
+    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
+    OPERATOR("<", 0x50), OPERATOR(">", 0x50)
 };
 
 static const char *python_exts[] = {"py", "py3", "pyw", "pyd", "pyde"};
