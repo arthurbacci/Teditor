@@ -6,6 +6,9 @@ void syntaxHighlight(void) {
     char string = '\0';
     unsigned int waiting_to_close = 0;
     for (unsigned int at = text_scroll.y; at < text_scroll.y + config.lines; at++) {
+        if (at == num_lines)
+            break;
+
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         if (!config.syntax_on) {
             for (unsigned int i = 0; i <= lines[at].length; i++)

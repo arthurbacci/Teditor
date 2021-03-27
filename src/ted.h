@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#define READ_BLOCKSIZE 10
+#define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
 #define cx cursor.x
 #define cy cursor.y
