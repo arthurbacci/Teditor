@@ -6,6 +6,7 @@ void syntaxHighlight(void) {
     char string = '\0';
     unsigned int waiting_to_close = 0;
     for (unsigned int at = text_scroll.y; at < text_scroll.y + config.lines; at++) {
+        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         if (!config.syntax_on) {
             for (unsigned int i = 0; i <= lines[at].length; i++)
                 lines[at].color[i] = 0x0;
@@ -114,7 +115,8 @@ void syntaxHighlight(void) {
                     }
                 if (c) continue;
                 for (unsigned int j = 0; j < stringlen; j++)
-                    lines[at].color[i + j] = config.current_syntax->keywords[k].color;
+                    if (!lines[at].color[i + j])
+                        lines[at].color[i + j] = config.current_syntax->keywords[k].color;
                 i += stringlen - 1;
                 break;
             }

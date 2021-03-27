@@ -19,7 +19,9 @@ static struct KWD c_cpp_kwd[] = {
     OPERATOR("+", 0x30), OPERATOR("-", 0x30), OPERATOR("/", 0x30),
     
     KEYWORD("#include", 0x40), KEYWORD("#define", 0x40), KEYWORD("#ifdef", 0x40),
-    KEYWORD("#ifndef", 0x40), KEYWORD("#endif", 0x40)
+    KEYWORD("#ifndef", 0x40), KEYWORD("#endif", 0x40),
+    
+    OPERATOR("(", 0x30), OPERATOR(")", 0x30)
 };
 
 static const char *c_cpp_exts[] = {"c", "h", "cpp", "hpp", "cc", "hh"};
