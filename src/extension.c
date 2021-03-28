@@ -1,11 +1,9 @@
 #include "ted.h"
 
-void detect_extension(void) {
-    char *ext = strrchr(filename, '.');
-    if (!ext) {
-        config.syntax_on = 0;
-        return;
-    }
+void detect_extension(char *fname) {
+    char *ext = strrchr(fname, '.');
+    if (!ext)
+        goto END;
     
     ext++; // Removes the .
     
@@ -25,5 +23,7 @@ void detect_extension(void) {
         }
     }
     
-    config.syntax_on = 0;
+  END:
+    config.syntax_on = 1;
+    config.current_syntax = &default_syntax;
 }
