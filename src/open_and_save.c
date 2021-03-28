@@ -150,9 +150,9 @@ void detect_read_only(char *fname) {
     struct stat st;
     if (stat(fname, &st) == 0) {
         read_only = !(
-            (st.st_mode & S_IWOTH)
-            || (getuid() == st.st_uid && (st.st_mode & S_IWUSR))
-            || (getgid() == st.st_gid && (st.st_mode & S_IWGRP))
+            (st.st_mode & S_IWOTH) // all user write permission
+            || (getuid() == st.st_uid && (st.st_mode & S_IWUSR)) // owner write permission
+            || (getgid() == st.st_gid && (st.st_mode & S_IWGRP)) // group write permission
         );
     }
 }
