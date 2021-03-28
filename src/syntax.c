@@ -33,6 +33,7 @@ static struct KWD c_cpp_kwd[] = {
 static const char *c_cpp_exts[] = {"c", "h", "cpp", "hpp", "cc", "hh"};
 
 static struct SHD c_cpp_syntax = {
+    "C/C++",
     sizeof c_cpp_exts / sizeof *c_cpp_exts, c_cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_cpp_kwd / sizeof *c_cpp_kwd, c_cpp_kwd, //Keywords
@@ -66,6 +67,7 @@ static struct KWD python_kwd[] = {
 static const char *python_exts[] = {"py", "py3", "pyw", "pyd", "pyde"};
 
 static struct SHD python_syntax = {
+    "Python",
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords

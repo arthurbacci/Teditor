@@ -90,6 +90,7 @@ struct KWD {
 Syntax Highlighting Descriptor
 */
 struct SHD {
+    const char *name;
     unsigned int exts_len;
     const char **extensions;
     const char *word_separators;
