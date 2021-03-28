@@ -1,7 +1,7 @@
 #include "ted.h"
 
-void detect_extension(void) {
-    char *ext = strrchr(filename, '.');
+void detect_extension(char *fname) {
+    char *ext = strrchr(fname, '.');
     if (!ext)
         goto END;
     

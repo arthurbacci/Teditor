@@ -78,7 +78,7 @@ void freeBuffers(void);
 
 // extension.c
 
-void detect_extension(void);
+void detect_extension(char *fname);
 
 struct KWD {
     const char *string;
