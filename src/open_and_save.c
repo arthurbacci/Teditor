@@ -154,5 +154,6 @@ void detect_read_only(char *fname) {
             || (getuid() == st.st_uid && (st.st_mode & S_IWUSR)) // owner write permission
             || (getgid() == st.st_gid && (st.st_mode & S_IWGRP)) // group write permission
         );
-    }
+    } else
+        read_only = errno == EACCES; // if stat fails and errno is not EACCES, read_only will not be set
 }
