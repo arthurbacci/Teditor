@@ -22,13 +22,20 @@
 #define CTRL_KEY_RIGHT 0x232
 #define CTRL_KEY_LEFT  0x223
 
-#define NUM_PAIRS 5
+#define NUM_PAIRS 6
 
 typedef uint32_t uchar32_t;
 
 // message_and_prompt.c
-void message(char *msg);
+struct HINTS {
+    const char *word;
+    unsigned int word_len;
+    const char *hint;
+};
+
 char *prompt(const char *msgtmp, char *def);
+char *prompt_hints(const char *msgtmp, char *def, char *shadow, struct HINTS *hints);
+void message(char *msg);
 
 // ted.c
 void setcolor(int c);
@@ -43,7 +50,7 @@ void detect_linebreak(void);
 void openFile(char *fname, bool needs_to_free);
 
 // show.c
-void show_menu(char *message);
+void show_menu(char *message, char *shadow);
 void show_lines(void);
 
 // free.c

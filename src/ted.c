@@ -84,6 +84,7 @@ int main(int argc, char **argv) {
         init_pair(2, -1, -1);
         init_pair(3, COLOR_RED, COLOR_BLACK);
         init_pair(4, -1, COLOR_BLACK);
+        init_pair(5, COLOR_BLACK, -1);
     }
 
     config.lines = LINES - 1;
@@ -106,7 +107,7 @@ int main(int argc, char **argv) {
         }
         
         show_lines();
-        show_menu(menu_message);
+        show_menu(menu_message, NULL);
         refresh();
 
         c = getch();
