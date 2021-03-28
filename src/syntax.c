@@ -95,6 +95,7 @@ struct SHD default_syntax = {
 /*
 Global syntaxes
 */
+
 struct SHD *syntaxes[] = {&c_cpp_syntax, &python_syntax};
 
 void register_syntax(void) {
