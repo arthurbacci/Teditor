@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
     fp = fopen(filename, "r");
     read_lines();
     if (fp) fclose(fp);
+    detect_read_only(filename);
     
     int last_LINES = LINES;
     int last_COLS = COLS;

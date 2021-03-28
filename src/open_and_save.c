@@ -141,11 +141,18 @@ void openFile(char *fname, bool needs_to_free) {
     if (fp != NULL)
         fclose(fp);
 
-    struct stat st;
-    if (stat(fname, &st) == 0)
-        read_only = (st.st_mode & S_IWUSR) || (st.st_mode & S_IWGRP);
-    
     char tmp[10];
     len_line_number = snprintf(tmp, 10, "%d", num_lines + 1);
+    detect_read_only(fname);
 }
 
+void detect_read_only(char *fname) {
+    struct stat st;
+    if (stat(fname, &st) == 0) {
+        read_only = !(
+            (st.st_mode & S_IWOTH)
+            || (getuid() == st.st_uid && (st.st_mode & S_IWUSR))
+            || (getgid() == st.st_gid && (st.st_mode & S_IWGRP))
+        );
+    }
+}
