@@ -1,6 +1,9 @@
 #include "ted.h"
 
-void show_menu(char *message) {
+void show_menu(char *message, char *shadow) {
+    int x, y;
+    getyx(stdscr, y, x);
+
     setcolor(COLOR_PAIR(2));
     move(config.lines, 0);
     for (unsigned int i = 0; i < (unsigned int)COLS; i++)
@@ -14,9 +17,22 @@ void show_menu(char *message) {
                            config.current_syntax->name,
                            config.line_break_type == 0 ? "LF" : (config.line_break_type == 1 ? "CRLF" : "CR"));
         mvprintw(config.lines, COLS - len, "%s", buf);
-        
+
+    } else if (shadow != NULL) {
+        printw("%s", message);
+        getyx(stdscr, y, x);
+
+        // Grey
+        setcolor(COLOR_PAIR(5));
+        attron(A_BOLD);
+        printw("%s", shadow);
+
+        attroff(A_BOLD);
+        setcolor(COLOR_PAIR(2));
     } else
         printw("%s", message);
+
+    move(y, x);
 }
 
 void show_lines(void) {
