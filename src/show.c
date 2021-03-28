@@ -60,7 +60,7 @@ void show_lines(void) {
             unsigned char fg, bg;
             readColor(i, text_scroll.x + j, &fg, &bg);
             
-            int palette[] = {-1, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_MAGENTA, COLOR_CYAN};
+            int palette[] = {-1, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_MAGENTA, COLOR_CYAN, COLOR_YELLOW};
             
             if (colors_on)
                 init_pair(NUM_PAIRS + lines[i].color[text_scroll.x + j], palette[fg], palette[bg]);

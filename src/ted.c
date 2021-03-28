@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
         char *config_ted = home_path(".config/ted/");
         if (stat(config_ted, &st) == -1)
             mkdir(config_ted, 0777);
-
+            
         filename = home_path(".config/ted/buffer");
         
         strcpy(filename, config_ted);
