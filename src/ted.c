@@ -14,6 +14,7 @@ char *menu_message = "";
 
 bool colors_on = 0;
 bool needs_to_free_filename;
+bool read_only = 0;
 
 void setcolor(int c) {
     if (colors_on)

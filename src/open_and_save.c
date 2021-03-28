@@ -8,7 +8,6 @@ void savefile(void) {
         snprintf(buf, 1000, "Could not open the file\nErrno: %d\nPress any key", errno);
 
         message(buf);
-
         return;
     }
     

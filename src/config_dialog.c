@@ -73,6 +73,7 @@ static void save_as(char **words, unsigned int words_len) {
         filename[size - 1] = '\0';
 
         needs_to_free_filename = 1;
+        read_only = 0; // todo: check if the new filename is read only
         savefile();
     } else
         beep();
@@ -81,11 +82,13 @@ static void save_as(char **words, unsigned int words_len) {
 static void manual(char **words, unsigned int words_len) {
     if (words_len == 0) {
         openFile(home_path(".config/ted/docs/help.txt"), 1);
+        read_only = 1;
 
-    } else if (words_len == 0) {
+    } else if (words_len == 1) {
         char fname[1000];
         snprintf(fname, 1000, ".config/ted/docs/%s.txt", words[0]);
         openFile(home_path(fname), 1);
+        read_only = 1;
     } else
         beep();
 }
