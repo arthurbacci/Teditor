@@ -76,6 +76,10 @@ void nextBuffer(void);
 void prevBuffer(void);
 void freeBuffers(void);
 
+// extension.c
+
+void detect_extension(void);
+
 struct KWD {
     const char *string;
     unsigned int color;

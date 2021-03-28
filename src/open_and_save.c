@@ -97,6 +97,7 @@ void read_lines(void) {
         if (config.line_break_type == 1)
             fgetc(fp);
     }
+    detect_extension();
     syntaxHighlight();
 }
 

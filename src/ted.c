@@ -73,24 +73,6 @@ int main(int argc, char **argv) {
 
     register_syntax();
 
-    unsigned int filename_len = (unsigned int)strlen(filename);
-    for (unsigned int i = 0; i < config.syntax_len; ++i) {
-        struct SHD *syntax = config.syntaxes[i];
-
-        for (unsigned int j = 0; j < syntax->exts_len; ++j) {
-            unsigned int ext_len = (unsigned int)strlen(syntax->extensions[j]);
-            if (filename_len >= ext_len + 1 &&
-                filename[filename_len - (ext_len + 1)] == '.' &&
-                strcmp(&filename[filename_len - ext_len], syntax->extensions[j]) == 0) {
-                config.syntax_on = 1;
-                config.current_syntax = syntax;
-                goto out;
-            }
-        }
-    }
-
-out:;
-
     char tmp[10];
     len_line_number = snprintf(tmp, 10, "%d ", num_lines + 1);
 
