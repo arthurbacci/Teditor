@@ -57,30 +57,17 @@ void manual(char *data) {
     }
     free(data);
 }
-void syntax (char *data) {
-    if (!*data) {
-        config.syntax_on = 0;
-        free(data);
-        return;
-    }
+void syntax(char *data) {
+    int len = strlen(data);
+    
+    char *str = malloc(len + 2);
+    *str = '.';
+    strcpy(str + 1, data);
+    
+    fprintf(stderr, "%s\n", str);
+    detect_extension(str);
 
-    unsigned int len = (unsigned int)strlen(data);
-    for (unsigned int i = 0; i < config.syntax_len; ++i) {
-        struct SHD *syntax = config.syntaxes[i];
-
-        for (unsigned int j = 0; j < syntax->exts_len; ++j) {
-            unsigned int ext_len = (unsigned int)strlen(syntax->extensions[j]);
-            if (len == ext_len && strcmp(data, syntax->extensions[j]) == 0) {
-                config.syntax_on = 1;
-                config.current_syntax = syntax;
-                syntaxHighlight();
-                free(data);
-                return;
-            }
-        }
-    }
-
-    beep();
+    free(str);
     free(data);
 }
 

@@ -77,7 +77,7 @@ void prevBuffer(void);
 void freeBuffers(void);
 
 // extension.c
-void detect_extension(void);
+void detect_extension(char *fname);
 
 struct KWD {
     const char *string;
@@ -89,6 +89,7 @@ struct KWD {
 Syntax Highlighting Descriptor
 */
 struct SHD {
+    const char *name;
     unsigned int exts_len;
     const char **extensions;
     const char *word_separators;
@@ -155,5 +156,6 @@ extern unsigned int last_cursor_x;
 extern bool colors_on;
 extern bool needs_to_free_filename;
 extern char *menu_message;
+extern struct SHD default_syntax;
 
 #endif
