@@ -157,5 +157,6 @@ extern unsigned int last_cursor_x;
 extern bool colors_on;
 extern bool needs_to_free_filename;
 extern char *menu_message;
+extern struct SHD default_syntax;
 
 #endif
