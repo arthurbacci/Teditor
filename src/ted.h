@@ -69,6 +69,7 @@ void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned ch
 
 // utils.c
 char *home_path(const char *path);
+char *split_spaces(char *str, char **save);
 
 // buffers.c
 void appendBuffer(char *bufname);
