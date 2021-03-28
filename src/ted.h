@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -29,7 +30,6 @@ typedef uint32_t uchar32_t;
 // message_and_prompt.c
 struct HINTS {
     const char *word;
-    unsigned int word_len;
     const char *hint;
 };
 
@@ -77,6 +77,7 @@ void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned ch
 // utils.c
 char *home_path(const char *path);
 char *split_spaces(char *str, char **save);
+char **split_str(const char *str, int *num_str);
 
 // buffers.c
 void appendBuffer(char *bufname);

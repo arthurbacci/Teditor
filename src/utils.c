@@ -33,4 +33,41 @@ char *split_spaces(char *str, char **save) {
     // skip spaces
     while (isspace(**save)) (*save)++;
     return str;
+
 }
+
+char **split_str(const char *str, int *num_str) {
+    char *strcp = malloc(strlen(str) + 1);
+    char *origstrcp = strcp; // for free()
+    strcpy(strcp, str);
+
+    while (*strcp == ' ') strcp++; // Removes trailing spaces
+
+    *num_str = 0;
+    char **strs = NULL;
+
+    while (1) {
+        char *astr = malloc(1000);
+        strcpy(astr, strcp);
+        char *spc = strchr(strcp, ' ');
+
+        if (spc) {
+            astr[spc - strcp] = '\0';
+            while (*spc == ' ') spc++;
+        }
+
+        strs = realloc(strs, ++*num_str * sizeof(*strs));
+
+        strs[*num_str - 1] = astr;
+
+        if (spc == NULL || !*spc)
+            break;
+
+        strcp = spc;
+    }
+
+    free(origstrcp);
+
+    return strs;
+}
+
