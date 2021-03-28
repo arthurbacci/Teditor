@@ -2,25 +2,16 @@
 #include <strings.h>
 
 static void tablen(char **words, unsigned int words_len) {
-    if (words_len == 0) {
-        beep();
-        return;
-    } else if (words_len == 1) {
+    if (words_len == 1) {
         int answer_int = atoi(words[0]);
-
-        if (answer_int > 0) {
+        if (answer_int > 0)
             config.tablen = answer_int;
-            return;
-        }
-    }
-    beep();
+    } else
+        beep();
 }
 
 static void linebreak(char **words, unsigned int words_len) {
-    if (words_len == 0) {
-        beep();
-        return;
-    } else if (words_len == 1) {
+    if (words_len == 1) {
         if (strcasecmp(words[0], "LF") == 0)
             config.line_break_type = 0;
 
@@ -29,37 +20,28 @@ static void linebreak(char **words, unsigned int words_len) {
 
         else if (strcasecmp(words[0], "CR") == 0)
             config.line_break_type = 2;
-
-        return;
-    }
-    beep();
+    } else
+        beep();
 }
 
 static void use_spaces(char **words, unsigned int words_len) {
     if (words_len == 1) {
         if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
             config.use_spaces = 1;
-
         else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
             config.use_spaces = 0;
-
-        return;
-    }
-    beep();
+    } else
+        beep();
 }
 
 static void autotab(char **words, unsigned int words_len) {
     if (words_len == 1) {
         if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
             config.autotab = 1;
-
         else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
             config.autotab = 0;
-
-        printf("\n%d\n", config.autotab);
-        return;
-    }
-    beep();
+    } else
+        beep();
 }
 
 static void save_as(char **words, unsigned int words_len) {
@@ -83,7 +65,6 @@ static void manual(char **words, unsigned int words_len) {
     if (words_len == 0) {
         openFile(home_path(".config/ted/docs/help.txt"), 1);
         read_only = 1;
-
     } else if (words_len == 1) {
         char fname[1000];
         snprintf(fname, 1000, ".config/ted/docs/%s.txt", words[0]);
@@ -94,20 +75,16 @@ static void manual(char **words, unsigned int words_len) {
 }
 
 static void syntax(char **words, unsigned int words_len) {
-    if (words_len == 0) {
-        beep();
-        return;
-    }
-
-    if (strcmp(words[0], "off") == 0 && words_len == 1) {
+    if (words_len == 1 && strcmp(words[0], "off") == 0) {
         config.syntax_on = 0;
-    } else if (strcmp(words[0], "on") == 0 && words_len == 1) {
+
+    } else if (words_len == 1 && strcmp(words[0], "on") == 0) {
         if (config.current_syntax == NULL)
             beep();
         else
             config.syntax_on = 1;
 
-    } else if (strcmp(words[0], "set") == 0 && words_len == 2) {
+    } else if (words_len == 2 && strcmp(words[0], "set") == 0) {
         char *str = malloc(strlen(words[1]) + 2);
         *str = '.';
         strcpy(str + 1, words[1]);
@@ -118,7 +95,6 @@ static void syntax(char **words, unsigned int words_len) {
             config.current_syntax = current;
             beep();
         }
-
         free(str);
     } else
         beep();
@@ -150,7 +126,6 @@ struct HINTS hints[] = {
 
 void config_dialog(void) {
     char *base_hint = "{tablen, linebreak, use-spaces, autotab, save-as, manual, syntax}";
-
     char *command = prompt_hints("Enter command: ", "", base_hint, hints);
     char *command_ptr = command;
     
