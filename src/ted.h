@@ -77,7 +77,6 @@ void prevBuffer(void);
 void freeBuffers(void);
 
 // extension.c
-
 void detect_extension(void);
 
 struct KWD {
