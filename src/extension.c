@@ -1,6 +1,6 @@
 #include "ted.h"
 
-void detect_extension(char *fname) {
+bool detect_extension(char *fname) {
     char *ext = strrchr(fname, '.');
     if (!ext)
         goto END;
@@ -18,7 +18,7 @@ void detect_extension(char *fname) {
             if (fextlen == sextlen && !strncmp(ext, syntax->extensions[j], fextlen)) {
                 config.syntax_on = 1;
                 config.current_syntax = syntax;
-                return;
+                return true; //found
             }
         }
     }
@@ -26,4 +26,5 @@ void detect_extension(char *fname) {
   END:
     config.syntax_on = 1;
     config.current_syntax = &default_syntax;
+    return false; //default
 }

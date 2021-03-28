@@ -105,20 +105,18 @@ static void syntax(char **words, unsigned int words_len) {
             config.syntax_on = 1;
 
     } else if (strcmp(words[0], "set") == 0 && words_len == 2) {
-        unsigned int len = (unsigned int)strlen(words[1]);
-        for (unsigned int i = 0; i < config.syntax_len; ++i) {
-            struct SHD *syntax = config.syntaxes[i];
+        char *str = malloc(strlen(words[1]) + 2);
+        *str = '.';
+        strcpy(str + 1, words[1]);
+        struct SHD *current = config.current_syntax;
 
-            for (unsigned int j = 0; j < syntax->exts_len; ++j) {
-                unsigned int ext_len = (unsigned int)strlen(syntax->extensions[j]);
-                if (len == ext_len && strcmp(words[1], syntax->extensions[j]) == 0) {
-                    config.syntax_on = 1;
-                    config.current_syntax = syntax;
-                    syntaxHighlight();
-                    return;
-                }
-            }
+        if (!detect_extension(str)) {
+            // dont reset syntax if syntax name doesn't exist
+            config.current_syntax = current;
+            beep();
         }
+
+        free(str);
     } else
         beep();
 }
