@@ -66,9 +66,9 @@ static void manual(char **words, unsigned int words_len) {
 
 static void syntax(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        char *str = malloc(strlen(words[1]) + 2);
+        char *str = malloc(strlen(words[0]) + 2);
         *str = '.';
-        strcpy(str + 1, words[1]);
+        strcpy(str + 1, words[0]);
 
         if (!detect_extension(str))
             config.current_syntax = &default_syntax;
