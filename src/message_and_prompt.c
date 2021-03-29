@@ -40,6 +40,20 @@ char *prompt(const char *msgtmp, char *def) {
     return ret;
 }
 
+static char *show_hint(struct HINTS *hints, unsigned int len, int i, char *msg, char *shadow) {
+    if (hints) {
+        struct HINTS *hint = hints;
+        while (hint != NULL && hint->word != NULL) {
+            unsigned int word_len = (unsigned int)strlen(hint->word);
+            if (len + i >= word_len &&
+                !strncmp(msg + (len + i - word_len) + 1, hint->word, word_len))
+                return (char *)hint->hint;
+            ++hint;
+        }
+    }
+    return shadow;
+}
+
 char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hints) {
     char msg[1000];
     strcpy(msg, msgtmp);
@@ -62,17 +76,9 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hint
 
         if (c == KEY_BACKSPACE || c == ctrl('h') || c == '\b') {
             i -= 1 + (i > 0);
-
-            struct HINTS *hint = hints;
-            while (hint != NULL && hint->word != NULL) {
-                unsigned int word_len = (unsigned int)strlen(hint->word);
-                if (len + i >= word_len
-                    && strncmp(msg + (len + i - word_len) + 1, hint->word, word_len) == 0) {
-                    shadow = (char*)hint->hint;
-                    break;
-                }
-                ++hint;
-            }
+            
+            shadow = show_hint(hints, len, i, msg, shadow);
+            
         } else if (c == ctrl('c')) {
             free(ret);
             menu_message = "";
@@ -86,16 +92,7 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hint
             msg[len + i] = c;
             ret[i] = c;
 
-            struct HINTS *hint = hints;
-            while (hint != NULL && hint->word != NULL) {
-                unsigned int word_len = (unsigned int)strlen(hint->word);
-                if (len + i >= word_len
-                    && strncmp(msg + (len + i - word_len) + 1, hint->word, word_len) == 0) {
-                    shadow = (char*)hint->hint;
-                    break;
-                }
-                ++hint;
-            }
+            shadow = show_hint(hints, len, i, msg, shadow);
         } else if (c != KEY_BACKSPACE && c != ctrl('h') && c != '\b')
             i--;
 
