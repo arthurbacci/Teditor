@@ -92,6 +92,7 @@ bool detect_extension(char *fname);
 struct KWD {
     const char *string;
     unsigned int color;
+    unsigned int length;
     bool operator;
 };
 
