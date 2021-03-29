@@ -44,11 +44,14 @@ static void save_as(char **words, unsigned int words_len) {
         if (needs_to_free_filename)
             free(filename);
 
-        filename = malloc(sizeof(words[0]));
-        strcpy(filename, words[0]);
+        unsigned int size = (strlen(words[0]) + 1) * sizeof(char);
+        filename = malloc(size);
+        memcpy(filename, words[0], size);
         needs_to_free_filename = 1;
-        read_only = 0; // todo: check if the new filename is read only
-        savefile();
+        detect_read_only(filename);
+
+        if (read_only) message("Can't save as a read-only file.");
+        else savefile();
     }
 }
 
