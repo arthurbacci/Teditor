@@ -1,10 +1,10 @@
 #include "syntax.h"
 
 /*
-C and C++ syntax highlighting descriptor
+C syntax highlighting descriptor
 */
 
-static struct KWD c_cpp_kwd[] = {
+static struct KWD c_kwd[] = {
     KEYWORD("break", 0x10), KEYWORD("case", 0x10), KEYWORD("default", 0x10), // ansi c
     KEYWORD("continue", 0x10), KEYWORD("while", 0x10), KEYWORD("enum", 0x10),
     KEYWORD("do", 0x10), KEYWORD("else", 0x10), KEYWORD("extern", 0x10),
@@ -13,28 +13,30 @@ static struct KWD c_cpp_kwd[] = {
     KEYWORD("switch", 0x10), KEYWORD("typedef", 0x10), KEYWORD("union", 0x10),
     KEYWORD("asm" , 0x10), KEYWORD("fortran" , 0x10),
 
-    KEYWORD("char", 0x10), KEYWORD("double", 0x10), KEYWORD("long", 0x10), // c types
-    KEYWORD("short", 0x10), KEYWORD("int", 0x10), KEYWORD("void", 0x10),
-    KEYWORD("float", 0x10), KEYWORD("auto", 0x20),
+    KEYWORD("char", 0x40), KEYWORD("double", 0x40), KEYWORD("long", 0x40), // c types
+    KEYWORD("short", 0x40), KEYWORD("int", 0x40), KEYWORD("void", 0x40),
+    KEYWORD("float", 0x40), KEYWORD("auto", 0x40),
     
-    KEYWORD("const", 0x10), KEYWORD("signed", 0x10), KEYWORD("unsigned", 0x10), //type modifiers
-    KEYWORD("inline", 0x10), KEYWORD("volatile", 0x10), KEYWORD("static", 0x10),
-    KEYWORD("restrict", 0x10), KEYWORD("register", 0x10),
+    KEYWORD("const", 0x40), KEYWORD("signed", 0x40), KEYWORD("unsigned", 0x40), //type modifiers
+    KEYWORD("inline", 0x40), KEYWORD("volatile", 0x40), KEYWORD("static", 0x40),
+    KEYWORD("restrict", 0x40), KEYWORD("register", 0x40),
 
-    KEYWORD("_Alignas", 0x10), KEYWORD("_Alignof", 0x10), // c11 and c99
-    KEYWORD("_Atomic", 0x10), KEYWORD("_Bool", 0x10), KEYWORD("_Complex", 0x10),
-    KEYWORD("_Decimal128", 0x10), KEYWORD("_Decimal32", 0x10), KEYWORD("_Decimal64", 0x10),
-    KEYWORD("_Generic", 0x10), KEYWORD("_Imaginary", 0x10), KEYWORD("_Noreturn", 0x10),
-    KEYWORD("_Static_assert", 0x10), KEYWORD("_Thread_local", 0x10),
+    KEYWORD("_Alignas", 0x40), KEYWORD("_Alignof", 0x40), // c11 and c99
+    KEYWORD("_Atomic", 0x40), KEYWORD("_Bool", 0x40), KEYWORD("_Complex", 0x40),
+    KEYWORD("_Decimal128", 0x40), KEYWORD("_Decimal32", 0x40), KEYWORD("_Decimal64", 0x40),
+    KEYWORD("_Generic", 0x40), KEYWORD("_Imaginary", 0x40), KEYWORD("_Noreturn", 0x40),
+    KEYWORD("_Static_assert", 0x40), KEYWORD("_Thread_local", 0x40),
 
-    KEYWORD("bool", 0x10), KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), //macros
+    KEYWORD("bool", 0x10), KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), //preprocessor macros
     KEYWORD("complex", 0x10), KEYWORD("imaginary", 0x10), KEYWORD("thread_local", 0x10),
-
-    KEYWORD("#include", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), //preprocessor
+    KEYWORD("#include", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10),
     KEYWORD("#ifdef", 0x10), KEYWORD("#ifndef", 0x10), KEYWORD("#if", 0x10),
     KEYWORD("#elif" , 0x10), KEYWORD("#else" , 0x10), KEYWORD("#endif" , 0x10),
     KEYWORD("#line" , 0x10), KEYWORD("#error" , 0x10), KEYWORD("#warning" , 0x10),
     KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10),
+
+    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("NULL", 0x20), // standard constants
+    KEYWORD("stdin", 0x20), KEYWORD("stdout", 0x20), KEYWORD("stderr", 0x20),
 
     OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
     OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
@@ -48,13 +50,34 @@ static struct KWD c_cpp_kwd[] = {
     OPERATOR("[", 0x50), OPERATOR("]", 0x50),
 };
 
-static const char *c_cpp_exts[] = {"c", "h", "cpp", "hpp", "cc", "hh"};
+static const char *c_exts[] = {"c", "h"};
 
-static struct SHD c_cpp_syntax = {
+static struct SHD c_syntax = {
     "C/C++",
-    sizeof c_cpp_exts / sizeof *c_cpp_exts, c_cpp_exts,
+    sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
-    sizeof c_cpp_kwd / sizeof *c_cpp_kwd, c_cpp_kwd, //Keywords
+    sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
+    0x60, 0x50, 0x05,
+    "\"\'", // Strings charaters
+    "//", {"/*", "*/"}, // Comments
+    {"{[(", ")]}"}
+};
+
+/*
+C++ syntax highlighting descriptor
+*/
+
+static struct KWD cpp_kwd[] = {
+
+};
+
+static const char *cpp_exts[] = {"cpp", "hpp", "cc", "hh"};
+
+static struct SHD cpp_syntax = {
+    "C++",
+    sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
+    " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
+    sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
     0x60, 0x50, 0x05,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
@@ -167,8 +190,9 @@ static struct KWD sh_kwd[] = {
     KEYWORD("case", 0x10), KEYWORD("esac", 0x10), KEYWORD("until", 0x10),
     KEYWORD("function", 0x10), KEYWORD("elif", 0x10),
 
-    KEYWORD("$?", 0x20), KEYWORD("~", 0x20), KEYWORD(".", 0x20), //builtins
-    KEYWORD("alias", 0x20), KEYWORD("bg", 0x20), KEYWORD("bind", 0x20),
+    KEYWORD("$?", 0x40), KEYWORD("~", 0x40), KEYWORD(".", 0x40), // special
+
+    KEYWORD("alias", 0x20), KEYWORD("bg", 0x20), KEYWORD("bind", 0x20), //builtins
     KEYWORD("builtin", 0x20), KEYWORD("cd", 0x20), KEYWORD("command", 0x20),
     KEYWORD("continue", 0x20), KEYWORD("declare", 0x20), KEYWORD("dirs", 0x20),
     KEYWORD("disown", 0x20), KEYWORD("echo", 0x20), KEYWORD("enable", 0x20),
@@ -229,7 +253,7 @@ struct SHD default_syntax = {
 Global syntaxes
 */
 
-struct SHD *syntaxes[] = {&c_cpp_syntax, &python_syntax, &sh_syntax};
+struct SHD *syntaxes[] = {&c_syntax, &cpp_syntax, &python_syntax, &sh_syntax};
 
 void register_syntax(void) {
     config.syntaxes = syntaxes;
