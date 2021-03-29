@@ -7,7 +7,7 @@ char *prompt(const char *msgtmp, char *def) {
 static char *show_hint(struct HINTS *hints, unsigned int len, int i, char *msg) {
     if (hints) {
         struct HINTS *hint = hints;
-        while (hint != NULL && hint->word != NULL) {
+        while (hint->word != NULL) {
             unsigned int word_len = (unsigned int)strlen(hint->word);
             if (len + i >= word_len &&
                 !strncmp(msg + (len + i - word_len) + 1, hint->word, word_len))
@@ -54,7 +54,6 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hint
         if (isprint(c)) {
             msg[len + i] = c;
             ret[i] = c;
-
             shadow = show_hint(hints, len, i, msg);
         } else if (c != KEY_BACKSPACE && c != ctrl('h') && c != '\b')
             i--;
