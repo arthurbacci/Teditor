@@ -9,12 +9,29 @@ void expandLine(unsigned int at, int x) {
     }
 }
 
+void new_line(unsigned int at, int x) {
+    lines[at].len = READ_BLOCKSIZE;
+    lines[at].data = malloc(lines[at].len * sizeof(uchar32_t));
+    lines[at].color = malloc(lines[at].len * sizeof(unsigned char));
+    lines[at].length = 0;
+    
+    expandLine(at, lines[at - 1].length - x + 1);
+    memcpy(lines[at].data, &lines[at - 1].data[x], (lines[at - 1].length - x) * sizeof(uchar32_t));
+    
+    lines[at].length += lines[at - 1].length - x;
+    lines[at].data[lines[at].length] = '\0';
+
+    lines[at - 1].length = x;
+    lines[at - 1].data[lines[at - 1].length] = '\0';
+
+    calculate_len_line_number();
+}
+
 void process_keypress(int c) {
     switch (c) {
     case KEY_UP:
     case ctrl('p'):
         cursor.y -= cursor.y > 0;
-
         cursor.x = last_cursor_x;
         
         cursor_in_valid_position();
@@ -22,7 +39,6 @@ void process_keypress(int c) {
     case KEY_DOWN:
     case ctrl('n'):
         cursor.y++;
-
         cursor.x = last_cursor_x;
         
         cursor_in_valid_position();
@@ -216,25 +232,7 @@ void process_keypress(int c) {
         cursor.x = 0;
         last_cursor_x = 0;
         process_keypress(KEY_DOWN);
-
-        lines[cy].len = READ_BLOCKSIZE;
-        lines[cy].data = malloc(lines[cy].len * sizeof(uchar32_t));
-        lines[cy].color = malloc(lines[cy].len * sizeof(unsigned char));
-        lines[cy].length = 0;
-        
-        expandLine(cy, lines[cy - 1].length - lcx + 1);
-        
-        memcpy(lines[cy].data, &lines[cy - 1].data[lcx], (lines[cy - 1].length - lcx) * sizeof(uchar32_t));
-        
-        lines[cy].length += lines[cy - 1].length - lcx;
-        
-        lines[cy].data[lines[cy].length] = '\0';
-
-        lines[cy - 1].length = lcx;
-
-        lines[cy - 1].data[lines[cy - 1].length] = '\0';
-
-        calculate_len_line_number();
+        new_line(cy, lcx);
 
         if (config.autotab == 1) {
             const unsigned int ident = lines[cy - 1].ident;

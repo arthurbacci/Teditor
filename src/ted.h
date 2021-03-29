@@ -59,6 +59,7 @@ void free_lines(void);
 
 // keypress.c
 void expandLine(unsigned int at, int x);
+void new_line(unsigned int at, int x);
 void process_keypress(int c);
 
 // cursor_in_valid_position.c
@@ -122,6 +123,7 @@ struct CFG {
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
     bool use_spaces;
     bool autotab;
+    bool insert_newline;
     struct SHD *current_syntax;
     unsigned int syntax_len;
     struct SHD **syntaxes;
