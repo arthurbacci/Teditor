@@ -5,25 +5,43 @@ C and C++ syntax highlighting descriptor
 */
 
 static struct KWD c_cpp_kwd[] = {
-    KEYWORD("if", 0x10), KEYWORD("else", 0x10), KEYWORD("while", 0x10),
-    KEYWORD("for", 0x10), KEYWORD("return", 0x10), KEYWORD("static", 0x10),
-    KEYWORD("goto", 0x10), KEYWORD("switch", 0x10), KEYWORD("case", 0x10),
-    KEYWORD("break", 0x10), KEYWORD("continue", 0x10),
-    
-    KEYWORD("#include", 0x10), KEYWORD("#define", 0x10), KEYWORD("#ifdef", 0x10),
-    KEYWORD("#ifndef" , 0x10), KEYWORD("#endif" , 0x10),
+    KEYWORD("break", 0x10), KEYWORD("case", 0x10), KEYWORD("default", 0x10), // ansi c
+    KEYWORD("continue", 0x10), KEYWORD("while", 0x10), KEYWORD("enum", 0x10),
+    KEYWORD("do", 0x10), KEYWORD("else", 0x10), KEYWORD("extern", 0x10),
+    KEYWORD("for", 0x10), KEYWORD("goto", 0x10), KEYWORD("if", 0x10),
+    KEYWORD("return", 0x10), KEYWORD("sizeof", 0x10),  KEYWORD("struct", 0x10),
+    KEYWORD("switch", 0x10), KEYWORD("typedef", 0x10), KEYWORD("union", 0x10),
+    KEYWORD("asm" , 0x10), KEYWORD("fortran" , 0x10),
 
-    KEYWORD("int", 0x20), KEYWORD("char", 0x20), KEYWORD("unsigned", 0x20), 
-    KEYWORD("long", 0x20), KEYWORD("double", 0x20), KEYWORD("float", 0x20), 
-    KEYWORD("struct", 0x20), KEYWORD("const", 0x20), KEYWORD("void", 0x20), 
+    KEYWORD("char", 0x10), KEYWORD("double", 0x10), KEYWORD("long", 0x10), // c types
+    KEYWORD("short", 0x10), KEYWORD("int", 0x10), KEYWORD("void", 0x10),
+    KEYWORD("float", 0x10), KEYWORD("auto", 0x20),
     
-    OPERATOR("*" , 0x40), OPERATOR("," , 0x40), OPERATOR(";" , 0x40), 
-    OPERATOR("!" , 0x40), OPERATOR("&&", 0x40), OPERATOR("||", 0x40),
-    OPERATOR("&" , 0x40), OPERATOR("|" , 0x40), OPERATOR("~" , 0x40),
-    OPERATOR("^" , 0x40), OPERATOR(">>", 0x40), OPERATOR("<<", 0x40),
-    OPERATOR("+" , 0x40), OPERATOR("-" , 0x40), OPERATOR("/" , 0x40),
-    OPERATOR("->", 0x40), OPERATOR("=" , 0x40), OPERATOR("!=", 0x40),
-    OPERATOR("<" , 0x40), OPERATOR(">" , 0x40),
+    KEYWORD("const", 0x10), KEYWORD("signed", 0x10), KEYWORD("unsigned", 0x10), //type modifiers
+    KEYWORD("inline", 0x10), KEYWORD("volatile", 0x10), KEYWORD("static", 0x10),
+    KEYWORD("restrict", 0x10), KEYWORD("register", 0x10),
+
+    KEYWORD("_Alignas", 0x10), KEYWORD("_Alignof", 0x10), // c11 and c99
+    KEYWORD("_Atomic", 0x10), KEYWORD("_Bool", 0x10), KEYWORD("_Complex", 0x10),
+    KEYWORD("_Decimal128", 0x10), KEYWORD("_Decimal32", 0x10), KEYWORD("_Decimal64", 0x10),
+    KEYWORD("_Generic", 0x10), KEYWORD("_Imaginary", 0x10), KEYWORD("_Noreturn", 0x10),
+    KEYWORD("_Static_assert", 0x10), KEYWORD("_Thread_local", 0x10),
+
+    KEYWORD("bool", 0x10), KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), //macros
+    KEYWORD("complex", 0x10), KEYWORD("imaginary", 0x10), KEYWORD("thread_local", 0x10),
+
+    KEYWORD("#include", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), //preprocessor
+    KEYWORD("#ifdef", 0x10), KEYWORD("#ifndef", 0x10), KEYWORD("#if", 0x10),
+    KEYWORD("#elif" , 0x10), KEYWORD("#else" , 0x10), KEYWORD("#endif" , 0x10),
+    KEYWORD("#line" , 0x10), KEYWORD("#error" , 0x10), KEYWORD("#warning" , 0x10),
+    KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10),
+
+    OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
+    OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
+    OPERATOR("%" , 0x30), OPERATOR("^" , 0x30), OPERATOR("&" , 0x30),
+    OPERATOR("~" , 0x30), OPERATOR("|" , 0x30), OPERATOR("!" , 0x30),
+    OPERATOR("<" , 0x30), OPERATOR(">" , 0x30), OPERATOR("=" , 0x30),
+    OPERATOR("?" , 0x30), OPERATOR(":" , 0x30), OPERATOR("." , 0x30),
     
     OPERATOR("(", 0x50), OPERATOR(")", 0x50),
     OPERATOR("{", 0x50), OPERATOR("}", 0x50),
