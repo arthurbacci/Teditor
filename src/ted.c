@@ -70,8 +70,7 @@ int main(int argc, char **argv) {
 
     register_syntax();
 
-    char tmp[10];
-    len_line_number = snprintf(tmp, 10, "%d ", num_lines + 1);
+    calculate_len_line_number();
 
     colors_on = has_colors() && start_color() == OK;
 

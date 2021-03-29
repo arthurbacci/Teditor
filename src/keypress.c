@@ -92,6 +92,7 @@ void process_keypress(int c) {
             lines[cy].length = 0;
         }
         cursor_in_valid_position();
+        calculate_len_line_number();
         syntaxHighlight();
         break;
     } case ctrl('w'): {
@@ -190,6 +191,8 @@ void process_keypress(int c) {
 
             free(del_line.data);
             free(del_line.color);
+            
+            calculate_len_line_number();
         }
 
         lines[cy].ident = 0;
@@ -231,8 +234,7 @@ void process_keypress(int c) {
 
         lines[cy - 1].data[lines[cy - 1].length] = '\0';
 
-        char tmp[50];
-        len_line_number = snprintf(tmp, 50, "%u", num_lines + 1);
+        calculate_len_line_number();
 
         if (config.autotab == 1) {
             const unsigned int ident = lines[cy - 1].ident;

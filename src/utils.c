@@ -70,3 +70,9 @@ char **split_str(const char *str, int *num_str) {
 
     return strs;
 }
+
+void calculate_len_line_number(void) {
+    char tmp[10];
+    len_line_number = snprintf(tmp, 10, "%d ", num_lines + 1);
+}
+

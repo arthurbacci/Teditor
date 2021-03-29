@@ -79,6 +79,7 @@ void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned ch
 char *home_path(const char *path);
 char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
+void calculate_len_line_number(void);
 
 // buffers.c
 void appendBuffer(char *bufname);

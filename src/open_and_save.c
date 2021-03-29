@@ -141,8 +141,8 @@ void openFile(char *fname, bool needs_to_free) {
     if (fp != NULL)
         fclose(fp);
 
-    char tmp[10];
-    len_line_number = snprintf(tmp, 10, "%d", num_lines + 1);
+    calculate_len_line_number();
+    
     detect_read_only(fname);
 }
 
