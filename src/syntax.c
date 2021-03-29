@@ -9,7 +9,7 @@ static struct KWD c_kwd[] = {
     KEYWORD("continue", 0x10), KEYWORD("while", 0x10), KEYWORD("enum", 0x10),
     KEYWORD("do", 0x10), KEYWORD("else", 0x10), KEYWORD("extern", 0x10),
     KEYWORD("for", 0x10), KEYWORD("goto", 0x10), KEYWORD("if", 0x10),
-    KEYWORD("return", 0x10), KEYWORD("sizeof", 0x10),  KEYWORD("struct", 0x10),
+    KEYWORD("return", 0x10), KEYWORD("sizeof", 0x10), KEYWORD("struct", 0x10),
     KEYWORD("switch", 0x10), KEYWORD("typedef", 0x10), KEYWORD("union", 0x10),
     KEYWORD("asm" , 0x10), KEYWORD("fortran" , 0x10),
 
@@ -27,13 +27,14 @@ static struct KWD c_kwd[] = {
     KEYWORD("_Generic", 0x40), KEYWORD("_Imaginary", 0x40), KEYWORD("_Noreturn", 0x40),
     KEYWORD("_Static_assert", 0x40), KEYWORD("_Thread_local", 0x40),
 
-    KEYWORD("bool", 0x10), KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), //preprocessor macros
+    KEYWORD("bool", 0x10), KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), //macros
     KEYWORD("complex", 0x10), KEYWORD("imaginary", 0x10), KEYWORD("thread_local", 0x10),
-    KEYWORD("#include", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10),
+
+    KEYWORD("defined", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), //preprocessor
     KEYWORD("#ifdef", 0x10), KEYWORD("#ifndef", 0x10), KEYWORD("#if", 0x10),
     KEYWORD("#elif" , 0x10), KEYWORD("#else" , 0x10), KEYWORD("#endif" , 0x10),
     KEYWORD("#line" , 0x10), KEYWORD("#error" , 0x10), KEYWORD("#warning" , 0x10),
-    KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10),
+    KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10), KEYWORD("#include", 0x10),
 
     KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("NULL", 0x20), // standard constants
     KEYWORD("stdin", 0x20), KEYWORD("stdout", 0x20), KEYWORD("stderr", 0x20),
@@ -68,7 +69,61 @@ C++ syntax highlighting descriptor
 */
 
 static struct KWD cpp_kwd[] = {
+    KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), KEYWORD("and", 0x10),
+    KEYWORD("and_eq", 0x10), KEYWORD("asm", 0x10), KEYWORD("catch", 0x10),
+    KEYWORD("bitand", 0x10), KEYWORD("bitor", 0x10), KEYWORD("compl", 0x10),
+    KEYWORD("break", 0x10), KEYWORD("case", 0x10), KEYWORD("class", 0x10),
+    KEYWORD("concept", 0x10), KEYWORD("const_cast", 0x10), KEYWORD("continue", 0x10),
+    KEYWORD("co_await", 0x10), KEYWORD("co_return", 0x10), KEYWORD("co_yield", 0x10),
+    KEYWORD("decltype", 0x10), KEYWORD("default", 0x10), KEYWORD("delete", 0x10),
+    KEYWORD("do", 0x10), KEYWORD("else", 0x10), KEYWORD("enum", 0x10),
+    KEYWORD("dynamic_cast", 0x10), KEYWORD("goto", 0x10), KEYWORD("if", 0x10),
+    KEYWORD("explicit", 0x10), KEYWORD("export", 0x10), KEYWORD("extern", 0x10),
+    KEYWORD("for", 0x10), KEYWORD("namespace", 0x10), KEYWORD("new", 0x10),
+    KEYWORD("noexcept", 0x10), KEYWORD("not", 0x10), KEYWORD("not_eq", 0x10),
+    KEYWORD("operator", 0x10), KEYWORD("or", 0x10), KEYWORD("sizeof", 0x10),
+    KEYWORD("or_eq", 0x10), KEYWORD("reinterpret_cast", 0x10), KEYWORD("requires", 0x10),
+    KEYWORD("return", 0x10), KEYWORD("static_assert", 0x10), KEYWORD("static_cast", 0x10),
+    KEYWORD("struct", 0x10), KEYWORD("switch", 0x10), KEYWORD("synchronized", 0x10),
+    KEYWORD("template", 0x10), KEYWORD("throw", 0x10), KEYWORD("try", 0x10),
+    KEYWORD("typedef", 0x10), KEYWORD("typeid", 0x10), KEYWORD("typename", 0x10),
+    KEYWORD("union", 0x10), KEYWORD("using", 0x10), KEYWORD("while", 0x10),
+    KEYWORD("xor_eq", 0x10), KEYWORD("xor", 0x10),
 
+    KEYWORD("signed", 0x40), KEYWORD("unsigned", 0x40), KEYWORD("virtual", 0x40), // type modifiers
+    KEYWORD("volatile", 0x40), KEYWORD("friend", 0x40), KEYWORD("inline", 0x40),
+    KEYWORD("mutable", 0x40), KEYWORD("thread_local", 0x40), KEYWORD("atomic_cancel", 0x40),
+    KEYWORD("atomic_commit", 0x40), KEYWORD("atomic_noexcept", 0x40), KEYWORD("constinit", 0x40),
+    KEYWORD("const", 0x40), KEYWORD("consteval", 0x40), KEYWORD("constexpr", 0x40),
+    KEYWORD("private", 0x40), KEYWORD("protected", 0x40), KEYWORD("public", 0x40),
+    KEYWORD("reflexpr", 0x40), KEYWORD("register", 0x40), KEYWORD("static", 0x40),
+
+    KEYWORD("char", 0x40), KEYWORD("char8_t", 0x40), KEYWORD("char16_t", 0x40), // primitives
+    KEYWORD("char32_t", 0x40), KEYWORD("int", 0x40), KEYWORD("long", 0x40),
+    KEYWORD("short", 0x40), KEYWORD("wchar_t", 0x40), KEYWORD("bool", 0x40),
+    KEYWORD("void", 0x40), KEYWORD("double", 0x40), KEYWORD("auto", 0x40),
+    KEYWORD("float", 0x40),
+    
+    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("nullptr", 0x20), //literals
+    KEYWORD("this", 0x20), KEYWORD("std::", 0x20),
+
+    KEYWORD("defined", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), //preprocessor
+    KEYWORD("#ifdef", 0x10), KEYWORD("#ifndef", 0x10), KEYWORD("#if", 0x10),
+    KEYWORD("#elif" , 0x10), KEYWORD("#else" , 0x10), KEYWORD("#endif" , 0x10),
+    KEYWORD("#line" , 0x10), KEYWORD("#error" , 0x10), KEYWORD("#warning" , 0x10),
+    KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10), KEYWORD("#include", 0x10),
+    KEYWORD("export" , 0x10), KEYWORD("import" , 0x10), KEYWORD("module", 0x10), //c++20 modules
+
+    OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
+    OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
+    OPERATOR("%" , 0x30), OPERATOR("^" , 0x30), OPERATOR("&" , 0x30),
+    OPERATOR("~" , 0x30), OPERATOR("|" , 0x30), OPERATOR("!" , 0x30),
+    OPERATOR("<" , 0x30), OPERATOR(">" , 0x30), OPERATOR("=" , 0x30),
+    OPERATOR("?" , 0x30), OPERATOR(":" , 0x30), OPERATOR("." , 0x30),
+    
+    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
+    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
+    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
 };
 
 static const char *cpp_exts[] = {"cpp", "hpp", "cc", "hh"};
@@ -109,7 +164,7 @@ static struct KWD python_kwd[] = {
     KEYWORD("credits", 0x20), KEYWORD("delattr", 0x20), KEYWORD("dict", 0x20),
     KEYWORD("dir", 0x20), KEYWORD("divmod", 0x20), KEYWORD("enumerate", 0x20),
     KEYWORD("eval", 0x20), KEYWORD("exec", 0x20), KEYWORD("exit", 0x20),
-    KEYWORD("filter", 0x20),  KEYWORD("format", 0x20), KEYWORD("frozenset", 0x20),
+    KEYWORD("filter", 0x20), KEYWORD("format", 0x20), KEYWORD("frozenset", 0x20),
     KEYWORD("getattr", 0x20), KEYWORD("globals", 0x20), KEYWORD("issubclass", 0x20),
     KEYWORD("hasattr", 0x20), KEYWORD("hash", 0x20), KEYWORD("help", 0x20),
     KEYWORD("hex", 0x20), KEYWORD("id", 0x20), KEYWORD("input", 0x20),
