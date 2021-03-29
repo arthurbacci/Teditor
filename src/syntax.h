@@ -3,8 +3,8 @@
 
 #include "ted.h"
 
-#define KEYWORD(name, color)        {name, color, 0}
-#define OPERATOR(operator, color)   {operator, color, 1}
+#define KEYWORD(name, color)    {name, color, sizeof(name) - sizeof(char), 0}
+#define OPERATOR(op, color)     {op, color, sizeof(op) - sizeof(char), 1}
 
 extern struct SHD *syntaxes[];
 

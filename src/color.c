@@ -5,6 +5,11 @@ void syntaxHighlight(void) {
     bool backslash = 0;
     char string = '\0';
     unsigned int waiting_to_close = 0;
+
+    unsigned int slinecommentlen   = strlen(config.current_syntax->singleline_comment);
+    unsigned int mlinecommentstart = strlen(config.current_syntax->multiline_comment[0]);
+    unsigned int mlinecommentend   = strlen(config.current_syntax->multiline_comment[1]);
+
     for (unsigned int at = 0; at < text_scroll.y + config.lines; at++) {
         if (at == num_lines)
             break;
@@ -39,26 +44,25 @@ void syntaxHighlight(void) {
                 continue;
             }
         
-            unsigned int slinecommentlen   = strlen(config.current_syntax->singleline_comment);
-            unsigned int mlinecommentstart = strlen(config.current_syntax->multiline_comment[0]);
-            unsigned int mlinecommentend   = strlen(config.current_syntax->multiline_comment[1]);
             char *datachar = malloc(lines[at].length + 1);
-            
             for (unsigned int l = 0; l <= lines[at].length; l++)
                 datachar[l] = (char)lines[at].data[l];
                 
-            if (lines[at].length >= slinecommentlen && i <= lines[at].length - slinecommentlen
-            && memcmp(&datachar[i], config.current_syntax->singleline_comment, slinecommentlen) == 0)
+            if (slinecommentlen != 0
+                && lines[at].length >= slinecommentlen && i <= lines[at].length - slinecommentlen
+                && memcmp(&datachar[i], config.current_syntax->singleline_comment, slinecommentlen) == 0)
                 comment = 1;
-            else if (lines[at].length >= slinecommentlen && i <= lines[at].length - mlinecommentstart
-            && memcmp(&datachar[i], config.current_syntax->multiline_comment[0], mlinecommentstart) == 0)
+
+            else if (mlinecommentstart != 0
+                && lines[at].length >= slinecommentlen && i <= lines[at].length - mlinecommentstart
+                && memcmp(&datachar[i], config.current_syntax->multiline_comment[0], mlinecommentstart) == 0)
                 multi_line_comment = 1;
-            else if (i >= mlinecommentend
-            && memcmp(&datachar[i - mlinecommentend], config.current_syntax->multiline_comment[1], mlinecommentend) == 0)
+
+            else if (mlinecommentend != 0 && i >= mlinecommentend
+                && memcmp(&datachar[i - mlinecommentend], config.current_syntax->multiline_comment[1], mlinecommentend) == 0)
                 multi_line_comment = 0;
                 
             free(datachar);
-            
             lines[at].color[i] = comment || multi_line_comment ? config.current_syntax->syntax_comment_color : 0x0;
             if (comment || multi_line_comment) continue;
             
@@ -101,7 +105,7 @@ void syntaxHighlight(void) {
             }
             
             for (unsigned int k = 0; k < config.current_syntax->kwdlen; k++) {
-                unsigned int stringlen = strlen(config.current_syntax->keywords[k].string);
+                unsigned int stringlen = config.current_syntax->keywords[k].length;
                 if (lines[at].length - i < stringlen) continue;
 
                 if (!config.current_syntax->keywords[k].operator) {
