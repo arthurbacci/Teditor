@@ -62,6 +62,17 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hint
 
         if (c == KEY_BACKSPACE || c == ctrl('h') || c == '\b') {
             i -= 1 + (i > 0);
+
+            struct HINTS *hint = hints;
+            while (hint != NULL && hint->word != NULL) {
+                unsigned int word_len = (unsigned int)strlen(hint->word);
+                if (len + i >= word_len
+                    && strncmp(msg + (len + i - word_len) + 1, hint->word, word_len) == 0) {
+                    shadow = (char*)hint->hint;
+                    break;
+                }
+                ++hint;
+            }
         } else if (c == ctrl('c')) {
             free(ret);
             menu_message = "";

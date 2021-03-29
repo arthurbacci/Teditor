@@ -6,8 +6,8 @@
 A simple text and code editor made in ncurses with UTF-8 support,
 mouse events (including scroll and clicks), autotab, a permanent
 stratch buffer (just run `ted`, without any argument), open,
-save as, help page(s), C syntax highlighting and Python syntax
-highlighting. All this with only less than 1500 lines of C code
+save as, help page(s), C/C++, Python and Bash/Zsh syntax highlighting.
+All this with only less than 1500 lines of C code
 (counting with cloc).
 
 ## Installing
@@ -16,7 +16,7 @@ highlighting. All this with only less than 1500 lines of C code
 
 Go to your programs directory and do:
 
-```
+```sh
 git clone https://github.com/ArthurBacci64/Teditor.git
 cd Teditor
 makepkg -si
@@ -28,7 +28,7 @@ Installed.
 
 Go to your programs directory and do: 
 
-```
+```sh
 git clone https://github.com/ArthurBacci64/Teditor.git
 cd Teditor
 sudo make PREFIX=/usr install
@@ -42,7 +42,7 @@ If you want to install locally, do `make PREFIX=~/.local install` instead of `su
 
 Just do:
 
-```
+```sh
 rm ~/.config/ted -rf
 sudo rm $(which ted) -rf
 ```
@@ -62,6 +62,3 @@ Please open a Issue if you find some bug or if you have a suggestion.
 Pages in the Wiki also are appreciated
 
 Thanks for reading.
-
-
-
