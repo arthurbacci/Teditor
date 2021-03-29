@@ -127,7 +127,7 @@ static struct SHD sh_syntax = {
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
     0x40, 0x50, 0x05,
     "\"\'`", // Strings charaters
-    "#", {": '", "'"}, // Comments
+    "#", {"", ""}, // Comments
     {"{[(", ")]}"}
 };
 
