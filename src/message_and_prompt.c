@@ -77,8 +77,9 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hint
 
             struct HINTS *hint = hints;
             while (hint != NULL && hint->word != NULL) {
-                if (len + i >= hint->word_len
-                    && strncmp(msg + (len + i - hint->word_len) + 1, hint->word, hint->word_len) == 0) {
+                unsigned int word_len = (unsigned int)strlen(hint->word);
+                if (len + i >= word_len
+                    && strncmp(msg + (len + i - word_len) + 1, hint->word, word_len) == 0) {
                     shadow = (char*)hint->hint;
                     break;
                 }
