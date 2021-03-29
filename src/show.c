@@ -14,16 +14,15 @@ void show_menu(char *message, char *shadow) {
         printw("I:%u %s", lines[cy].ident, filename);
         char buf[256];
         int len = snprintf(buf, 256, "%s %s",
-                           config.current_syntax->name,
+                           config.syntax_on && config.current_syntax ? config.current_syntax->name : "Off",
                            config.line_break_type == 0 ? "LF" : (config.line_break_type == 1 ? "CRLF" : "CR"));
         mvprintw(config.lines, COLS - len, "%s", buf);
 
     } else if (shadow != NULL) {
         printw("%s", message);
-        getyx(stdscr, y, x);
+        getyx(stdscr, y, x); //save message x and y
 
-        // Grey
-        setcolor(COLOR_PAIR(5));
+        setcolor(COLOR_PAIR(5)); // Grey
         attron(A_BOLD);
         printw("%s", shadow);
 
