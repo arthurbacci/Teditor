@@ -56,7 +56,7 @@ char **split_str(const char *str, int *num_str) {
             while (*spc == ' ') spc++;
         }
 
-        strs = realloc(strs, ++*num_str * sizeof(*strs));
+        strs = realloc(strs, ++(*num_str) * sizeof(*strs));
 
         strs[*num_str - 1] = astr;
 
@@ -70,4 +70,3 @@ char **split_str(const char *str, int *num_str) {
 
     return strs;
 }
-

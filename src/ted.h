@@ -48,6 +48,7 @@ void savefile(void);
 void read_lines(void);
 void detect_linebreak(void);
 void openFile(char *fname, bool needs_to_free);
+void detect_read_only(char *fname);
 
 // show.c
 void show_menu(char *message, char *shadow);
@@ -164,6 +165,7 @@ extern struct TEXT_SCROLL text_scroll;
 extern unsigned int last_cursor_x;
 extern bool colors_on;
 extern bool needs_to_free_filename;
+extern bool read_only;
 extern char *menu_message;
 extern struct SHD default_syntax;
 

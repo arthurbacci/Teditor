@@ -52,7 +52,8 @@ void process_keypress(int c) {
         cursor_in_valid_position();
         break;
     case ctrl('s'):
-        savefile();
+        if (!read_only)
+            savefile();
         break;
     case '\t':
         if (config.use_spaces == 1) {
@@ -129,6 +130,11 @@ void process_keypress(int c) {
             process_keypress(KEY_RIGHT);
         }
     } else if (isprint(c) || c == '\t' || (c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) {
+        if (read_only) {
+            message("Can't modify read only buffer.");
+            return;
+        }
+
         if (c == ' ' && cx <= lines[cy].ident)
             lines[cy].ident++;
 
@@ -145,7 +151,13 @@ void process_keypress(int c) {
         lines[cy].data[++lines[cy].length] = '\0';
         syntaxHighlight();
         process_keypress(KEY_RIGHT);
+
     } else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
+        if (read_only) {
+            message("Can't modify read only buffer.");
+            return;
+        }
+
         lines[cy].ident -= cx <= lines[cy].ident && cx > 0;
 
         if (cx >= 1) {
@@ -183,11 +195,15 @@ void process_keypress(int c) {
             lines[cy].ident++;
         }
         syntaxHighlight();
-    } else if (c == '\n' || c == KEY_ENTER || c == '\r') {
-        lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
-    
-        memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
 
+    } else if (c == '\n' || c == KEY_ENTER || c == '\r') {
+        if (read_only) {
+            message("Can't modify read only buffer.");
+            return;
+        }
+
+        lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
+        memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
         num_lines++;
 
         unsigned int lcx = cx;
@@ -232,7 +248,6 @@ void process_keypress(int c) {
         } else
             lines[cy].ident = 0;
 
-        syntaxHighlight();
         syntaxHighlight();
     }
 }

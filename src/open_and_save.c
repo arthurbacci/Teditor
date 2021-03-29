@@ -8,7 +8,6 @@ void savefile(void) {
         snprintf(buf, 1000, "Could not open the file\nErrno: %d\nPress any key", errno);
 
         message(buf);
-
         return;
     }
     
@@ -141,8 +140,20 @@ void openFile(char *fname, bool needs_to_free) {
     read_lines();
     if (fp != NULL)
         fclose(fp);
-    
+
     char tmp[10];
     len_line_number = snprintf(tmp, 10, "%d", num_lines + 1);
+    detect_read_only(fname);
 }
 
+void detect_read_only(char *fname) {
+    struct stat st;
+    if (stat(fname, &st) == 0) {
+        read_only = !(
+            (st.st_mode & S_IWOTH) // all user write permission
+            || (getuid() == st.st_uid && (st.st_mode & S_IWUSR)) // owner write permission
+            || (getgid() == st.st_gid && (st.st_mode & S_IWGRP)) // group write permission
+        );
+    } else
+        read_only = errno == EACCES; // if stat fails and errno is not EACCES, read_only will not be set
+}

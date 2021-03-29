@@ -44,29 +44,34 @@ static void save_as(char **words, unsigned int words_len) {
         if (needs_to_free_filename)
             free(filename);
 
-        filename = malloc(sizeof(words[0]));
-        strcpy(filename, words[0]);
+        unsigned int size = (strlen(words[0]) + 1) * sizeof(char);
+        filename = malloc(size);
+        memcpy(filename, words[0], size);
         needs_to_free_filename = 1;
-        
-        savefile();
+        detect_read_only(filename);
+
+        if (read_only) message("Can't save as a read-only file.");
+        else savefile();
     }
 }
 
 static void manual(char **words, unsigned int words_len) {
     if (words_len == 0) {
         openFile(home_path(".config/ted/docs/help.txt"), 1);
+        read_only = 1;
     } else if (words_len == 1) {
         char fname[1000];
         snprintf(fname, 1000, ".config/ted/docs/%s.txt", words[0]);
         openFile(home_path(fname), 1);
+        read_only = 1;
     }
 }
 
 static void syntax(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        char *str = malloc(strlen(words[1]) + 2);
+        char *str = malloc(strlen(words[0]) + 2);
         *str = '.';
-        strcpy(str + 1, words[1]);
+        strcpy(str + 1, words[0]);
 
         if (!detect_extension(str))
             config.current_syntax = &default_syntax;

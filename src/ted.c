@@ -14,6 +14,7 @@ char *menu_message = "";
 
 bool colors_on = 0;
 bool needs_to_free_filename;
+bool read_only = 0;
 
 void setcolor(int c) {
     if (colors_on)
@@ -40,10 +41,6 @@ int main(int argc, char **argv) {
             mkdir(config_ted, 0777);
             
         filename = home_path(".config/ted/buffer");
-        
-        strcpy(filename, config_ted);
-        strcat(filename, "buffer");
-
         needs_to_free_filename = 1;
         free(config);
         free(config_ted);
@@ -92,11 +89,11 @@ int main(int argc, char **argv) {
     fp = fopen(filename, "r");
     read_lines();
     if (fp) fclose(fp);
+    detect_read_only(filename);
     
     int last_LINES = LINES;
     int last_COLS = COLS;
     
-
     int c;
     while (1) {
         if (last_LINES != LINES || last_COLS != COLS) {
