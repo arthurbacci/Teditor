@@ -97,9 +97,9 @@ void process_keypress(int c) {
     } case ctrl('w'): {
         // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
         bool passed_spaces = 0;
-        while (cx > 0 && (!(config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1])) || !passed_spaces)) {
+        while (cx > 0 && (!strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1]) || !passed_spaces)) {
             process_keypress(KEY_BACKSPACE);
-            if (cx > 0 && !(config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1])))
+            if (cx > 0 && !strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1]))
                 passed_spaces = 1;
         }
         break;
@@ -115,17 +115,17 @@ void process_keypress(int c) {
         char passed_spaces = 0;
         while (cx > 0) {
             process_keypress(KEY_LEFT);
-            if (!(config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx])))
+            if (!strchr(config.current_syntax->word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
-            if ((config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx])) && passed_spaces) {
+            if (strchr(config.current_syntax->word_separators, lines[cy].data[cx]) && passed_spaces) {
                 process_keypress(KEY_RIGHT);
                 break;
             }
         }
     } else if (c == CTRL_KEY_RIGHT) {
         char passed_spaces = 0;
-        while (lines[cy].data[cx] != '\0' && !((config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx])) && passed_spaces)) {
-            if (!(config.syntax_on && strchr(config.current_syntax->word_separators, lines[cy].data[cx])))
+        while (lines[cy].data[cx] != '\0' && !(strchr(config.current_syntax->word_separators, lines[cy].data[cx]) && passed_spaces)) {
+            if (!strchr(config.current_syntax->word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
             process_keypress(KEY_RIGHT);
         }
@@ -144,9 +144,12 @@ void process_keypress(int c) {
 
         lines[cy].data[cx] = c;
         
-        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) lines[cy].data[cx] += getch() << 8;
-        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))                             lines[cy].data[cx] += getch() << 16;
-        if (c >= 0xF0 && c <= 0xF7)                                                           lines[cy].data[cx] += getch() << 24;
+        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
+            lines[cy].data[cx] += getch() << 8;
+        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
+            lines[cy].data[cx] += getch() << 16;
+        if (c >= 0xF0 && c <= 0xF7)
+            lines[cy].data[cx] += getch() << 24;
         
         lines[cy].data[++lines[cy].length] = '\0';
         syntaxHighlight();

@@ -121,7 +121,6 @@ struct CFG {
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
     bool use_spaces;
     bool autotab;
-    bool syntax_on;
     struct SHD *current_syntax;
     unsigned int syntax_len;
     struct SHD **syntaxes;

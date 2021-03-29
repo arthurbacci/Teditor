@@ -16,15 +16,13 @@ bool detect_extension(char *fname) {
             
             // fextlen == sextlen can be removed, but it gives more speed
             if (fextlen == sextlen && !strncmp(ext, syntax->extensions[j], fextlen)) {
-                config.syntax_on = 1;
                 config.current_syntax = syntax;
-                return true; //found
+                return true; // Found
             }
         }
     }
     
   END:
-    config.syntax_on = 1;
     config.current_syntax = &default_syntax;
-    return false; //default
+    return false; // Not found
 }
