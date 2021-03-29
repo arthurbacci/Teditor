@@ -48,23 +48,80 @@ Python syntax highlighting descriptor
 */
 
 static struct KWD python_kwd[] = {
-    KEYWORD("if", 0x10), KEYWORD("else", 0x10), KEYWORD("elif", 0x10),
-    KEYWORD("while", 0x10), KEYWORD("for", 0x10), KEYWORD("in", 0x10),
-    KEYWORD("with", 0x10), KEYWORD("class", 0x10), KEYWORD("return", 0x10),
-    KEYWORD("try", 0x10), KEYWORD("except", 0x10), KEYWORD("def", 0x10),
+    KEYWORD("await", 0x10), KEYWORD("else", 0x10), KEYWORD("import", 0x10), 
+    KEYWORD("pass", 0x10), KEYWORD("break", 0x10), KEYWORD("except", 0x10), 
+    KEYWORD("in", 0x10), KEYWORD("raise", 0x10), KEYWORD("class", 0x10), 
+    KEYWORD("finally", 0x10), KEYWORD("is", 0x10), KEYWORD("return", 0x10), 
+    KEYWORD("and", 0x10), KEYWORD("continue", 0x10), KEYWORD("for", 0x10), 
+    KEYWORD("lambda", 0x10), KEYWORD("try", 0x10), KEYWORD("as", 0x10), 
+    KEYWORD("def", 0x10), KEYWORD("from", 0x10), KEYWORD("nonlocal", 0x10), 
+    KEYWORD("while", 0x10), KEYWORD("assert", 0x10), KEYWORD("del", 0x10), 
+    KEYWORD("global", 0x10), KEYWORD("not", 0x10), KEYWORD("with", 0x10), 
+    KEYWORD("async", 0x10), KEYWORD("elif", 0x10), KEYWORD("if", 0x10), 
+    KEYWORD("or", 0x10), KEYWORD("yield", 0x10), 
 
-    KEYWORD("None", 0x20), KEYWORD("False", 0x20), KEYWORD("True", 0x20),
+    KEYWORD("False", 0x20), KEYWORD("None", 0x20), KEYWORD("True", 0x20), // builtins
+    KEYWORD("ArithmeticError", 0x20), KEYWORD("AssertionError", 0x20), KEYWORD("AttributeError", 0x20), 
+    KEYWORD("BaseException", 0x20), KEYWORD("BlockingIOError", 0x20), KEYWORD("BrokenPipeError", 0x20), 
+    KEYWORD("BufferError", 0x20), KEYWORD("BytesWarning", 0x20), KEYWORD("ChildProcessError", 0x20), 
+    KEYWORD("ConnectionAbortedError", 0x20), KEYWORD("ConnectionError", 0x20), KEYWORD("ConnectionRefusedError", 0x20), 
+    KEYWORD("ConnectionResetError", 0x20), KEYWORD("DeprecationWarning", 0x20), KEYWORD("EOFError", 0x20), 
+    KEYWORD("Ellipsis", 0x20), KEYWORD("EnvironmentError", 0x20), KEYWORD("Exception", 0x20), 
+    KEYWORD("False", 0x20), KEYWORD("FileExistsError", 0x20), KEYWORD("FileNotFoundError", 0x20), 
+    KEYWORD("FloatingPointError", 0x20), KEYWORD("FutureWarning", 0x20), KEYWORD("GeneratorExit", 0x20), 
+    KEYWORD("IOError", 0x20), KEYWORD("ImportError", 0x20), KEYWORD("ImportWarning", 0x20), 
+    KEYWORD("IndentationError", 0x20), KEYWORD("IndexError", 0x20), KEYWORD("InterruptedError", 0x20), 
+    KEYWORD("IsADirectoryError", 0x20), KEYWORD("KeyError", 0x20), KEYWORD("KeyboardInterrupt", 0x20), 
+    KEYWORD("LookupError", 0x20), KEYWORD("MemoryError", 0x20), KEYWORD("ModuleNotFoundError", 0x20), 
+    KEYWORD("NameError", 0x20), KEYWORD("None", 0x20), KEYWORD("NotADirectoryError", 0x20), 
+    KEYWORD("NotImplemented", 0x20), KEYWORD("NotImplementedError", 0x20), KEYWORD("OSError", 0x20), 
+    KEYWORD("OverflowError", 0x20), KEYWORD("PendingDeprecationWarning", 0x20), KEYWORD("PermissionError", 0x20), 
+    KEYWORD("ProcessLookupError", 0x20), KEYWORD("RecursionError", 0x20), KEYWORD("ReferenceError", 0x20), 
+    KEYWORD("ResourceWarning", 0x20), KEYWORD("RuntimeError", 0x20), KEYWORD("RuntimeWarning", 0x20), 
+    KEYWORD("StopAsyncIteration", 0x20), KEYWORD("StopIteration", 0x20), KEYWORD("SyntaxError", 0x20), 
+    KEYWORD("SyntaxWarning", 0x20), KEYWORD("SystemError", 0x20), KEYWORD("SystemExit", 0x20), 
+    KEYWORD("TabError", 0x20), KEYWORD("TimeoutError", 0x20), KEYWORD("True", 0x20), 
+    KEYWORD("TypeError", 0x20), KEYWORD("UnboundLocalError", 0x20), KEYWORD("UnicodeDecodeError", 0x20), 
+    KEYWORD("UnicodeEncodeError", 0x20), KEYWORD("UnicodeError", 0x20), KEYWORD("UnicodeTranslateError", 0x20), 
+    KEYWORD("UnicodeWarning", 0x20), KEYWORD("UserWarning", 0x20), KEYWORD("ValueError", 0x20), 
+    KEYWORD("Warning", 0x20), KEYWORD("ZeroDivisionError", 0x20), KEYWORD("zip", 0x20),
+    KEYWORD("abs", 0x20), KEYWORD("all", 0x20), KEYWORD("any", 0x20), 
+    KEYWORD("ascii", 0x20), KEYWORD("bin", 0x20), KEYWORD("bool", 0x20), 
+    KEYWORD("breakpoint", 0x20), KEYWORD("bytearray", 0x20), KEYWORD("bytes", 0x20), 
+    KEYWORD("callable", 0x20), KEYWORD("chr", 0x20), KEYWORD("classmethod", 0x20), 
+    KEYWORD("compile", 0x20), KEYWORD("complex", 0x20), KEYWORD("copyright", 0x20), 
+    KEYWORD("credits", 0x20), KEYWORD("delattr", 0x20), KEYWORD("dict", 0x20), 
+    KEYWORD("dir", 0x20), KEYWORD("divmod", 0x20), KEYWORD("enumerate", 0x20), 
+    KEYWORD("eval", 0x20), KEYWORD("exec", 0x20), KEYWORD("exit", 0x20), 
+    KEYWORD("filter", 0x20), KEYWORD("float", 0x20), KEYWORD("format", 0x20), 
+    KEYWORD("frozenset", 0x20), KEYWORD("getattr", 0x20), KEYWORD("globals", 0x20), 
+    KEYWORD("hasattr", 0x20), KEYWORD("hash", 0x20), KEYWORD("help", 0x20), 
+    KEYWORD("hex", 0x20), KEYWORD("id", 0x20), KEYWORD("input", 0x20), 
+    KEYWORD("int", 0x20), KEYWORD("isinstance", 0x20), KEYWORD("issubclass", 0x20), 
+    KEYWORD("iter", 0x20), KEYWORD("len", 0x20), KEYWORD("license", 0x20), 
+    KEYWORD("list", 0x20), KEYWORD("locals", 0x20), KEYWORD("map", 0x20), 
+    KEYWORD("max", 0x20), KEYWORD("memoryview", 0x20), KEYWORD("min", 0x20), 
+    KEYWORD("next", 0x20), KEYWORD("object", 0x20), KEYWORD("oct", 0x20), 
+    KEYWORD("open", 0x20), KEYWORD("ord", 0x20), KEYWORD("pow", 0x20), 
+    KEYWORD("print", 0x20), KEYWORD("property", 0x20), KEYWORD("quit", 0x20), 
+    KEYWORD("range", 0x20), KEYWORD("repr", 0x20), KEYWORD("reversed", 0x20), 
+    KEYWORD("round", 0x20), KEYWORD("set", 0x20), KEYWORD("setattr", 0x20), 
+    KEYWORD("slice", 0x20), KEYWORD("sorted", 0x20), KEYWORD("staticmethod", 0x20), 
+    KEYWORD("str", 0x20), KEYWORD("sum", 0x20), KEYWORD("super", 0x20), 
+    KEYWORD("tuple", 0x20), KEYWORD("type", 0x20), KEYWORD("vars", 0x20), 
 
-    OPERATOR("*", 0x30), OPERATOR(";", 0x30), OPERATOR(",", 0x30),
+    OPERATOR("*", 0x30), OPERATOR("=", 0x30), OPERATOR("!", 0x30),
+    OPERATOR("^", 0x30), OPERATOR("&", 0x30), OPERATOR(";", 0x30),
+    OPERATOR("<", 0x30), OPERATOR(">", 0x30), OPERATOR("|", 0x30),
+    OPERATOR("+", 0x30), OPERATOR("-", 0x30), OPERATOR("/", 0x30),
+    OPERATOR("~", 0x30), OPERATOR("%", 0x30), OPERATOR(",", 0x30),
 
-    KEYWORD("import", 0x40), KEYWORD("self", 0x40),
-    
     OPERATOR("(", 0x50), OPERATOR(")", 0x50),
     OPERATOR("{", 0x50), OPERATOR("}", 0x50),
     OPERATOR("[", 0x50), OPERATOR("]", 0x50)
 };
 
-static const char *python_exts[] = {"py", "py3", "pyw", "pyd", "pyde"};
+static const char *python_exts[] = {"py", "py3", "pyx", "pyw", "pyd", "pyde"};
 
 static struct SHD python_syntax = {
     "Python",
@@ -89,8 +146,8 @@ static struct KWD sh_kwd[] = {
     KEYWORD("case", 0x10), KEYWORD("esac", 0x10), KEYWORD("until", 0x10),
     KEYWORD("function", 0x10), KEYWORD("elif", 0x10),
 
-    KEYWORD("$?", 0x20), KEYWORD("..", 0x20),  KEYWORD(".", 0x20),
-    KEYWORD("alias", 0x20), KEYWORD("bg", 0x20), KEYWORD("bind", 0x20), //builtins
+    KEYWORD("$?", 0x20), KEYWORD("~", 0x20), KEYWORD(".", 0x20), //builtins
+    KEYWORD("alias", 0x20), KEYWORD("bg", 0x20), KEYWORD("bind", 0x20), 
     KEYWORD("builtin", 0x20), KEYWORD("cd", 0x20), KEYWORD("command", 0x20),
     KEYWORD("continue", 0x20), KEYWORD("declare", 0x20), KEYWORD("dirs", 0x20),
     KEYWORD("disown", 0x20), KEYWORD("echo", 0x20), KEYWORD("enable", 0x20),
@@ -107,11 +164,12 @@ static struct KWD sh_kwd[] = {
     KEYWORD("trap", 0x20), KEYWORD("true", 0x20), KEYWORD("type", 0x20),
     KEYWORD("ulimit", 0x20), KEYWORD("umask", 0x20), KEYWORD("unalias", 0x20),
     KEYWORD("unset", 0x20), KEYWORD("wait", 0x20), KEYWORD("shopt", 0x20),
-    
+
     OPERATOR("$", 0x30), OPERATOR(";", 0x30), OPERATOR("=", 0x30),
-    OPERATOR("<<-", 0x30), OPERATOR("!", 0x30), OPERATOR("&", 0x30),
-    OPERATOR("&&", 0x30), OPERATOR("|", 0x30), OPERATOR("||", 0x30),
+    OPERATOR("<<-", 0x30), OPERATOR("|", 0x30), OPERATOR("&", 0x30),
     OPERATOR("<", 0x30), OPERATOR(">", 0x30), OPERATOR("2>", 0x30),
+    OPERATOR("!", 0x30), OPERATOR("+", 0x30), OPERATOR("@", 0x30),
+    OPERATOR("*", 0x30), OPERATOR("-", 0x30), OPERATOR("?", 0x30),
 
     OPERATOR("(", 0x50), OPERATOR(")", 0x50),
     OPERATOR("{", 0x50), OPERATOR("}", 0x50),
