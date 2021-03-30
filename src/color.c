@@ -2,6 +2,7 @@
 
 void syntaxHighlight(void) {
     bool multi_line_comment = 0;
+    bool comment = 0;
     bool backslash = 0;
     char string = '\0';
     unsigned int waiting_to_close = 0;
@@ -14,13 +15,12 @@ void syntaxHighlight(void) {
     unsigned int octprefixlen = strlen(config.current_syntax->number_prefix[1]);
     unsigned int binprefixlen = strlen(config.current_syntax->number_prefix[2]);
 
-    for (unsigned int at = 0; at < text_scroll.y + config.lines; at++) {
-        if (at == num_lines)
-            break;
+    const unsigned int sytnax_start = *config.current_syntax->stringchars || (mlinecommentstart && mlinecommentend) ? 0 : text_scroll.y;
+    const unsigned int sytnax_end = text_scroll.y + config.lines;
 
+    for (unsigned int at = sytnax_start; at < sytnax_end && at != num_lines; ++at) {
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
-        
-        bool comment = 0;
+
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {
                 lines[at].color[i] = string ? config.current_syntax->syntax_string_color : 0x0;
