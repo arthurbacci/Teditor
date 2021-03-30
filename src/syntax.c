@@ -54,7 +54,7 @@ static struct KWD c_kwd[] = {
 static const char *c_exts[] = {"c", "h"};
 
 static struct SHD c_syntax = {
-    "C/C++",
+    "C",
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords

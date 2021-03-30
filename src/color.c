@@ -104,27 +104,26 @@ void syntaxHighlight(void) {
                 }
             }
 
-            unsigned int numlen = 0;
             if (i == 0 || strchr(config.current_syntax->word_separators, lines[at].data[i - 1])) {
+                unsigned int numlen = 0;
+                char *numbers = "0123456789";
+
                 if (hexprefixlen != 0 && lines[at].length - i > hexprefixlen
                     && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[0], hexprefixlen)) {
                     numlen += hexprefixlen;
-                    while ((i + numlen) < lines[at].length && strchr("0123456789aAbBcCdDeEfF", lines[at].data[i + numlen]))
-                        numlen++;
+                    numbers = "0123456789aAbBcCdDeEfF";
                 } else if (octprefixlen != 0 && lines[at].length - i > octprefixlen
                     && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[1], octprefixlen)) {
                     numlen += octprefixlen;
-                    while ((i + numlen) < lines[at].length && strchr("01234567", lines[at].data[i + numlen]))
-                        numlen++;
+                    numbers = "01234567";
                 } else if (binprefixlen != 0 && lines[at].length - i > binprefixlen
                     && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[2], binprefixlen)) {
                     numlen += binprefixlen;
-                    while ((i + numlen) < lines[at].length && (lines[at].data[i + numlen] == '0' || lines[at].data[i + numlen] == '1'))
-                        numlen++;
-                } else {
-                    while ((i + numlen) < lines[at].length && strchr("0123456789", lines[at].data[i + numlen]))
-                        numlen++;
+                    numbers = "01";
                 }
+
+                while ((i + numlen) < lines[at].length && strchr(numbers, lines[at].data[i + numlen]))
+                    numlen++;
 
                 if ((i + numlen) == lines[at].length || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen])) {
                     for (unsigned int j = 0; j < numlen; j++)
