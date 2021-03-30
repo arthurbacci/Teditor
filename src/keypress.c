@@ -158,13 +158,8 @@ void process_keypress(int c) {
         if (config.automatch && cx == lines[cy].length) {
             char *match = strchr(config.current_syntax->match[0], c);
             if (match != NULL) {
-                expandLine(cy, 2);
-                memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-
-                lines[cy].data[cx] = c;
-                lines[cy].data[cx + 1] = config.current_syntax->match[1][match - config.current_syntax->match[0]];
-                ++lines[cy].length;
-                goto end; //skip to the end
+                process_keypress(config.current_syntax->match[1][match - config.current_syntax->match[0]]);
+                --cx; // decrement cx to put the first character in the right place
             }
         }
 
@@ -180,7 +175,6 @@ void process_keypress(int c) {
         if (c >= 0xF0 && c <= 0xF7)
             lines[cy].data[cx] += getch() << 24;
 
-    end:;
         lines[cy].data[++lines[cy].length] = '\0';
         syntaxHighlight();
         process_keypress(KEY_RIGHT);
