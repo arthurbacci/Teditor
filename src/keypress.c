@@ -155,19 +155,32 @@ void process_keypress(int c) {
         if (c == ' ' && cx <= lines[cy].ident)
             lines[cy].ident++;
 
-        expandLine(cy, 1);
+        if (config.automatch && cx == lines[cy].length) {
+            char *match = strchr(config.current_syntax->match[0], c);
+            if (match != NULL) {
+                expandLine(cy, 2);
+                memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
 
+                lines[cy].data[cx] = c;
+                lines[cy].data[cx + 1] = config.current_syntax->match[1][match - config.current_syntax->match[0]];
+                ++lines[cy].length;
+                goto end; //skip to the end
+            }
+        }
+
+        expandLine(cy, 1);
         memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
 
         lines[cy].data[cx] = c;
-        
+    
         if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
             lines[cy].data[cx] += getch() << 8;
         if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
             lines[cy].data[cx] += getch() << 16;
         if (c >= 0xF0 && c <= 0xF7)
             lines[cy].data[cx] += getch() << 24;
-        
+
+    end:;
         lines[cy].data[++lines[cy].length] = '\0';
         syntaxHighlight();
         process_keypress(KEY_RIGHT);
