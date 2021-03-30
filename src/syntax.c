@@ -61,7 +61,7 @@ static struct SHD c_syntax = {
     0x60, 0x50, 0x05, 0x30,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
-    {"{[(", ")]}"},
+    {"{[(", "}])"},
     {"0x", "0", ""}
 };
 
@@ -138,7 +138,7 @@ static struct SHD cpp_syntax = {
     0x60, 0x50, 0x05, 0x30,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
-    {"{[(", ")]}"},
+    {"{[(", "}])"},
     {"0x", "0o", "0b"}
 };
 
@@ -233,7 +233,7 @@ static struct SHD python_syntax = {
     0x40, 0x50, 0x05, 0x30,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
-    {"{[(", ")]}"},
+    {"{[(", "}])"},
     {"0x", "0o", "0b"}
 };
 
@@ -290,7 +290,7 @@ static struct SHD sh_syntax = {
     0x40, 0x50, 0x05, 0x30,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
-    {"{[(", ")]}"},
+    {"{[(", "}])"},
     {"", "", ""}
 };
 

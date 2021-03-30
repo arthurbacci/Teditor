@@ -48,6 +48,15 @@ static void autotab(char **words, unsigned int words_len) {
     }
 }
 
+static void automatch(char **words, unsigned int words_len) {
+    if (words_len == 1) {
+        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+            config.automatch = 1;
+        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+            config.automatch = 0;
+    }
+}
+
 static void save_as(char **words, unsigned int words_len) {
     if (words_len == 1) {
         if (needs_to_free_filename)
@@ -98,25 +107,27 @@ struct {
     {"insert-newline"   , insert_newline    },
     {"use-spaces"       , use_spaces        },
     {"autotab"          , autotab           },
+    {"automatch"        , automatch         },
     {"save-as"          , save_as           },
     {"manual"           , manual            },
     {"syntax"           , syntax            }
 };
 
 struct HINTS hints[] = {
-    {"tablen"         , " <tablen>"                           },
-    {"linebreak"      , " {LF, CR, CRLF}"                     },
-    {"insert-newline" , " {0/FALSE, 1/TRUE}"                  },
-    {"use-spaces"     , " {0/FALSE, 1/TRUE}"                  },
-    {"autotab"        , " {0/FALSE, 1/TRUE}"                  },
-    {"save-as"        , " <filename>"                         },
-    {"manual"         , " <page (nothing for index)>"         },
-    {"syntax"         , " <language (nothing for disabling)>" },
-    {NULL             , NULL                                  }
+    {"tablen"           , " <tablen>"                           },
+    {"linebreak"        , " {LF, CR, CRLF}"                     },
+    {"insert-newline"   , " {0/FALSE, 1/TRUE}"                  },
+    {"use-spaces"       , " {0/FALSE, 1/TRUE}"                  },
+    {"autotab"          , " {0/FALSE, 1/TRUE}"                  },
+    {"automatch"        , " {0/FALSE, 1/TRUE}"                  },
+    {"save-as"          , " <filename>"                         },
+    {"manual"           , " <page (nothing for index)>"         },
+    {"syntax"           , " <language (nothing for disabling)>" },
+    {NULL               , NULL                                  }
 };
 
 void config_dialog(void) {
-    char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, save-as, manual, syntax}";
+    char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax}";
     char *command = prompt_hints("Enter command: ", "", base_hint, hints);
     
     if (!command)

@@ -83,12 +83,6 @@ char **split_str(const char *str, int *num_str);
 void calculate_len_line_number(void);
 bool uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 
-// buffers.c
-void appendBuffer(char *bufname);
-void nextBuffer(void);
-void prevBuffer(void);
-void freeBuffers(void);
-
 // extension.c
 bool detect_extension(char *fname);
 
@@ -126,6 +120,7 @@ struct CFG {
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
     bool use_spaces;
     bool autotab;
+    bool automatch;
     bool insert_newline;
     struct SHD *current_syntax;
     unsigned int syntax_len;
