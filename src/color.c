@@ -2,7 +2,6 @@
 
 void syntaxHighlight(void) {
     bool multi_line_comment = 0;
-    bool comment = 0;
     bool backslash = 0;
     char string = '\0';
     unsigned int waiting_to_close = 0;
@@ -20,7 +19,7 @@ void syntaxHighlight(void) {
 
     for (unsigned int at = sytnax_start; at < sytnax_end && at != num_lines; ++at) {
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
-
+        bool comment = 0;
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {
                 lines[at].color[i] = string ? config.current_syntax->syntax_string_color : 0x0;
