@@ -125,10 +125,7 @@ void process_keypress(int c) {
         if (d)
             openFile(d, 1);
         break;
-    }
-    }
-    
-    if (c == CTRL_KEY_LEFT) {
+    } case CTRL_KEY_LEFT: {
         char passed_spaces = 0;
         while (cx > 0) {
             process_keypress(KEY_LEFT);
@@ -139,47 +136,17 @@ void process_keypress(int c) {
                 break;
             }
         }
-    } else if (c == CTRL_KEY_RIGHT) {
+        break;
+    }
+    case CTRL_KEY_RIGHT: {
         char passed_spaces = 0;
         while (lines[cy].data[cx] != '\0' && !(strchr(config.current_syntax->word_separators, lines[cy].data[cx]) && passed_spaces)) {
             if (!strchr(config.current_syntax->word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
             process_keypress(KEY_RIGHT);
         }
-    } else if (isprint(c) || c == '\t' || (c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) {
-        if (read_only) {
-            message("Can't modify read only buffer.");
-            return;
-        }
-
-        if (c == ' ' && cx <= lines[cy].ident)
-            lines[cy].ident++;
-
-        if (config.automatch && cx == lines[cy].length) {
-            char *match = strchr(config.current_syntax->match[0], c);
-            if (match != NULL) {
-                process_keypress(config.current_syntax->match[1][match - config.current_syntax->match[0]]);
-                --cx; // decrement cx to put the first character in the right place
-            }
-        }
-
-        expandLine(cy, 1);
-        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-
-        lines[cy].data[cx] = c;
-    
-        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
-            lines[cy].data[cx] += getch() << 8;
-        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
-            lines[cy].data[cx] += getch() << 16;
-        if (c >= 0xF0 && c <= 0xF7)
-            lines[cy].data[cx] += getch() << 24;
-
-        lines[cy].data[++lines[cy].length] = '\0';
-        syntaxHighlight();
-        process_keypress(KEY_RIGHT);
-
-    } else if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
+        break;
+    } case KEY_BACKSPACE: case KEY_DC: case 127: {
         if (read_only) {
             message("Can't modify read only buffer.");
             return;
@@ -196,13 +163,13 @@ void process_keypress(int c) {
             struct LINE del_line = lines[cy];
 
             memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
-            
+
             lines = realloc(lines, --num_lines * sizeof(struct LINE));
 
             process_keypress(KEY_UP);
 
             cursor.x = lines[cy].length;
-            
+
             process_keypress(KEY_RIGHT);
 
             expandLine(cy, del_line.length);
@@ -214,7 +181,7 @@ void process_keypress(int c) {
 
             free(del_line.data);
             free(del_line.color);
-            
+
             calculate_len_line_number();
         }
 
@@ -224,8 +191,8 @@ void process_keypress(int c) {
             lines[cy].ident++;
         }
         syntaxHighlight();
-
-    } else if (c == '\n' || c == KEY_ENTER || c == '\r') {
+        break;
+    } case '\n': case KEY_ENTER: case '\r': {
         if (read_only) {
             message("Can't modify read only buffer.");
             return;
@@ -259,5 +226,42 @@ void process_keypress(int c) {
             lines[cy].ident = 0;
 
         syntaxHighlight();
+        break;
+    }
+    }
+
+    if (isprint(c) || c == '\t' || (c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) {
+        if (read_only) {
+            message("Can't modify read only buffer.");
+            return;
+        }
+
+        if (c == ' ' && cx <= lines[cy].ident)
+            lines[cy].ident++;
+
+        if (config.automatch && cx == lines[cy].length) {
+            char *match = strchr(config.current_syntax->match[0], c);
+            if (match != NULL) {
+                process_keypress(config.current_syntax->match[1][match - config.current_syntax->match[0]]);
+                --cx; // decrement cx to put the first character in the right place
+            }
+        }
+
+        expandLine(cy, 1);
+        memmove(&lines[cy].data[cx + 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
+
+        lines[cy].data[cx] = c;
+
+        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
+            lines[cy].data[cx] += getch() << 8;
+        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
+            lines[cy].data[cx] += getch() << 16;
+        if (c >= 0xF0 && c <= 0xF7)
+            lines[cy].data[cx] += getch() << 24;
+
+        lines[cy].data[++lines[cy].length] = '\0';
+        syntaxHighlight();
+        process_keypress(KEY_RIGHT);
+
     }
 }
