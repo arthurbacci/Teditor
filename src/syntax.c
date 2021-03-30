@@ -62,7 +62,7 @@ static struct SHD c_syntax = {
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", ")]}"},
-    {"0x", "0o", "0b"}
+    {"0x", "0", ""}
 };
 
 /*
