@@ -10,6 +10,10 @@ void syntaxHighlight(void) {
     unsigned int mlinecommentstart = strlen(config.current_syntax->multiline_comment[0]);
     unsigned int mlinecommentend   = strlen(config.current_syntax->multiline_comment[1]);
 
+    unsigned int hexprefixlen = strlen(config.current_syntax->number_prefix[0]);
+    unsigned int octprefixlen = strlen(config.current_syntax->number_prefix[1]);
+    unsigned int binprefixlen = strlen(config.current_syntax->number_prefix[2]);
+
     for (unsigned int at = 0; at < text_scroll.y + config.lines; at++) {
         if (at == num_lines)
             break;
@@ -99,6 +103,36 @@ void syntaxHighlight(void) {
                     }
                 }
             }
+
+            unsigned int numlen = 0;
+            if (i == 0 || strchr(config.current_syntax->word_separators, lines[at].data[i - 1])) {
+                if (hexprefixlen != 0 && lines[at].length - i > hexprefixlen
+                    && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[0], hexprefixlen)) {
+                    numlen += hexprefixlen;
+                    while ((i + numlen) < lines[at].length && strchr("0123456789aAbBcCdDeEfF", lines[at].data[i + numlen]))
+                        numlen++;
+                } else if (octprefixlen != 0 && lines[at].length - i > octprefixlen
+                    && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[1], octprefixlen)) {
+                    numlen += octprefixlen;
+                    while ((i + numlen) < lines[at].length && strchr("01234567", lines[at].data[i + numlen]))
+                        numlen++;
+                } else if (binprefixlen != 0 && lines[at].length - i > binprefixlen
+                    && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[2], binprefixlen)) {
+                    numlen += binprefixlen;
+                    while ((i + numlen) < lines[at].length && (lines[at].data[i + numlen] == '0' || lines[at].data[i + numlen] == '1'))
+                        numlen++;
+                } else {
+                    while ((i + numlen) < lines[at].length && strchr("0123456789", lines[at].data[i + numlen]))
+                        numlen++;
+                }
+
+                if ((i + numlen) == lines[at].length || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen])) {
+                    for (unsigned int j = 0; j < numlen; j++)
+                        if (!lines[at].color[i + j])
+                            lines[at].color[i + j] = config.current_syntax->number_color;
+                    i += numlen;
+                }
+            }
             
             for (unsigned int k = 0; k < config.current_syntax->kwdlen; k++) {
                 unsigned int stringlen = config.current_syntax->keywords[k].length;
@@ -109,14 +143,9 @@ void syntaxHighlight(void) {
                         || !strchr(config.current_syntax->word_separators, lines[at].data[i + stringlen]))
                         continue;
                 }
+                if (uchar32_cmp(&lines[at].data[i], config.current_syntax->keywords[k].string, stringlen))
+                    continue;
 
-                bool c = 0;
-                for (unsigned int j = 0; j < stringlen; j++)
-                    if ((uchar32_t)config.current_syntax->keywords[k].string[j] != lines[at].data[i + j]) {
-                        c = 1;
-                        break;
-                    }
-                if (c) continue;
                 for (unsigned int j = 0; j < stringlen; j++)
                     if (!lines[at].color[i + j])
                         lines[at].color[i + j] = config.current_syntax->keywords[k].color;

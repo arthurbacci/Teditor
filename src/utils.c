@@ -74,3 +74,11 @@ void calculate_len_line_number(void) {
     } while (num);
     len_line_number = i;
 }
+
+bool uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen) {
+    for (unsigned int j = 0; j < stringlen; j++)
+        if ((uchar32_t)s2[j] != s1[j])
+            return 1; //Different character found
+
+    return 0; //All characters equal
+}
