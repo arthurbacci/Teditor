@@ -91,6 +91,7 @@ bool detect_extension(char *fname);
 // modify.c
 bool modify(void);
 bool add_char(int x, int y, uchar32_t c);
+bool remove_char(int x, int y);
 
 struct KWD {
     const char *string;

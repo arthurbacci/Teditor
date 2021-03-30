@@ -103,7 +103,7 @@ static void read_only_cmd(char **words, unsigned int words_len) {
     if (words_len == 1) {
         if (!strncmp(words[0], "1", 1))
             read_only = 1;
-        else if (!strncmp(words[1], "0", 1))
+        else if (!strncmp(words[0], "0", 1))
             read_only = 0;
     }
 }

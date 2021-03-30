@@ -120,13 +120,15 @@ void process_keypress(int c) {
         break;
     } case ctrl('w'):
     {
-        // Calling 'syntaxHighlight' is not needed here because calling 'process_keypress(KEY_BACKSPACE)' does it
         bool passed_spaces = 0;
         while (cx > 0 && (!strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1]) || !passed_spaces)) {
-            process_keypress(KEY_BACKSPACE); // FIXME: crashes with read-only
+            if (!remove_char(cx - 1, cy))
+                break;
+            process_keypress(KEY_LEFT);
             if (cx > 0 && !strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1]))
                 passed_spaces = 1;
         }
+        syntaxHighlight();
         break;
     } case ctrl('o'): {
           char *d = prompt("open: ", filename);
@@ -162,10 +164,8 @@ void process_keypress(int c) {
             lines[cy].ident -= cx <= lines[cy].ident && cx > 0;
 
             if (cx >= 1) {
-                memmove(&lines[cy].data[cx - 1], &lines[cy].data[cx], (lines[cy].length - cx) * sizeof(uchar32_t));
-                lines[cy].data[--lines[cy].length] = '\0';
-
-                process_keypress(KEY_LEFT);
+                if (remove_char(cx - 1, cy))
+                    process_keypress(KEY_LEFT);
             } else if (cy > 0) {
                 struct LINE del_line = lines[cy];
 

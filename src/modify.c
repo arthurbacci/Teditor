@@ -15,3 +15,12 @@ bool add_char(int x, int y, uchar32_t c) {
     }
     return 0;
 }
+
+bool remove_char(int x, int y) {
+    if (modify()) {
+        memmove(&lines[y].data[x], &lines[cy].data[x + 1], (lines[cy].length - x + 1) * sizeof(uchar32_t));
+        lines[y].data[--lines[y].length] = '\0';
+        return 1;
+    }
+    return 0;
+}
