@@ -81,6 +81,7 @@ char *home_path(const char *path);
 char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
 void calculate_len_line_number(void);
+bool uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 
 // buffers.c
 void appendBuffer(char *bufname);
@@ -93,7 +94,7 @@ bool detect_extension(char *fname);
 
 struct KWD {
     const char *string;
-    unsigned int color;
+    unsigned char color;
     unsigned int length;
     bool operator;
 };
@@ -111,10 +112,12 @@ struct SHD {
     unsigned char syntax_string_color;
     unsigned char syntax_comment_color;
     unsigned char match_color;
+    unsigned char number_color;
     const char *stringchars;
     const char *singleline_comment;
     const char *multiline_comment[2];
     const char *match[2];
+    const char *number_prefix[3]; // 0: hexadecimal 1: octal 2: binary
 };
 
 struct CFG {

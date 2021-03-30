@@ -54,14 +54,15 @@ static struct KWD c_kwd[] = {
 static const char *c_exts[] = {"c", "h"};
 
 static struct SHD c_syntax = {
-    "C/C++",
+    "C",
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
-    0x60, 0x50, 0x05,
+    0x60, 0x50, 0x05, 0x30,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
-    {"{[(", ")]}"}
+    {"{[(", ")]}"},
+    {"0x", "0", ""}
 };
 
 /*
@@ -88,7 +89,8 @@ static struct KWD cpp_kwd[] = {
     KEYWORD("template", 0x10), KEYWORD("throw", 0x10), KEYWORD("try", 0x10),
     KEYWORD("typedef", 0x10), KEYWORD("typeid", 0x10), KEYWORD("typename", 0x10),
     KEYWORD("union", 0x10), KEYWORD("using", 0x10), KEYWORD("while", 0x10),
-    KEYWORD("xor_eq", 0x10), KEYWORD("xor", 0x10),
+    KEYWORD("xor_eq", 0x10), KEYWORD("transaction_safe_dynamic", 0x10), KEYWORD("final", 0x10),
+    KEYWORD("override", 0x10), KEYWORD("transaction_safe", 0x10), KEYWORD("xor", 0x10),
 
     KEYWORD("signed", 0x40), KEYWORD("unsigned", 0x40), KEYWORD("virtual", 0x40), // type modifiers
     KEYWORD("volatile", 0x40), KEYWORD("friend", 0x40), KEYWORD("inline", 0x40),
@@ -133,10 +135,11 @@ static struct SHD cpp_syntax = {
     sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
-    0x60, 0x50, 0x05,
+    0x60, 0x50, 0x05, 0x30,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
-    {"{[(", ")]}"}
+    {"{[(", ")]}"},
+    {"0x", "0o", "0b"}
 };
 
 /*
@@ -227,10 +230,11 @@ static struct SHD python_syntax = {
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
-    0x40, 0x50, 0x05,
+    0x40, 0x50, 0x05, 0x30,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
-    {"{[(", ")]}"}
+    {"{[(", ")]}"},
+    {"0x", "0o", "0b"}
 };
 
 /*
@@ -283,10 +287,11 @@ static struct SHD sh_syntax = {
     sizeof sh_exts / sizeof *sh_exts, sh_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
-    0x40, 0x50, 0x05,
+    0x40, 0x50, 0x05, 0x30,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
-    {"{[(", ")]}"}
+    {"{[(", ")]}"},
+    {"", "", ""}
 };
 
 /*
@@ -298,10 +303,11 @@ struct SHD default_syntax = {
     0, NULL,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
     0, NULL,
-    0, 0, 0,
+    0, 0, 0, 0,
     "",
     "", {"", ""},
-    {"", ""}
+    {"", ""},
+    {"", "", ""}
 };
 
 /*
