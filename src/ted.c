@@ -48,11 +48,12 @@ int main(int argc, char **argv) {
         if (*argv[1] == '/') 
             filename = argv[1];
         else {
-            char *fname = malloc(1000 * sizeof *filename);
-            getcwd(fname, 1000);
             filename = malloc(1000 * sizeof *filename);
-            snprintf(filename, 1000, "%s/%s", fname, argv[1]);
-            free(fname);
+            *filename = '\0';
+
+            if (getcwd(filename, 1000) != NULL) strncat(filename, "/", 1000);
+            else strncat(filename, "./", 1000); //try relative path
+            strncat(filename, argv[1], 1000);
         }
         needs_to_free_filename = *argv[1] != '/';
     }
