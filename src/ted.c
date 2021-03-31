@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
         }
 
         process_keypress(c);
-        // syntaxHighlight();
+        syntaxHighlight();
     }
 
 

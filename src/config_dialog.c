@@ -136,9 +136,9 @@ struct HINTS hints[] = {
     {"manual"           , " <page (nothing for index)>"         },
     {"syntax"           , " <language (nothing for disabling)>" },
     {"read-only"        , " {0, 1}"                             },
-
     {NULL, NULL}
 };
+
 char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax}";
 
 void config_dialog(void) {

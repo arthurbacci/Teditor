@@ -114,6 +114,7 @@ struct SHD {
     unsigned char syntax_comment_color;
     unsigned char match_color;
     unsigned char number_color;
+    unsigned char number_prefix_color;
     const char *stringchars;
     const char *singleline_comment;
     const char *multiline_comment[2];
