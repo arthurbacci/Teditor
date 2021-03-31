@@ -14,12 +14,12 @@ void syntaxHighlight(void) {
     unsigned int octprefixlen = strlen(config.current_syntax->number_prefix[1]);
     unsigned int binprefixlen = strlen(config.current_syntax->number_prefix[2]);
 
-    const unsigned int sytnax_start = *config.current_syntax->stringchars || (mlinecommentstart && mlinecommentend) ? 0 : text_scroll.y;
-    const unsigned int sytnax_end = text_scroll.y + config.lines;
+    unsigned int sytnax_start = strlen(config.current_syntax->stringchars) != 0 || mlinecommentstart || mlinecommentend ? 0 : text_scroll.y;
+    unsigned int sytnax_end = text_scroll.y + config.lines;
 
-    for (unsigned int at = sytnax_start; at < sytnax_end && at != num_lines; ++at) {
-        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
+    for (unsigned int at = sytnax_start; (at < sytnax_end) && (at != num_lines); ++at) {
         bool comment = 0;
+        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {
                 lines[at].color[i] = string ? config.current_syntax->syntax_string_color : 0x0;
