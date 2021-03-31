@@ -20,7 +20,6 @@ void savefile(void) {
         lines[ln].length = 0;
         lines[ln].ident = 0;
         *lines[ln].data = '\0';
-        syntaxHighlight();
     }
     
     for (unsigned int i = 0; i < num_lines; i++) {
@@ -53,8 +52,6 @@ void read_lines(void) {
         lines[0].length = 0;
         lines[0].data[0] = '\0';
         lines[0].ident = 0;
-        
-        syntaxHighlight();
         return;
     }
 

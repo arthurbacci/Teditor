@@ -86,14 +86,13 @@ int main(int argc, char **argv) {
     }
 
     config.lines = LINES - 1;
+    int last_LINES = LINES;
+    int last_COLS = COLS;
 
     fp = fopen(filename, "r");
     read_lines();
     if (fp) fclose(fp);
     detect_read_only(filename);
-    
-    int last_LINES = LINES;
-    int last_COLS = COLS;
     
     int c;
     while (1) {
@@ -121,11 +120,8 @@ int main(int argc, char **argv) {
             } else
                 break;
         }
-
         process_keypress(c);
-        syntaxHighlight();
     }
-
 
     // TODO: add free_everything function
     free_lines();

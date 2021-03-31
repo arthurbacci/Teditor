@@ -97,6 +97,7 @@ static void syntax(char **words, unsigned int words_len) {
         free(str);
     } else
         config.current_syntax = &default_syntax;
+    syntaxHighlight();
 }
 
 static void read_only_cmd(char **words, unsigned int words_len) {
