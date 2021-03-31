@@ -5,7 +5,6 @@ void expandLine(unsigned int at, int x) {
         lines[at].len += READ_BLOCKSIZE;
         lines[at].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
         lines[at].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
-        syntaxHighlight();
     }
 }
 
@@ -38,6 +37,7 @@ void process_keypress(int c) {
         cursor.x = last_cursor_x;
 
         cursor_in_valid_position();
+        syntaxHighlight();
         break;
     case KEY_DOWN:
     case ctrl('n'):
@@ -45,6 +45,7 @@ void process_keypress(int c) {
         cursor.x = last_cursor_x;
 
         cursor_in_valid_position();
+        syntaxHighlight();
         break;
     case KEY_LEFT:
     case ctrl('b'):
@@ -233,10 +234,10 @@ void process_keypress(int c) {
 
                 for (unsigned int i = 0; i < ident; i++)
                     process_keypress(KEY_RIGHT);
+
+                syntaxHighlight();
             } else
                 lines[cy].ident = 0;
-
-            syntaxHighlight();
         }
         break;
     }
@@ -264,6 +265,7 @@ void process_keypress(int c) {
 
         if (add_char(cx, cy, ec))
             process_keypress(KEY_RIGHT);
-    }
 
+        syntaxHighlight();
+    }
 }

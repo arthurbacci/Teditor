@@ -1,6 +1,12 @@
 #include "ted.h"
 
 void syntaxHighlight(void) {
+    if (config.current_syntax == &default_syntax) {// just reset color to all visible lines
+        for (unsigned int at = text_scroll.y; (at < text_scroll.y + config.lines) && (at != num_lines); ++at)
+            memset(lines[at].color, 0, lines[at].length * sizeof(*lines[at].color));
+        return;
+    }
+
     bool multi_line_comment = 0;
     bool backslash = 0;
     char string = '\0';
@@ -22,7 +28,7 @@ void syntaxHighlight(void) {
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {
-                lines[at].color[i] = string ? config.current_syntax->syntax_string_color : 0x0;
+                lines[at].color[i] = string ? config.current_syntax->syntax_string_color : 0;
                 backslash = !backslash;
                 continue;
             }
