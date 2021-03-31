@@ -68,7 +68,7 @@ static void save_as(char **words, unsigned int words_len) {
         needs_to_free_filename = 1;
         detect_read_only(filename);
 
-        if (read_only) message("Can't save as a read-only file.");
+        if (config.selected_buf.read_only) message("Can't save as a read-only file.");
         else savefile();
     }
 }
@@ -76,12 +76,12 @@ static void save_as(char **words, unsigned int words_len) {
 static void manual(char **words, unsigned int words_len) {
     if (words_len == 0) {
         openFile(home_path(".config/ted/docs/help.txt"), 1);
-        read_only = 1;
+        config.selected_buf.read_only = 1;
     } else if (words_len == 1) {
         char fname[1000];
         snprintf(fname, 1000, ".config/ted/docs/%s.txt", words[0]);
         openFile(home_path(fname), 1);
-        read_only = 1;
+        config.selected_buf.read_only = 1;
     }
 }
 
@@ -102,9 +102,13 @@ static void syntax(char **words, unsigned int words_len) {
 static void read_only_cmd(char **words, unsigned int words_len) {
     if (words_len == 1) {
         if (!strncmp(words[0], "1", 1))
-            read_only = 1;
-        else if (!strncmp(words[0], "0", 1))
-            read_only = 0;
+            config.selected_buf.read_only = 1;
+        else if (!strncmp(words[0], "0", 1)) {
+            if (config.selected_buf.can_write)
+                config.selected_buf.read_only = 0;
+            else
+                message("Can't unlock buffer without write permission");
+        }
     }
 }
 
@@ -122,7 +126,6 @@ struct {
     {"manual"           , manual            },
     {"syntax"           , syntax            },
     {"read-only"        , read_only_cmd     },
-
     {NULL, NULL}
 };
 
@@ -137,9 +140,9 @@ struct HINTS hints[] = {
     {"manual"           , " <page (nothing for index)>"         },
     {"syntax"           , " <language (nothing for disabling)>" },
     {"read-only"        , " {0, 1}"                             },
-
     {NULL, NULL}
 };
+
 char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax}";
 
 void config_dialog(void) {

@@ -114,6 +114,7 @@ struct SHD {
     unsigned char syntax_comment_color;
     unsigned char match_color;
     unsigned char number_color;
+    unsigned char number_prefix_color;
     const char *stringchars;
     const char *singleline_comment;
     const char *multiline_comment[2];
@@ -123,6 +124,8 @@ struct SHD {
 
 struct BUFFER {
     bool modified;
+    bool read_only;
+    bool can_write;
 };
 
 struct CFG {
@@ -179,7 +182,6 @@ extern struct TEXT_SCROLL text_scroll;
 extern unsigned int last_cursor_x;
 extern bool colors_on;
 extern bool needs_to_free_filename;
-extern bool read_only;
 extern char *menu_message;
 extern struct SHD default_syntax;
 

@@ -14,10 +14,10 @@ void new_line(unsigned int at, int x) {
     lines[at].data = malloc(lines[at].len * sizeof(uchar32_t));
     lines[at].color = malloc(lines[at].len * sizeof(unsigned char));
     lines[at].length = 0;
-    
+
     expandLine(at, lines[at - 1].length - x + 1);
     memcpy(lines[at].data, &lines[at - 1].data[x], (lines[at - 1].length - x) * sizeof(uchar32_t));
-    
+
     lines[at].length += lines[at - 1].length - x;
     lines[at].data[lines[at].length] = '\0';
 
@@ -28,19 +28,22 @@ void new_line(unsigned int at, int x) {
 }
 
 void process_keypress(int c) {
+    if (c != ERR)
+        message("");
+
     switch (c) {
     case KEY_UP:
     case ctrl('p'):
         cursor.y -= cursor.y > 0;
         cursor.x = last_cursor_x;
-        
+
         cursor_in_valid_position();
         break;
     case KEY_DOWN:
     case ctrl('n'):
         cursor.y++;
         cursor.x = last_cursor_x;
-        
+
         cursor_in_valid_position();
         break;
     case KEY_LEFT:
@@ -68,7 +71,7 @@ void process_keypress(int c) {
         cursor_in_valid_position();
         break;
     case ctrl('s'):
-        if (!read_only)
+        if (!config.selected_buf.read_only)
             savefile();
         break;
     case '\t':
@@ -82,7 +85,7 @@ void process_keypress(int c) {
         config_dialog();
         break;
     case ctrl('q'):
-        parse_command(read_only ? "read-only 0" : "read-only 1");
+        parse_command(config.selected_buf.read_only ? "read-only 0" : "read-only 1");
         break;
     case KEY_PPAGE:
     {
@@ -101,7 +104,7 @@ void process_keypress(int c) {
         MEVENT event;
         if (getmouse(&event) == OK)
             processMouseEvent(event);
-        
+
         break;
     } case 0x209:
     {
@@ -164,7 +167,6 @@ void process_keypress(int c) {
     } case KEY_BACKSPACE: case KEY_DC: case 127:
     {
         if (modify()) {
-
             lines[cy].ident -= cx <= lines[cy].ident && cx > 0;
 
             if (cx >= 1) {
@@ -207,7 +209,6 @@ void process_keypress(int c) {
     } case '\n': case KEY_ENTER: case '\r':
     {
         if (modify()) {
-
             lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
             memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
             num_lines++;
@@ -263,6 +264,6 @@ void process_keypress(int c) {
 
         if (add_char(cx, cy, ec))
             process_keypress(KEY_RIGHT);
-
     }
+
 }

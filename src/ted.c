@@ -1,4 +1,5 @@
 #include "ted.h"
+
 #include "syntax.h"
 
 struct LINE *lines = NULL;
@@ -14,7 +15,6 @@ char *menu_message = "";
 
 bool colors_on = 0;
 bool needs_to_free_filename;
-bool read_only = 0;
 
 void setcolor(int c) {
     if (colors_on)
@@ -26,7 +26,7 @@ unsigned int last_cursor_x = 0;
 struct CFG config = {
     4, 0, 0, 1, 1, 1, 1,
     &default_syntax, 0, NULL,
-    {0},
+    {0, 0, 1},
 };
 
 int main(int argc, char **argv) {
@@ -49,11 +49,12 @@ int main(int argc, char **argv) {
         if (*argv[1] == '/') 
             filename = argv[1];
         else {
-            char *fname = malloc(1000 * sizeof *filename);
-            getcwd(fname, 1000);
             filename = malloc(1000 * sizeof *filename);
-            snprintf(filename, 1000, "%s/%s", fname, argv[1]);
-            free(fname);
+            *filename = '\0';
+
+            if (getcwd(filename, 1000) != NULL) strncat(filename, "/", 1000);
+            else strncat(filename, "./", 1000); //try relative path
+            strncat(filename, argv[1], 1000);
         }
         needs_to_free_filename = *argv[1] != '/';
     }
@@ -122,7 +123,7 @@ int main(int argc, char **argv) {
         }
 
         process_keypress(c);
-        // syntaxHighlight();
+        syntaxHighlight();
     }
 
 
