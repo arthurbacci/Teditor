@@ -164,7 +164,7 @@ struct HINTS hints[] = {
     {NULL, NULL}
 };
 
-char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax}";
+char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find}";
 
 void config_dialog(void) {
     char *command = prompt_hints("Enter command: ", "", base_hint, hints);
