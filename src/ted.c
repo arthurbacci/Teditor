@@ -109,15 +109,25 @@ int main(int argc, char **argv) {
 
         c = getch();
 
-        if (c == ctrl('c'))
-            break;
+        if (c == ctrl('c')) {
+            if (config.selected_buf.modified) {
+                char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
+                if (prt && !strcmp("exit", prt)) {
+                    free(prt);
+                    break;
+                }
+                free(prt);
+            } else
+                break;
+        }
 
         process_keypress(c);
-        syntaxHighlight();
+        // syntaxHighlight();
     }
 
-    free_lines();
 
+    // TODO: add free_everything function
+    free_lines();
     if (needs_to_free_filename == 1)
         free(filename);
 
