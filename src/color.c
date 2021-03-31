@@ -3,7 +3,7 @@
 void syntaxHighlight(void) {
     if (config.current_syntax == &default_syntax) {// just reset color to all visible lines
         for (unsigned int at = text_scroll.y; (at < text_scroll.y + config.lines) && (at != num_lines); ++at)
-            memset(lines[at].color, 0, lines[at].length * sizeof(*lines[at].color));
+            memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         return;
     }
 
@@ -20,10 +20,10 @@ void syntaxHighlight(void) {
     unsigned int octprefixlen = strlen(config.current_syntax->number_prefix[1]);
     unsigned int binprefixlen = strlen(config.current_syntax->number_prefix[2]);
 
-    unsigned int sytnax_start = strlen(config.current_syntax->stringchars) || mlinecommentstart || mlinecommentend ? 0 : text_scroll.y;
-    unsigned int sytnax_end = text_scroll.y + config.lines;
+    unsigned int syntax_start = strlen(config.current_syntax->stringchars) || mlinecommentstart || mlinecommentend ? 0 : text_scroll.y;
+    unsigned int syntax_end = text_scroll.y + config.lines;
 
-    for (unsigned int at = sytnax_start; (at < sytnax_end) && (at != num_lines); ++at) {
+    for (unsigned int at = syntax_start; (at < syntax_end) && (at != num_lines); ++at) {
         bool comment = 0;
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         for (unsigned int i = 0; i <= lines[at].length; i++) {

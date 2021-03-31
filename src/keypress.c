@@ -175,17 +175,14 @@ void process_keypress(int c) {
                     process_keypress(KEY_LEFT);
             } else if (cy > 0) {
                 struct LINE del_line = lines[cy];
-
                 memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
-
                 lines = realloc(lines, --num_lines * sizeof(struct LINE));
 
-                process_keypress(KEY_UP);
-
+                cursor.y -= cursor.y > 0;
                 cursor.x = lines[cy].length;
+                cursor_in_valid_position();
 
                 process_keypress(KEY_RIGHT);
-
                 expandLine(cy, del_line.length);
 
                 memmove(&lines[cy].data[lines[cy].length], del_line.data, del_line.length * sizeof(uchar32_t));
@@ -215,9 +212,10 @@ void process_keypress(int c) {
             num_lines++;
 
             unsigned int lcx = cx;
-            cursor.x = 0;
             last_cursor_x = 0;
-            process_keypress(KEY_DOWN);
+            cursor.y++;
+            cursor.x = 0;
+            cursor_in_valid_position();
             new_line(cy, lcx);
 
             if (config.autotab == 1) {
@@ -234,10 +232,10 @@ void process_keypress(int c) {
 
                 for (unsigned int i = 0; i < ident; i++)
                     process_keypress(KEY_RIGHT);
-
-                syntaxHighlight();
             } else
                 lines[cy].ident = 0;
+
+            syntaxHighlight();
         }
         break;
     }
