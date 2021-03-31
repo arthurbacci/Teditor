@@ -11,9 +11,12 @@ void show_menu(char *message, char *shadow) {
 
     move(config.lines, 0);
     if (!*message) {
-        printw("I:%u %s %c", lines[cy].ident, filename, config.selected_buf.modified ? '!' : '.');
-        char buf[256];
-        int len = snprintf(buf, 256, "%s %s",
+        unsigned int scrolled = ((double)cy / ((double)num_lines - 1)) * 100;
+        printw("I:%u %%%u %s", lines[cy].ident, scrolled, filename);
+        char buf[500];
+        int len = snprintf(buf, 500, "%s %s %s",
+                            // R = read_only, W! writable file with unsaved changes, W~ writable file without changes
+                            config.selected_buf.read_only ? "R" : (config.selected_buf.modified ? "W!" : "W~"),
                            config.current_syntax ? config.current_syntax->name : "Off", // check if current_syntax is NULL
                            config.line_break_type == 0 ? "LF" : (config.line_break_type == 1 ? "CRLF" : "CR"));
         mvprintw(config.lines, COLS - len, "%s", buf);
