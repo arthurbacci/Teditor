@@ -123,6 +123,7 @@ struct SHD {
 
 struct BUFFER {
     bool modified;
+    bool read_only;
 };
 
 struct CFG {
@@ -179,7 +180,6 @@ extern struct TEXT_SCROLL text_scroll;
 extern unsigned int last_cursor_x;
 extern bool colors_on;
 extern bool needs_to_free_filename;
-extern bool read_only;
 extern char *menu_message;
 extern struct SHD default_syntax;
 

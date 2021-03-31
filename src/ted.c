@@ -14,7 +14,6 @@ char *menu_message = "";
 
 bool colors_on = 0;
 bool needs_to_free_filename;
-bool read_only = 0;
 
 void setcolor(int c) {
     if (colors_on)
@@ -26,7 +25,7 @@ unsigned int last_cursor_x = 0;
 struct CFG config = {
     4, 0, 0, 1, 1, 1, 1,
     &default_syntax, 0, NULL,
-    {0},
+    {0, 0},
 };
 
 int main(int argc, char **argv) {

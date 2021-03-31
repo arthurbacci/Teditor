@@ -68,7 +68,7 @@ void process_keypress(int c) {
         cursor_in_valid_position();
         break;
     case ctrl('s'):
-        if (!read_only)
+        if (!config.selected_buf.read_only)
             savefile();
         break;
     case '\t':
@@ -82,7 +82,7 @@ void process_keypress(int c) {
         config_dialog();
         break;
     case ctrl('q'):
-        parse_command(read_only ? "read-only 0" : "read-only 1");
+        parse_command(config.selected_buf.read_only ? "read-only 0" : "read-only 1");
         break;
     case KEY_PPAGE:
     {
@@ -164,7 +164,6 @@ void process_keypress(int c) {
     } case KEY_BACKSPACE: case KEY_DC: case 127:
     {
         if (modify()) {
-
             lines[cy].ident -= cx <= lines[cy].ident && cx > 0;
 
             if (cx >= 1) {
@@ -207,7 +206,6 @@ void process_keypress(int c) {
     } case '\n': case KEY_ENTER: case '\r':
     {
         if (modify()) {
-
             lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
             memmove(&lines[cy + 2], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
             num_lines++;
@@ -263,6 +261,5 @@ void process_keypress(int c) {
 
         if (add_char(cx, cy, ec))
             process_keypress(KEY_RIGHT);
-
     }
 }

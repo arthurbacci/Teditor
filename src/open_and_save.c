@@ -159,11 +159,11 @@ void openFile(char *fname, bool needs_to_free) {
 void detect_read_only(char *fname) {
     struct stat st;
     if (stat(fname, &st) == 0) {
-        read_only = !(
+        config.selected_buf.read_only = !(
             (st.st_mode & S_IWOTH) // all user write permission
             || (getuid() == st.st_uid && (st.st_mode & S_IWUSR)) // owner write permission
             || (getgid() == st.st_gid && (st.st_mode & S_IWGRP)) // group write permission
         );
-    } else
-        read_only = errno == EACCES; // if stat fails and errno is not EACCES, read_only will not be set
+    } else // if stat fails and errno is not EACCES, read_only will not be set
+        config.selected_buf.read_only = errno == EACCES;
 }

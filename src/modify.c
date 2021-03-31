@@ -1,9 +1,12 @@
 #include "ted.h"
 
 bool modify(void) {
-    if (!read_only)
+    if (config.selected_buf.read_only)
+        message("Can't modify a read-only file.");
+    else
         config.selected_buf.modified = 1;
-    return !read_only;
+
+    return !config.selected_buf.read_only;
 }
 
 bool add_char(int x, int y, uchar32_t c) {
