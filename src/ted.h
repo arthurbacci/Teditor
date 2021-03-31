@@ -121,6 +121,10 @@ struct SHD {
     const char *number_prefix[3]; // 0: hexadecimal 1: octal 2: binary
 };
 
+struct BUFFER {
+    bool modified;
+};
+
 struct CFG {
     unsigned int tablen;
     int lines;
@@ -132,7 +136,9 @@ struct CFG {
     struct SHD *current_syntax;
     unsigned int syntax_len;
     struct SHD **syntaxes;
+    struct BUFFER selected_buf;
 };
+
 
 /*
 ffffbbbb

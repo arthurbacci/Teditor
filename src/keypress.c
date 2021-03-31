@@ -105,18 +105,20 @@ void process_keypress(int c) {
         break;
     } case 0x209:
     {
-        if (num_lines > 1) {
-            free(lines[cy].data);
-            free(lines[cy].color);
-            memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
-            lines = realloc(lines, --num_lines * sizeof(struct LINE));
-        } else {
-            lines[cy].data[0] = '\0';
-            lines[cy].length = 0;
+        if (modify()) {
+            if (num_lines > 1) {
+                free(lines[cy].data);
+                free(lines[cy].color);
+                memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
+                lines = realloc(lines, --num_lines * sizeof(struct LINE));
+            } else {
+                lines[cy].data[0] = '\0';
+                lines[cy].length = 0;
+            }
+            cursor_in_valid_position();
+            calculate_len_line_number();
+            syntaxHighlight();
         }
-        cursor_in_valid_position();
-        calculate_len_line_number();
-        syntaxHighlight();
         break;
     } case ctrl('w'):
     {
@@ -130,24 +132,26 @@ void process_keypress(int c) {
         }
         syntaxHighlight();
         break;
-    } case ctrl('o'): {
-          char *d = prompt("open: ", filename);
-          if (d)
-              openFile(d, 1);
-          break;
-      } case CTRL_KEY_LEFT: {
-            char passed_spaces = 0;
-            while (cx > 0) {
-                process_keypress(KEY_LEFT);
-                if (!strchr(config.current_syntax->word_separators, lines[cy].data[cx]))
-                    passed_spaces = 1;
-                if (strchr(config.current_syntax->word_separators, lines[cy].data[cx]) && passed_spaces) {
-                    process_keypress(KEY_RIGHT);
-                    break;
-                }
+    } case ctrl('o'):
+    {
+        char *d = prompt("open: ", filename);
+        if (d)
+            openFile(d, 1);
+        break;
+    } case CTRL_KEY_LEFT:
+    {
+        char passed_spaces = 0;
+        while (cx > 0) {
+            process_keypress(KEY_LEFT);
+            if (!strchr(config.current_syntax->word_separators, lines[cy].data[cx]))
+                passed_spaces = 1;
+            if (strchr(config.current_syntax->word_separators, lines[cy].data[cx]) && passed_spaces) {
+                process_keypress(KEY_RIGHT);
+                break;
             }
-            break;
-        }
+            }
+        break;
+    }
     case CTRL_KEY_RIGHT:
     {
         char passed_spaces = 0;

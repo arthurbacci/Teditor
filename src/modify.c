@@ -1,6 +1,8 @@
 #include "ted.h"
 
 bool modify(void) {
+    if (!read_only)
+        config.selected_buf.modified = 1;
     return !read_only;
 }
 
