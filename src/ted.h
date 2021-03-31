@@ -125,6 +125,7 @@ struct SHD {
 struct BUFFER {
     bool modified;
     bool read_only;
+    bool can_write;
 };
 
 struct CFG {

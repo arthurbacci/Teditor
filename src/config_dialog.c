@@ -103,8 +103,12 @@ static void read_only_cmd(char **words, unsigned int words_len) {
     if (words_len == 1) {
         if (!strncmp(words[0], "1", 1))
             config.selected_buf.read_only = 1;
-        else if (!strncmp(words[0], "0", 1))
-            config.selected_buf.read_only = 0;
+        else if (!strncmp(words[0], "0", 1)) {
+            if (config.selected_buf.can_write)
+                config.selected_buf.read_only = 0;
+            else
+                message("Can't unlock buffer without write permission");
+        }
     }
 }
 
