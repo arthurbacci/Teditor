@@ -14,10 +14,10 @@ void new_line(unsigned int at, int x) {
     lines[at].data = malloc(lines[at].len * sizeof(uchar32_t));
     lines[at].color = malloc(lines[at].len * sizeof(unsigned char));
     lines[at].length = 0;
-    
+
     expandLine(at, lines[at - 1].length - x + 1);
     memcpy(lines[at].data, &lines[at - 1].data[x], (lines[at - 1].length - x) * sizeof(uchar32_t));
-    
+
     lines[at].length += lines[at - 1].length - x;
     lines[at].data[lines[at].length] = '\0';
 
@@ -28,19 +28,22 @@ void new_line(unsigned int at, int x) {
 }
 
 void process_keypress(int c) {
+    if (c != ERR)
+        message("");
+
     switch (c) {
     case KEY_UP:
     case ctrl('p'):
         cursor.y -= cursor.y > 0;
         cursor.x = last_cursor_x;
-        
+
         cursor_in_valid_position();
         break;
     case KEY_DOWN:
     case ctrl('n'):
         cursor.y++;
         cursor.x = last_cursor_x;
-        
+
         cursor_in_valid_position();
         break;
     case KEY_LEFT:
@@ -101,7 +104,7 @@ void process_keypress(int c) {
         MEVENT event;
         if (getmouse(&event) == OK)
             processMouseEvent(event);
-        
+
         break;
     } case 0x209:
     {
@@ -262,4 +265,5 @@ void process_keypress(int c) {
         if (add_char(cx, cy, ec))
             process_keypress(KEY_RIGHT);
     }
+
 }
