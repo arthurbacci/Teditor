@@ -25,7 +25,8 @@ unsigned int last_cursor_x = 0;
 
 struct CFG config = {
     4, 0, 0, 1, 1, 1, 1,
-    &default_syntax, 0, NULL
+    &default_syntax, 0, NULL,
+    {0},
 };
 
 int main(int argc, char **argv) {
@@ -108,15 +109,25 @@ int main(int argc, char **argv) {
 
         c = getch();
 
-        if (c == ctrl('c'))
-            break;
+        if (c == ctrl('c')) {
+            if (config.selected_buf.modified) {
+                char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
+                if (prt && !strcmp("exit", prt)) {
+                    free(prt);
+                    break;
+                }
+                free(prt);
+            } else
+                break;
+        }
 
         process_keypress(c);
-        syntaxHighlight();
+        // syntaxHighlight();
     }
 
-    free_lines();
 
+    // TODO: add free_everything function
+    free_lines();
     if (needs_to_free_filename == 1)
         free(filename);
 

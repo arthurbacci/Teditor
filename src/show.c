@@ -11,7 +11,7 @@ void show_menu(char *message, char *shadow) {
 
     move(config.lines, 0);
     if (!*message) {
-        printw("I:%u %s", lines[cy].ident, filename);
+        printw("I:%u %s %c", lines[cy].ident, filename, config.selected_buf.modified ? '!' : '.');
         char buf[256];
         int len = snprintf(buf, 256, "%s %s",
                            config.current_syntax ? config.current_syntax->name : "Off", // check if current_syntax is NULL

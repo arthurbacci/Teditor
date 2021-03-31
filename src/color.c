@@ -18,9 +18,8 @@ void syntaxHighlight(void) {
     unsigned int sytnax_end = text_scroll.y + config.lines;
 
     for (unsigned int at = sytnax_start; (at < sytnax_end) && (at != num_lines); ++at) {
-        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
-
         bool comment = 0;
+        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {
                 lines[at].color[i] = string ? config.current_syntax->syntax_string_color : 0x0;

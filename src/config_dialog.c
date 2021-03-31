@@ -95,6 +95,16 @@ static void syntax(char **words, unsigned int words_len) {
             config.current_syntax = &default_syntax;
             
         free(str);
+    } else
+        config.current_syntax = &default_syntax;
+}
+
+static void read_only_cmd(char **words, unsigned int words_len) {
+    if (words_len == 1) {
+        if (!strncmp(words[0], "1", 1))
+            read_only = 1;
+        else if (!strncmp(words[0], "0", 1))
+            read_only = 0;
     }
 }
 
@@ -110,7 +120,10 @@ struct {
     {"automatch"        , automatch         },
     {"save-as"          , save_as           },
     {"manual"           , manual            },
-    {"syntax"           , syntax            }
+    {"syntax"           , syntax            },
+    {"read-only"        , read_only_cmd     },
+
+    {NULL, NULL}
 };
 
 struct HINTS hints[] = {
@@ -123,29 +136,38 @@ struct HINTS hints[] = {
     {"save-as"          , " <filename>"                         },
     {"manual"           , " <page (nothing for index)>"         },
     {"syntax"           , " <language (nothing for disabling)>" },
-    {NULL               , NULL                                  }
+    {"read-only"        , " {0, 1}"                             },
+
+    {NULL, NULL}
 };
+char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax}";
 
 void config_dialog(void) {
-    char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax}";
     char *command = prompt_hints("Enter command: ", "", base_hint, hints);
-    
+
+    parse_command(command);
+
+    free(command);
+}
+
+void parse_command(char *command) {
     if (!command)
         return;
 
     int words_len;
     char **words = split_str(command, &words_len);
 
-    const unsigned int fnslen = sizeof(fns) / sizeof(*fns);
-    for (unsigned int i = 0; i < fnslen; i++) {
-        if (strcmp(words[0], fns[i].name) == 0) {
-            fns[i].function(words + 1, words_len - 1);
-            break;
-        }
-    }
+    run_command(words, words_len);
 
-    free(command);
     for (int i = 0; i < words_len; i++)
         free(words[i]);
     free(words);
+}
+
+void run_command(char **words, int words_len) {
+    for (unsigned int i = 0; fns[i].name; i++) {
+        if (!strcmp(words[0], fns[i].name)) {
+            fns[i].function(words + 1, words_len - 1);
+        }
+    }
 }

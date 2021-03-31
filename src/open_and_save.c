@@ -12,10 +12,15 @@ void savefile(void) {
     }
 
     if (config.insert_newline && lines[num_lines - 1].length > 0) {
-        lines = realloc(lines, (num_lines + 1) * sizeof(struct LINE));
-        memmove(&lines[num_lines + 2], &lines[num_lines + 1], sizeof(struct LINE));
-        new_line(num_lines, lines[num_lines - 1].length);
-        num_lines++;
+        lines = realloc(lines, ++num_lines * sizeof(*lines));
+        const unsigned int ln = num_lines - 1;
+        lines[ln].len = READ_BLOCKSIZE;
+        lines[ln].data = malloc(lines[ln].len * sizeof(*lines[ln].data));
+        lines[ln].color = malloc(lines[ln].len * sizeof(*lines[ln].data));
+        lines[ln].length = 0;
+        lines[ln].ident = 0;
+        *lines[ln].data = '\0';
+        syntaxHighlight();
     }
     
     for (unsigned int i = 0; i < num_lines; i++) {
@@ -33,6 +38,8 @@ void savefile(void) {
         }
     }
     fclose(fpw);
+
+    config.selected_buf.modified = 0;
 }
 
 void read_lines(void) {
