@@ -13,9 +13,9 @@ static struct KWD c_kwd[] = {
     KEYWORD("switch", 0x10), KEYWORD("typedef", 0x10), KEYWORD("union", 0x10),
     KEYWORD("asm" , 0x10), KEYWORD("fortran" , 0x10),
 
-    KEYWORD("char", 0x40), KEYWORD("double", 0x40), KEYWORD("long", 0x40), // c types
+    KEYWORD("char", 0x40), KEYWORD("double", 0x40), KEYWORD("long", 0x40), // primitives
     KEYWORD("short", 0x40), KEYWORD("int", 0x40), KEYWORD("void", 0x40),
-    KEYWORD("float", 0x40), KEYWORD("auto", 0x40),
+    KEYWORD("float", 0x40), KEYWORD("auto", 0x40), // auto is c11
     
     KEYWORD("const", 0x40), KEYWORD("signed", 0x40), KEYWORD("unsigned", 0x40), //type modifiers
     KEYWORD("inline", 0x40), KEYWORD("volatile", 0x40), KEYWORD("static", 0x40),
@@ -27,17 +27,44 @@ static struct KWD c_kwd[] = {
     KEYWORD("_Generic", 0x40), KEYWORD("_Imaginary", 0x40), KEYWORD("_Noreturn", 0x40),
     KEYWORD("_Static_assert", 0x40), KEYWORD("_Thread_local", 0x40),
 
-    KEYWORD("bool", 0x10), KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), //macros
+    KEYWORD("bool", 0x10), KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), // stdlib macros/typedefs
     KEYWORD("complex", 0x10), KEYWORD("imaginary", 0x10), KEYWORD("thread_local", 0x10),
+    KEYWORD("static_assert", 0x10), KEYWORD("assert", 0x10), KEYWORD("noreturn", 0x10),
+    KEYWORD("va_list", 0x40), KEYWORD("uintmax_t", 0x10), KEYWORD("intmax_t", 0x40),
+    KEYWORD("size_t", 0x40), KEYWORD("wchar_t", 0x40), KEYWORD("ptrdiff_t", 0x40),
+    KEYWORD("int8_t", 0x40), KEYWORD("int16_t", 0x40), KEYWORD("int32_t", 0x40),
+    KEYWORD("int64_t", 0x40), KEYWORD("uint8_t", 0x40), KEYWORD("uint16_t", 0x40),
+    KEYWORD("uint32_t", 0x40), KEYWORD("uint64_t", 0x40), KEYWORD("intptr_t", 0x40),
+    KEYWORD("uintptr_t", 0x40), KEYWORD("fexcept_t", 0x40), KEYWORD("fenv_t", 0x40),
+    KEYWORD("time_t", 0x40), KEYWORD("clock_t", 0x40), KEYWORD("imaxdiv_t", 0x40),
+    KEYWORD("ldiv_t", 0x40), KEYWORD("lldiv_t", 0x40), KEYWORD("div_t", 0x40),
+    KEYWORD("float_t", 0x40), KEYWORD("double_t", 0x40), KEYWORD("sig_atomic_t", 0x40),
+    KEYWORD("memory_order", 0x40), KEYWORD("atomic_flag", 0x40), KEYWORD("thrd_t", 0x40),
+    KEYWORD("mtx_t", 0x40), KEYWORD("thrd_start_t", 0x40), KEYWORD("cnd_t", 0x40),
+    KEYWORD("tss_t", 0x40), KEYWORD("tss_dtor_t", 0x40), KEYWORD("mbstate_t", 0x40),
+    KEYWORD("char16_t", 0x40), KEYWORD("char32_t", 0x40), KEYWORD("wint_t", 0x40),
+    KEYWORD("wctrans_t", 0x40), KEYWORD("wctype_t", 0x40),
 
-    KEYWORD("defined", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), //preprocessor
+    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("NULL", 0x20), // stdlib constants
+    KEYWORD("stdin", 0x20), KEYWORD("stdout", 0x20), KEYWORD("stderr", 0x20),
+    KEYWORD("errno", 0x20), KEYWORD("_Imaginary_I", 0x20), KEYWORD("_Complex_I", 0x20),
+
+    KEYWORD("defined", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), // preprocessor
     KEYWORD("#ifdef", 0x10), KEYWORD("#ifndef", 0x10), KEYWORD("#if", 0x10),
     KEYWORD("#elif" , 0x10), KEYWORD("#else" , 0x10), KEYWORD("#endif" , 0x10),
     KEYWORD("#line" , 0x10), KEYWORD("#error" , 0x10), KEYWORD("#warning" , 0x10),
     KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10), KEYWORD("#include", 0x10),
 
-    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("NULL", 0x20), // standard constants
-    KEYWORD("stdin", 0x20), KEYWORD("stdout", 0x20), KEYWORD("stderr", 0x20),
+    KEYWORD("<assert.h>", 0x60), KEYWORD("<complex.h>", 0x60), KEYWORD("<ctype.h>", 0x60), // stdlib headers
+    KEYWORD("<errno.h>", 0x60), KEYWORD("<fenv.h>", 0x60), KEYWORD("<float.h>", 0x60),
+    KEYWORD("<inttypes.h>", 0x60), KEYWORD("<iso646.h>", 0x60), KEYWORD("<limits.h>", 0x60),
+    KEYWORD("<locale.h>", 0x60), KEYWORD("<math.h>", 0x60), KEYWORD("<setjmp.h>", 0x60),
+    KEYWORD("<signal.h>", 0x60), KEYWORD("<stdalign.h>", 0x60), KEYWORD("<stdarg.h>", 0x60),
+    KEYWORD("<stdatomic.h>", 0x60), KEYWORD("<stdbool.h>", 0x60), KEYWORD("<stddef.h>", 0x60),
+    KEYWORD("<stdint.h>", 0x60), KEYWORD("<stdio.h>", 0x60), KEYWORD("<stdlib.h>", 0x60),
+    KEYWORD("<stdnoreturn.h>", 0x60), KEYWORD("<string.h>", 0x60), KEYWORD("<tgmath.h>", 0x60),
+    KEYWORD("<threads.h>", 0x60), KEYWORD("<time.h>", 0x60), KEYWORD("<uchar.h>", 0x60),
+    KEYWORD("<wchar.h>", 0x60), KEYWORD("<wctype.h>", 0x60),
 
     OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
     OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
@@ -91,6 +118,7 @@ static struct KWD cpp_kwd[] = {
     KEYWORD("union", 0x10), KEYWORD("using", 0x10), KEYWORD("while", 0x10),
     KEYWORD("xor_eq", 0x10), KEYWORD("transaction_safe_dynamic", 0x10), KEYWORD("final", 0x10),
     KEYWORD("override", 0x10), KEYWORD("transaction_safe", 0x10), KEYWORD("xor", 0x10),
+    KEYWORD("this", 0x10),
 
     KEYWORD("signed", 0x40), KEYWORD("unsigned", 0x40), KEYWORD("virtual", 0x40), // type modifiers
     KEYWORD("volatile", 0x40), KEYWORD("friend", 0x40), KEYWORD("inline", 0x40),
@@ -106,15 +134,64 @@ static struct KWD cpp_kwd[] = {
     KEYWORD("void", 0x40), KEYWORD("double", 0x40), KEYWORD("auto", 0x40),
     KEYWORD("float", 0x40),
     
-    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("nullptr", 0x20), //literals
-    KEYWORD("this", 0x20), KEYWORD("std::", 0x20),
+    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("nullptr", 0x20), // literals
 
-    KEYWORD("defined", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), //preprocessor
+    KEYWORD("defined", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), // preprocessor
     KEYWORD("#ifdef", 0x10), KEYWORD("#ifndef", 0x10), KEYWORD("#if", 0x10),
     KEYWORD("#elif" , 0x10), KEYWORD("#else" , 0x10), KEYWORD("#endif" , 0x10),
     KEYWORD("#line" , 0x10), KEYWORD("#error" , 0x10), KEYWORD("#warning" , 0x10),
     KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10), KEYWORD("#include", 0x10),
-    KEYWORD("export" , 0x10), KEYWORD("import" , 0x10), KEYWORD("module", 0x10), //c++20 modules
+    KEYWORD("export" , 0x10), KEYWORD("import" , 0x10), KEYWORD("module", 0x10), // c++20 modules
+
+    KEYWORD("<concepts>", 0x60), KEYWORD("<coroutine>", 0x60), KEYWORD("<cstdlib>", 0x60), // stdlib headers
+    KEYWORD("<csignal>", 0x60), KEYWORD("<csetjmp>", 0x60), KEYWORD("<cstdarg>", 0x60),
+    KEYWORD("<typeinfo>", 0x60), KEYWORD("<typeindex>", 0x60), KEYWORD("<type_traits>", 0x60),
+    KEYWORD("<bitset>", 0x60), KEYWORD("<functional>", 0x60), KEYWORD("<utility>", 0x60),
+    KEYWORD("<ctime>", 0x60), KEYWORD("<chrono>", 0x60), KEYWORD("<cstddef>", 0x60),
+    KEYWORD("<initializer_list>", 0x60), KEYWORD("<tuple>", 0x60), KEYWORD("<any>", 0x60),
+    KEYWORD("<optional>", 0x60), KEYWORD("<variant>", 0x60), KEYWORD("<compare>", 0x60),
+    KEYWORD("<version>", 0x60), KEYWORD("<source_location>", 0x60), KEYWORD("<new>", 0x60),
+    KEYWORD("<memory>", 0x60), KEYWORD("<scoped_allocator>", 0x60), KEYWORD("<memory_resource>", 0x60),
+    KEYWORD("<climits>", 0x60), KEYWORD("<cfloat>", 0x60), KEYWORD("<cstdint>", 0x60),
+    KEYWORD("<cinttypes>", 0x60), KEYWORD("<limits>", 0x60), KEYWORD("<exception>", 0x60),
+    KEYWORD("<stdexcept>", 0x60), KEYWORD("<cassert>", 0x60), KEYWORD("<system_error>", 0x60),
+    KEYWORD("<cerrno>", 0x60), KEYWORD("<cctype>", 0x60), KEYWORD("<cwctype>", 0x60),
+    KEYWORD("<cstring>", 0x60), KEYWORD("<cwchar>", 0x60), KEYWORD("<cuchar>", 0x60),
+    KEYWORD("<string>", 0x60), KEYWORD("<string_view>", 0x60), KEYWORD("<charconv>", 0x60),
+    KEYWORD("<format>", 0x60), KEYWORD("<array>", 0x60), KEYWORD("<vector>", 0x60),
+    KEYWORD("<deque>", 0x60), KEYWORD("<list>", 0x60), KEYWORD("<forward_list>", 0x60),
+    KEYWORD("<set>", 0x60), KEYWORD("<map>", 0x60), KEYWORD("<unordered_set>", 0x60),
+    KEYWORD("<unordered_map>", 0x60), KEYWORD("<stack>", 0x60), KEYWORD("<queue>", 0x60),
+    KEYWORD("<span>", 0x60), KEYWORD("<iterator>", 0x60), KEYWORD("<ranges>", 0x60),
+    KEYWORD("<algorithm>", 0x60), KEYWORD("<execution>", 0x60), KEYWORD("<cmath>", 0x60),
+    KEYWORD("<complex>", 0x60), KEYWORD("<valarray>", 0x60), KEYWORD("<random>", 0x60),
+    KEYWORD("<numeric>", 0x60), KEYWORD("<ratio>", 0x60), KEYWORD("<cfenv>", 0x60),
+    KEYWORD("<bit>", 0x60), KEYWORD("<numbers>", 0x60), KEYWORD("<locale>", 0x60),
+    KEYWORD("<clocale>", 0x60), KEYWORD("<codecvt>", 0x60), KEYWORD("<iosfwd>", 0x60),
+    KEYWORD("<ios>", 0x60), KEYWORD("<istream>", 0x60), KEYWORD("<ostream>", 0x60),
+    KEYWORD("<iostream>", 0x60), KEYWORD("<fstream>", 0x60), KEYWORD("<sstream>", 0x60),
+    KEYWORD("<syncstream>", 0x60), KEYWORD("<strstream>", 0x60), KEYWORD("<iomanip>", 0x60),
+    KEYWORD("<streambuf>", 0x60), KEYWORD("<cstdio>", 0x60), KEYWORD("<filesystem>", 0x60),
+    KEYWORD("<regex>", 0x60), KEYWORD("<atomic>", 0x60), KEYWORD("<thread>", 0x60),
+    KEYWORD("<stop_token>", 0x60), KEYWORD("<mutex>", 0x60), KEYWORD("<shared_mutex>", 0x60),
+    KEYWORD("<future>", 0x60), KEYWORD("<condition_variable>", 0x60), KEYWORD("<semaphore>", 0x60),
+    KEYWORD("<latch>", 0x60), KEYWORD("<barrier>", 0x60), KEYWORD("<cstdlib>", 0x60),
+    KEYWORD("<stdlib.h>", 0x60), KEYWORD("<assert.h>", 0x60), KEYWORD("<cassert>", 0x60),
+    KEYWORD("<ctype.h>", 0x60), KEYWORD("<cctype>", 0x60), KEYWORD("<errno.h>", 0x60),
+    KEYWORD("<cerrno>", 0x60), KEYWORD("<fenv.h>", 0x60), KEYWORD("<cfenv>", 0x60),
+    KEYWORD("<float.h>", 0x60), KEYWORD("<cfloat>", 0x60), KEYWORD("<inttypes.h>", 0x60),
+    KEYWORD("<cinttypes>", 0x60), KEYWORD("<limits.h>", 0x60), KEYWORD("<climits>", 0x60),
+    KEYWORD("<locale.h>", 0x60), KEYWORD("<clocale>", 0x60), KEYWORD("<math.h>", 0x60),
+    KEYWORD("<cmath>", 0x60), KEYWORD("<setjmp.h>", 0x60), KEYWORD("<csetjmp>", 0x60),
+    KEYWORD("<signal.h>", 0x60), KEYWORD("<csignal>", 0x60), KEYWORD("<stdarg.h>", 0x60),
+    KEYWORD("<cstdarg>", 0x60), KEYWORD("<stddef.h>", 0x60), KEYWORD("<cstddef>", 0x60),
+    KEYWORD("<stdint.h>", 0x60), KEYWORD("<cstdint>", 0x60), KEYWORD("<stdio.h>", 0x60),
+    KEYWORD("<cstdio>", 0x60), KEYWORD("<stdlib.h>", 0x60), KEYWORD("<cstdlib>", 0x60),
+    KEYWORD("<string.h>", 0x60), KEYWORD("<cstring>", 0x60), KEYWORD("<time.h>", 0x60),
+    KEYWORD("<ctime>", 0x60), KEYWORD("<uchar.h>", 0x60), KEYWORD("<cuchar>", 0x60),
+    KEYWORD("<wchar.h>", 0x60), KEYWORD("<cwchar>", 0x60), KEYWORD("<wctype.h>", 0x60),
+    KEYWORD("<cwctype>", 0x60), KEYWORD("<stdatomic.h>", 0x60), KEYWORD("<cstdatomic>", 0x60),
+    KEYWORD("std", 0x20), // stdlib namespace
 
     OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
     OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
@@ -139,7 +216,7 @@ static struct SHD cpp_syntax = {
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
-    {"0x", "0o", "0b"}
+    {"0x", "0", "0b"}
 };
 
 /*
