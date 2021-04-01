@@ -83,7 +83,8 @@ char *home_path(const char *path);
 char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
 void calculate_len_line_number(void);
-bool uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
+int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
+int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
 
 // extension.c
 bool detect_extension(char *fname);

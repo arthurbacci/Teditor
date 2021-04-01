@@ -113,6 +113,28 @@ static void read_only_cmd(char **words, unsigned int words_len) {
     }
 }
 
+static void find(char **words, unsigned int words_len) {
+    int from_cur = 0;
+    if (words_len == 2 && !strcmp(words[0], "cursor"))
+        from_cur = 1;
+    if (words_len == 1 || words_len == 2) {
+        unsigned int len = strlen(words[words_len - 1]);
+        int index;
+        for (unsigned int at = from_cur ? cy : 0; at < num_lines && (at != num_lines); ++at) {
+            if (lines[at].length >= len &&
+                (index = uchar32_sub(from_cur && at == cy ? &lines[at].data[cx] : lines[at].data, words[words_len - 1], lines[at].length, len)) >= 0
+            ) {
+                cursor.y = at;
+                cursor.x = index + len + (from_cur && at == cy) * cx;
+                cursor_in_valid_position();
+                syntaxHighlight();
+                return;
+            }
+        }
+        message("Substring not found");
+    }
+}
+
 struct {
     const char *name;
     void (*function)(char **words, unsigned int words_len);
@@ -127,6 +149,7 @@ struct {
     {"manual"           , manual            },
     {"syntax"           , syntax            },
     {"read-only"        , read_only_cmd     },
+    {"find"             , find              },
     {NULL, NULL}
 };
 
@@ -141,10 +164,11 @@ struct HINTS hints[] = {
     {"manual"           , " <page (nothing for index)>"         },
     {"syntax"           , " <language (nothing for disabling)>" },
     {"read-only"        , " {0, 1}"                             },
+    {"find"             , " {start, cursor} <substring>"        },
     {NULL, NULL}
 };
 
-char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax}";
+char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find}";
 
 void config_dialog(void) {
     char *command = prompt_hints("Enter command: ", "", base_hint, hints);
