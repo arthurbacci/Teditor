@@ -42,7 +42,7 @@ void setcolor(int c);
 
 // config_dialog.c
 void config_dialog(void);
-void run_command(char **words, int words_len);
+bool run_command(char **words, int words_len);
 void parse_command(char *command);
 
 // open_and_save.c

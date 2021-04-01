@@ -135,6 +135,7 @@ static void find(char **words, unsigned int words_len) {
     }
 }
 
+
 struct {
     const char *name;
     void (*function)(char **words, unsigned int words_len);
@@ -168,7 +169,9 @@ struct HINTS hints[] = {
     {NULL, NULL}
 };
 
-char *base_hint = "{tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find}";
+char *base_hint = "{repeat, tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find}";
+
+char last_command[1000] = "";
 
 void config_dialog(void) {
     char *command = prompt_hints("Enter command: ", "", base_hint, hints);
@@ -178,24 +181,34 @@ void config_dialog(void) {
     free(command);
 }
 
+
 void parse_command(char *command) {
     if (!command)
         return;
 
+
     int words_len;
     char **words = split_str(command, &words_len);
 
-    run_command(words, words_len);
+    if (run_command(words, words_len))
+        parse_command(last_command);
+    else if (command != last_command)
+        strcpy(last_command, command);
 
     for (int i = 0; i < words_len; i++)
         free(words[i]);
     free(words);
 }
 
-void run_command(char **words, int words_len) {
+
+bool run_command(char **words, int words_len) {
+    if (words_len == 1 && !strcmp(words[0], "repeat"))
+        return 1;
     for (unsigned int i = 0; fns[i].name; i++) {
         if (!strcmp(words[0], fns[i].name)) {
             fns[i].function(words + 1, words_len - 1);
+                return 0;
         }
     }
+    return 0;
 }
