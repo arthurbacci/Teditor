@@ -10,49 +10,49 @@ static void tablen(char **words, unsigned int words_len) {
 
 static void linebreak(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "LF") == 0)
+        if (!strcasecmp(words[0], "LF"))
             config.line_break_type = 0;
             
-        else if (strcasecmp(words[0], "CRLF") == 0)
+        else if (!strcasecmp(words[0], "CRLF"))
             config.line_break_type = 1;
 
-        else if (strcasecmp(words[0], "CR") == 0)
+        else if (!strcasecmp(words[0], "CR"))
             config.line_break_type = 2;
     }
 }
 
 static void insert_newline(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.insert_newline = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0"))
             config.insert_newline = 0;
     }
 }
 
 static void use_spaces(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.use_spaces = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0"))
             config.use_spaces = 0;
     }
 }
 
 static void autotab(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.autotab = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0"))
             config.autotab = 0;
     }
 }
 
 static void automatch(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.automatch = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0"))
             config.automatch = 0;
     }
 }
@@ -100,11 +100,11 @@ static void syntax(char **words, unsigned int words_len) {
     syntaxHighlight();
 }
 
-static void read_only_cmd(char **words, unsigned int words_len) {
+static void read_only(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (!strncmp(words[0], "1", 1))
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.selected_buf.read_only = 1;
-        else if (!strncmp(words[0], "0", 1)) {
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0")) {
             if (config.selected_buf.can_write)
                 config.selected_buf.read_only = 0;
             else
@@ -120,14 +120,11 @@ static void find(char **words, unsigned int words_len) {
     if (words_len == 1 || words_len == 2) {
         unsigned int len = strlen(words[words_len - 1]);
         int index;
-        for (unsigned int at = from_cur ? cy : 0; at < num_lines && (at != num_lines); ++at) {
+        for (unsigned int at = from_cur ? cy : 0; at < num_lines; ++at) {
             if (lines[at].length >= len &&
                 (index = uchar32_sub(from_cur && at == cy ? &lines[at].data[cx] : lines[at].data, words[words_len - 1], lines[at].length, len)) >= 0
             ) {
-                cursor.y = at;
-                cursor.x = index + len + (from_cur && at == cy) * cx;
-                cursor_in_valid_position();
-                syntaxHighlight();
+                change_position(index + len + (from_cur && at == cy) * cx, at);
                 return;
             }
         }
@@ -135,6 +132,10 @@ static void find(char **words, unsigned int words_len) {
     }
 }
 
+static void eof(char **words, unsigned int words_len) {
+    if (words_len == 0)
+        change_position(lines[num_lines - 1].length, num_lines);
+}
 
 struct {
     const char *name;
@@ -149,8 +150,9 @@ struct {
     {"save-as"          , save_as           },
     {"manual"           , manual            },
     {"syntax"           , syntax            },
-    {"read-only"        , read_only_cmd     },
+    {"read-only"        , read_only         },
     {"find"             , find              },
+    {"eof"              , eof               },
     {NULL, NULL}
 };
 
@@ -164,12 +166,12 @@ struct HINTS hints[] = {
     {"save-as"          , " <filename>"                         },
     {"manual"           , " <page (nothing for index)>"         },
     {"syntax"           , " <language (nothing for disabling)>" },
-    {"read-only"        , " {0, 1}"                             },
+    {"read-only"        , " {0/FALSE, 1/TRUE}"                  },
     {"find"             , " {start, cursor} <substring>"        },
     {NULL, NULL}
 };
 
-char *base_hint = "{repeat, tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find}";
+char *base_hint = "{repeat, tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find, eof}";
 
 char last_command[1000] = "";
 

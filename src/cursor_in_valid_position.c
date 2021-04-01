@@ -2,7 +2,6 @@
 
 // Should be called after changing cursor position
 void cursor_in_valid_position(void) {
-
     /* Check if cursor is inside the borders */
     // y
     if (cursor.y >= num_lines)
@@ -22,5 +21,12 @@ void cursor_in_valid_position(void) {
         text_scroll.x = cursor.x;
     else if (cursor.x > text_scroll.x + (COLS - len_line_number - 3))
         text_scroll.x = cursor.x - (COLS - len_line_number - 3);
-    
+}
+
+// This should be an inline function
+void change_position(unsigned int x, unsigned int y) {
+    cursor.y = y;
+    cursor.x = x;
+    cursor_in_valid_position();
+    syntaxHighlight();
 }

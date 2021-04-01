@@ -33,19 +33,11 @@ void process_keypress(int c) {
     switch (c) {
     case KEY_UP:
     case ctrl('p'):
-        cursor.y -= cursor.y > 0;
-        cursor.x = last_cursor_x;
-
-        cursor_in_valid_position();
-        syntaxHighlight();
+        change_position(last_cursor_x, cy - (cy > 0));
         break;
     case KEY_DOWN:
     case ctrl('n'):
-        cursor.y++;
-        cursor.x = last_cursor_x;
-
-        cursor_in_valid_position();
-        syntaxHighlight();
+        change_position(last_cursor_x, cy + 1);
         break;
     case KEY_LEFT:
     case ctrl('b'):
