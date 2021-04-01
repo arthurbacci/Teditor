@@ -66,6 +66,7 @@ void process_keypress(int c);
 
 // cursor_in_valid_position.c
 void cursor_in_valid_position(void);
+void change_position(unsigned int x, unsigned int y);
 
 // mouse.c
 void processMouseEvent(MEVENT ev);

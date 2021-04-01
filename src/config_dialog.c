@@ -124,10 +124,7 @@ static void find(char **words, unsigned int words_len) {
             if (lines[at].length >= len &&
                 (index = uchar32_sub(from_cur && at == cy ? &lines[at].data[cx] : lines[at].data, words[words_len - 1], lines[at].length, len)) >= 0
             ) {
-                cursor.y = at;
-                cursor.x = index + len + (from_cur && at == cy) * cx;
-                cursor_in_valid_position();
-                syntaxHighlight();
+                change_position(index + len + (from_cur && at == cy) * cx, at);
                 return;
             }
         }
@@ -135,6 +132,10 @@ static void find(char **words, unsigned int words_len) {
     }
 }
 
+static void eof(char **words, unsigned int words_len) {
+    if (words_len == 0)
+        change_position(lines[num_lines - 1].length, num_lines);
+}
 
 struct {
     const char *name;
@@ -151,6 +152,7 @@ struct {
     {"syntax"           , syntax            },
     {"read-only"        , read_only         },
     {"find"             , find              },
+    {"eof"              , eof               },
     {NULL, NULL}
 };
 
@@ -169,7 +171,7 @@ struct HINTS hints[] = {
     {NULL, NULL}
 };
 
-char *base_hint = "{repeat, tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find}";
+char *base_hint = "{repeat, tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find, eof}";
 
 char last_command[1000] = "";
 
