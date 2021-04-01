@@ -100,11 +100,11 @@ static void syntax(char **words, unsigned int words_len) {
     syntaxHighlight();
 }
 
-static void read_only_cmd(char **words, unsigned int words_len) {
+static void read_only(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (!strncmp(words[0], "1", 1))
+        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
             config.selected_buf.read_only = 1;
-        else if (!strncmp(words[0], "0", 1)) {
+        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0) {
             if (config.selected_buf.can_write)
                 config.selected_buf.read_only = 0;
             else
@@ -120,7 +120,7 @@ static void find(char **words, unsigned int words_len) {
     if (words_len == 1 || words_len == 2) {
         unsigned int len = strlen(words[words_len - 1]);
         int index;
-        for (unsigned int at = from_cur ? cy : 0; at < num_lines && (at != num_lines); ++at) {
+        for (unsigned int at = from_cur ? cy : 0; at < num_lines; ++at) {
             if (lines[at].length >= len &&
                 (index = uchar32_sub(from_cur && at == cy ? &lines[at].data[cx] : lines[at].data, words[words_len - 1], lines[at].length, len)) >= 0
             ) {
@@ -149,7 +149,7 @@ struct {
     {"save-as"          , save_as           },
     {"manual"           , manual            },
     {"syntax"           , syntax            },
-    {"read-only"        , read_only_cmd     },
+    {"read-only"        , read_only         },
     {"find"             , find              },
     {NULL, NULL}
 };
@@ -164,7 +164,7 @@ struct HINTS hints[] = {
     {"save-as"          , " <filename>"                         },
     {"manual"           , " <page (nothing for index)>"         },
     {"syntax"           , " <language (nothing for disabling)>" },
-    {"read-only"        , " {0, 1}"                             },
+    {"read-only"        , " {0/FALSE, 1/TRUE}"                  },
     {"find"             , " {start, cursor} <substring>"        },
     {NULL, NULL}
 };
