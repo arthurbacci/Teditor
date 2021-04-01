@@ -132,7 +132,7 @@ struct BUFFER {
 };
 
 struct CFG {
-    bool strict_utf8; // high/low surrogates will be replaced
+    bool strict_utf8; // high/low surrogates will be replaced (for now leave it always set)
     unsigned int tablen;
     int lines;
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR

@@ -1,6 +1,6 @@
 #include "ted.h"
 
-// Used for substituting invalid utf8 codepoints (U+FFFD)
+// Displayed instead of invalid utf8 (codepoint U+FFFD)
 const uchar32_t substitute_char = 0xEF + (0xBF << 8) + (0xBD << 16);
 const char *substitute_string = "\xEF\xBF\xBD";
 
@@ -21,17 +21,27 @@ void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_) {
 
     } else if (IN_RANGE(uc, 0xC2, 0xDF)) {
         int uc2 = fgetc(fp_);
-        if (OUT_RANGE(uc2, 0x80, 0xBF)) { ungetc(uc2, fp_); goto invalid; }
+        if (OUT_RANGE(uc2, 0x80, 0xBF)) {
+            ungetc(uc2, fp_);
+            goto invalid;
+        }
 
         *out = uc;
         *out += (unsigned int)uc2 << 8;
 
     } else if (IN_RANGE(uc, 0xE0, 0xEF) && (!config.strict_utf8 || uc != 0xED)) {
         int uc2 = fgetc(fp_);
-        if (OUT_RANGE(uc2, 0xA0, 0xBF)) { ungetc(uc2, fp_); goto invalid; }
+        if (OUT_RANGE(uc2, 0xA0, 0xBF)) {
+            ungetc(uc2, fp_);
+            goto invalid;
+        }
 
         int uc3 = fgetc(fp_);
-        if (OUT_RANGE(uc3, 0x80, 0xBF)) { ungetc(uc3, fp_); ungetc(uc2, fp_); goto invalid; }
+        if (OUT_RANGE(uc3, 0x80, 0xBF)) {
+            ungetc(uc3, fp_);
+            ungetc(uc2, fp_);
+            goto invalid;
+        }
 
         *out = uc;
         *out += (unsigned int)uc2 << 8;
@@ -39,13 +49,25 @@ void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_) {
 
     } else if (IN_RANGE(uc, 0xF0, 0xF4)) {
         int uc2 = fgetc(fp_);
-        if (OUT_RANGE(uc2, 0x90, 0x8F)) { ungetc(uc2, fp_); goto invalid; }
+        if (OUT_RANGE(uc2, 0x90, 0x8F)) {
+            ungetc(uc2, fp_);
+            goto invalid;
+        }
 
         int uc3 = fgetc(fp_);
-        if (OUT_RANGE(uc3, 0x80, 0xBF)) { ungetc(uc3, fp_); ungetc(uc2, fp_); goto invalid; }
+        if (OUT_RANGE(uc3, 0x80, 0xBF)) {
+            ungetc(uc3, fp_);
+            ungetc(uc2, fp_);
+            goto invalid;
+        }
 
         int uc4 = fgetc(fp_);
-        if (OUT_RANGE(uc4, 0x80, 0xBF)) { ungetc(uc4, fp_); ungetc(uc3, fp_); ungetc(uc2, fp_); goto invalid; }
+        if (OUT_RANGE(uc4, 0x80, 0xBF)) {
+            ungetc(uc4, fp_);
+            ungetc(uc3, fp_);
+            ungetc(uc2, fp_);
+            goto invalid;
+        }
 
         *out = uc;
         *out += (unsigned int)uc2 << 8;
