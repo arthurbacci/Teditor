@@ -25,7 +25,7 @@ void savefile(void) {
     for (unsigned int i = 0; i < num_lines; i++) {
         for (unsigned int j = 0; j < lines[i].length; j++) {
             unsigned char b[4];
-            fwrite(b, sizeof(unsigned char), utf8ToMultibyte(lines[i].data[j], b), fpw);
+            fwrite(b, sizeof(unsigned char), utf8ToMultibyte(lines[i].data[j], b, 0), fpw);
         }
         if (num_lines > 1) {
             if (config.line_break_type == 0)

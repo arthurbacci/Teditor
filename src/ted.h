@@ -73,7 +73,8 @@ void processMouseEvent(MEVENT ev);
 
 // utf8.c
 void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
-uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
+int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
+bool validate_utf8(unsigned char *ucs);
 
 // color.c
 void syntaxHighlight(void);
@@ -186,5 +187,7 @@ extern bool colors_on;
 extern bool needs_to_free_filename;
 extern char *menu_message;
 extern struct SHD default_syntax;
+extern const uchar32_t substitute_char;
+extern const char *substitute_string;
 
 #endif
