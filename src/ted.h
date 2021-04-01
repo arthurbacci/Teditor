@@ -72,7 +72,7 @@ void change_position(unsigned int x, unsigned int y);
 void processMouseEvent(MEVENT ev);
 
 // utf8.c
-void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
+void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_);
 int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
 bool validate_utf8(unsigned char *ucs);
 
@@ -132,6 +132,7 @@ struct BUFFER {
 };
 
 struct CFG {
+    bool strict_utf8; // high/low surrogates will be replaced
     unsigned int tablen;
     int lines;
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR

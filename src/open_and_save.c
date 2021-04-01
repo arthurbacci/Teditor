@@ -25,7 +25,8 @@ void savefile(void) {
     for (unsigned int i = 0; i < num_lines; i++) {
         for (unsigned int j = 0; j < lines[i].length; j++) {
             unsigned char b[4];
-            fwrite(b, sizeof(unsigned char), utf8ToMultibyte(lines[i].data[j], b, 0), fpw);
+            int len = utf8ToMultibyte(lines[i].data[j], b, 0);
+            fwrite(b, sizeof(unsigned char), len, fpw);
         }
         if (num_lines > 1) {
             if (config.line_break_type == 0)
@@ -91,10 +92,8 @@ void read_lines(void) {
             else if (passed_spaces == 0)
                 lines[i].ident++;
 
-            unsigned char uc = *(unsigned char *)&c;
-
-            utf8ReadFile(uc, j, i, fp);
-
+            unsigned char uc = c;
+            utf8ReadFile(uc, &lines[i].data[j], fp);
             lines[i].length++;
         }
         
