@@ -10,49 +10,49 @@ static void tablen(char **words, unsigned int words_len) {
 
 static void linebreak(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "LF") == 0)
+        if (!strcasecmp(words[0], "LF"))
             config.line_break_type = 0;
             
-        else if (strcasecmp(words[0], "CRLF") == 0)
+        else if (!strcasecmp(words[0], "CRLF"))
             config.line_break_type = 1;
 
-        else if (strcasecmp(words[0], "CR") == 0)
+        else if (!strcasecmp(words[0], "CR"))
             config.line_break_type = 2;
     }
 }
 
 static void insert_newline(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.insert_newline = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0"))
             config.insert_newline = 0;
     }
 }
 
 static void use_spaces(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.use_spaces = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0"))
             config.use_spaces = 0;
     }
 }
 
 static void autotab(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.autotab = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0"))
             config.autotab = 0;
     }
 }
 
 static void automatch(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.automatch = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0)
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0"))
             config.automatch = 0;
     }
 }
@@ -102,9 +102,9 @@ static void syntax(char **words, unsigned int words_len) {
 
 static void read_only(char **words, unsigned int words_len) {
     if (words_len == 1) {
-        if (strcasecmp(words[0], "TRUE") == 0 || strcmp(words[0], "1") == 0)
+        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
             config.selected_buf.read_only = 1;
-        else if (strcasecmp(words[0], "FALSE") == 0 || strcmp(words[0], "0") == 0) {
+        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0")) {
             if (config.selected_buf.can_write)
                 config.selected_buf.read_only = 0;
             else
