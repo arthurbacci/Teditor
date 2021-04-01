@@ -25,6 +25,9 @@
 
 #define NUM_PAIRS 6
 
+#define IN_RANGE(x, min, max)   ((x) >= (min)) && ((x) <= (max))
+#define OUT_RANGE(x, min, max)  ((x) < (min)) || ((x) > (max))
+
 typedef uint32_t uchar32_t;
 
 // message_and_prompt.c

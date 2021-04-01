@@ -12,9 +12,6 @@ Utf8 sequences range
 4 bytes sequence (1* INCLUSIVE 0xF0 - 0xF4) (2* INCLUSIVE 0x90 - 0x8F) (3* INCLUSIVE 0x80 - 0xBF) (4* INCLUSIVE 0x80 - 0xBF)
 */
 
-#define IN_RANGE(x, min, max)   ((x) >= (min)) && ((x) <= (max))
-#define OUT_RANGE(x, min, max)  ((x) < (min)) || ((x) > (max))
-
 void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_) {
     if (uc <= 0x7F) {
         *out = uc;
