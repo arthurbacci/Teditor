@@ -120,15 +120,14 @@ static void find(char **words, unsigned int words_len) {
         for (unsigned int at = 0; at < num_lines && (at != num_lines); ++at) {
             if (lines[at].length >= len && (index = uchar32_sub(lines[at].data, words[0], lines[at].length, len)) >= 0) {
                 cursor.y = at;
-                cursor.x = index;
+                cursor.x = index + len;
                 cursor_in_valid_position();
                 syntaxHighlight();
                 return;
             }
         }
         message("Substring not found");
-    } else
-        message("Enter substring to find");
+    }
 }
 
 struct {
