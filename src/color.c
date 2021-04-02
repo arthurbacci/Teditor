@@ -138,8 +138,9 @@ void syntaxHighlight(void) {
                 numlen = prefixlen;
                 while ((i + numlen) < lines[at].length && strchr(numbers, lines[at].data[i + numlen])) numlen++;
 
-                while ((i + numlen + suffixlen) < lines[at].length
-                && strchr(config.current_syntax->number_suffixes, lines[at].data[i + numlen])) suffixlen++;
+                if ((did = numlen != prefixlen))
+                    while ((i + numlen + suffixlen) < lines[at].length
+                    && strchr(config.current_syntax->number_suffixes, lines[at].data[i + numlen + suffixlen])) suffixlen++;
 
                 if ((i + numlen + suffixlen) == lines[at].length
                     || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen + suffixlen])) {
