@@ -20,7 +20,7 @@ void syntaxHighlight(void) {
     unsigned int octprefixlen = strlen(config.current_syntax->number_prefix[1]);
     unsigned int binprefixlen = strlen(config.current_syntax->number_prefix[2]);
 
-    for (unsigned int at = 0; num_lines; at++) {
+    for (unsigned int at = 0; at < num_lines; at++) {
         bool comment = 0;
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         for (unsigned int i = 0; i <= lines[at].length; i++) {
