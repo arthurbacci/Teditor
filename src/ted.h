@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include<sys/wait.h>
 #include <errno.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -99,6 +100,12 @@ bool modify(void);
 bool add_char(int x, int y, uchar32_t c);
 bool remove_char(int x, int y);
 
+// git.c
+void git_setup(void);
+bool git_in_repo(char *path);
+bool git_current_branch(char *buf, unsigned int buflen);
+bool git_tracked(char *fname);
+
 struct KWD {
     const char *string;
     unsigned char color;
@@ -136,6 +143,8 @@ struct BUFFER {
 
 struct CFG {
     bool strict_utf8; // high/low surrogates will be replaced (for now leave it always set)
+    bool git_installed;
+    bool git_in_repo;
     unsigned int tablen;
     int lines;
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR

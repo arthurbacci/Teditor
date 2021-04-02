@@ -12,10 +12,15 @@ void show_menu(char *message, char *shadow) {
     move(config.lines, 0);
     if (!*message) {
         unsigned int scrolled = ((double)cy / ((double)num_lines - 1)) * 100;
-
         printw("I:%u %u%% %s", lines[cy].ident, scrolled, filename);
 
         char buf[500];
+        if (git_current_branch(buf, 500)) {
+            setcolor(COLOR_PAIR(1));
+            printw(" on branch %s", buf);
+            setcolor(COLOR_PAIR(2));
+        }
+
         int len = snprintf(buf, 500, "%s%s%s %s %s",
                            config.selected_buf.modified ? "!" : ".",
                            config.selected_buf.read_only ? "o" : "c",

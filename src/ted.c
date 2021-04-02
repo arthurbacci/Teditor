@@ -24,7 +24,7 @@ void setcolor(int c) {
 unsigned int last_cursor_x = 0;
 
 struct CFG config = {
-    1, 4, 0, 0, 1, 1, 1, 1,
+    1, 0, 0, 4, 0, 0, 1, 1, 1, 1,
     &default_syntax, 0, NULL,
     {0, 0, 1},
 };
@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
     curs_set(0);
 
     register_syntax();
+    git_setup();
 
     calculate_len_line_number();
 
