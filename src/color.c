@@ -20,7 +20,7 @@ void syntaxHighlight(void) {
     unsigned int octprefixlen = strlen(config.current_syntax->number_prefix[1]);
     unsigned int binprefixlen = strlen(config.current_syntax->number_prefix[2]);
 
-    unsigned int syntax_start = strlen(config.current_syntax->stringchars) || mlinecommentstart || mlinecommentend ? 0 : text_scroll.y;
+    unsigned int syntax_start = config.current_syntax->limited_scroll ? text_scroll.y : 0;
     unsigned int syntax_end = text_scroll.y + config.lines;
 
     for (unsigned int at = syntax_start; (at < syntax_end) && (at != num_lines); ++at) {
