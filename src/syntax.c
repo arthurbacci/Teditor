@@ -300,7 +300,7 @@ static struct KWD python_kwd[] = {
     OPERATOR("%" , 0x30), OPERATOR("^" , 0x30), OPERATOR("&" , 0x30),
     OPERATOR("~" , 0x30), OPERATOR("|" , 0x30), OPERATOR("!" , 0x30),
     OPERATOR("<" , 0x30), OPERATOR(">" , 0x30), OPERATOR("=" , 0x30),
-    OPERATOR(":" , 0x30), OPERATOR("\\" , 0x30), OPERATOR("." , 0x30),
+    OPERATOR(":" , 0x30), OPERATOR("." , 0x30), OPERATOR("\\" , 0x30),
 
     OPERATOR("(", 0x50), OPERATOR(")", 0x50),
     OPERATOR("{", 0x50), OPERATOR("}", 0x50),
@@ -382,6 +382,85 @@ static struct SHD sh_syntax = {
     {"0123456789aAbBcCdDeEfF", "01234567", "01", "0123456789"}
 };
 
+
+/*
+Rust syntax highlighting descriptor
+*/
+
+static struct KWD rust_kwd[] = {
+    KEYWORD("break", 0x10), KEYWORD("as", 0x10), KEYWORD("const", 0x10),
+    KEYWORD("continue", 0x10), KEYWORD("while", 0x10), KEYWORD("enum", 0x10),
+    KEYWORD("crate", 0x10), KEYWORD("else", 0x10), KEYWORD("extern", 0x10),
+    KEYWORD("for", 0x10), KEYWORD("fn", 0x10), KEYWORD("if", 0x10),
+    KEYWORD("return", 0x10), KEYWORD("match", 0x10), KEYWORD("struct", 0x10),
+    KEYWORD("impl", 0x10), KEYWORD("in", 0x10), KEYWORD("union", 0x10),
+    KEYWORD("loop" , 0x10), KEYWORD("let" , 0x10), KEYWORD("mod" , 0x10),
+    KEYWORD("move" , 0x10), KEYWORD("mut" , 0x10), KEYWORD("pub" , 0x10),
+    KEYWORD("ref" , 0x10), KEYWORD("static" , 0x10), KEYWORD("super" , 0x10),
+    KEYWORD("trait" , 0x10), KEYWORD("type" , 0x10), KEYWORD("unsafe" , 0x10),
+    KEYWORD("use" , 0x10), KEYWORD("where" , 0x10), KEYWORD("async" , 0x10),
+    KEYWORD("await" , 0x10), KEYWORD("dyn" , 0x10), KEYWORD("try" , 0x10),
+
+    KEYWORD("char", 0x40), KEYWORD("str", 0x40), KEYWORD("u8", 0x40), // primitives
+    KEYWORD("u16", 0x40), KEYWORD("u32", 0x40), KEYWORD("u64", 0x40),
+    KEYWORD("u128", 0x40), KEYWORD("i8", 0x40), KEYWORD("i16", 0x40),
+    KEYWORD("i32", 0x40), KEYWORD("i64", 0x40), KEYWORD("i128", 0x40),
+    KEYWORD("usize", 0x40), KEYWORD("isize", 0x40), KEYWORD("f32", 0x40),
+    KEYWORD("f64", 0x40), KEYWORD("bool", 0x40),
+
+    KEYWORD("Self", 0x20), KEYWORD("self", 0x20), KEYWORD("_", 0x20),// special identifiers
+    KEYWORD("'_", 0x60), KEYWORD("'static", 0x60),
+
+    KEYWORD("false", 0x20), KEYWORD("true", 0x20), // literals
+
+    KEYWORD("std", 0x20), KEYWORD("core", 0x20), KEYWORD("alloc", 0x20),// special crates
+
+    KEYWORD("Box", 0x40), KEYWORD("Rc", 0x40), KEYWORD("Arc", 0x40),// prelude traits/enums/structs
+    KEYWORD("Pin", 0x40), KEYWORD("UnsafeCell", 0x40), KEYWORD("Cell", 0x40),
+    KEYWORD("RefCell", 0x40), KEYWORD("PhantomData", 0x40), KEYWORD("Deref", 0x40),
+    KEYWORD("DerefMut", 0x40), KEYWORD("Drop", 0x40), KEYWORD("Copy", 0x40),
+    KEYWORD("Clone", 0x40), KEYWORD("Send", 0x40), KEYWORD("Sync", 0x40),
+    KEYWORD("Unpin", 0x40), KEYWORD("UnwindSafe", 0x40), KEYWORD("RefUnwindSafe", 0x40),
+    KEYWORD("Sized", 0x40), KEYWORD("Debug", 0x40), KEYWORD("Default", 0x40),
+    KEYWORD("Vec", 0x40), KEYWORD("String", 0x40), KEYWORD("ToString", 0x40),
+    KEYWORD("Hash", 0x40), KEYWORD("ToOwned", 0x40), KEYWORD("AsMut", 0x40),
+    KEYWORD("AsRef", 0x40), KEYWORD("From", 0x40), KEYWORD("Into", 0x40),
+    KEYWORD("Fn", 0x40), KEYWORD("FnMut", 0x40), KEYWORD("FnOnce", 0x40),
+    KEYWORD("Eq", 0x40), KEYWORD("PartialEq", 0x40), KEYWORD("Ord", 0x40),
+    KEYWORD("PartialOrd", 0x40), KEYWORD("DoubleEndedIterator", 0x40), KEYWORD("ExactSizeIterator", 0x40),
+    KEYWORD("Extend", 0x40), KEYWORD("IntoIterator", 0x40), KEYWORD("Iterator", 0x40),
+    KEYWORD("Option", 0x40), KEYWORD("None", 0x40), KEYWORD("Some", 0x40),
+    KEYWORD("Result", 0x40), KEYWORD("Err", 0x40), KEYWORD("Ok", 0x40),
+
+    OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
+    OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
+    OPERATOR("%" , 0x30), OPERATOR("^" , 0x30), OPERATOR("&" , 0x30),
+    OPERATOR("~" , 0x30), OPERATOR("|" , 0x30), OPERATOR("!" , 0x30),
+    OPERATOR("<" , 0x30), OPERATOR(">" , 0x30), OPERATOR("=" , 0x30),
+    OPERATOR("?" , 0x30), OPERATOR(":" , 0x30), OPERATOR("." , 0x30),
+    OPERATOR("@" , 0x30), OPERATOR("#" , 0x30), OPERATOR("$" , 0x30),
+    
+    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
+    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
+    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
+};
+
+static const char *rust_exts[] = {"rs"};
+
+static struct SHD rust_syntax = {
+    "Rust",
+    sizeof rust_exts / sizeof *rust_exts, rust_exts,
+    " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
+    sizeof rust_kwd / sizeof *rust_kwd, rust_kwd, //Keywords
+    0x60, 0x50, 0x05, 0x20, 0x50, 0x40,
+    "\"", // Strings charaters
+    "//", {"/*", "*/"}, // Comments
+    {"{[(", "}])"},
+    {"0x", "0o", "0b"},
+    "uif816324sze",
+    {"0123456789aAbBcCdDeEfF_", "01234567_", "01_", "0123456789_"} // _ is a digit divisor
+};
+
 /*
 Default syntax
 */
@@ -404,7 +483,7 @@ struct SHD default_syntax = {
 Global syntaxes
 */
 
-struct SHD *syntaxes[] = {&c_syntax, &cpp_syntax, &python_syntax, &sh_syntax};
+struct SHD *syntaxes[] = {&c_syntax, &cpp_syntax, &python_syntax, &sh_syntax, &rust_syntax};
 
 void register_syntax(void) {
     config.syntaxes = syntaxes;
