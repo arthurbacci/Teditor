@@ -91,6 +91,7 @@ void calculate_len_line_number(void);
 int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
+struct LINE blank_line(void);
 
 // extension.c
 bool detect_extension(char *fname);
@@ -171,7 +172,10 @@ struct LINE {
     unsigned char *color;
     unsigned int length;
     unsigned int ident;
+    bool multiline_comment;
 };
+
+
 
 struct CURSOR {
     unsigned int x;
