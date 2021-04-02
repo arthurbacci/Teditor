@@ -118,11 +118,13 @@ struct SHD {
     unsigned char match_color;
     unsigned char number_color;
     unsigned char number_prefix_color;
+    unsigned char number_suffix_color;
     const char *stringchars;
     const char *singleline_comment;
     const char *multiline_comment[2];
     const char *match[2];
     const char *number_prefix[3]; // 0: hexadecimal 1: octal 2: binary
+    const char *number_suffixes;
     const char *number_strings[4]; // 0: hexadecimal 1: octal 2: binary 3: decimal
 };
 

@@ -2,6 +2,9 @@
 
 #define NUMBER_STRINGS {"0123456789aAbBcCdDeEfF", "01234567", "01", "0123456789"}
 
+// U/u: unsigned L/l: long F/f: float (for fp numbers) .: trailing dot (for fp numbers)
+static const char c_cpp_number_suffixes[] = "UuLlFf.";
+
 /*
 C syntax highlighting descriptor
 */
@@ -87,11 +90,12 @@ static struct SHD c_syntax = {
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
-    0x60, 0x50, 0x05, 0x20, 0x50,
+    0x60, 0x50, 0x05, 0x20, 0x50, 0x40,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
     {"0x", "0", ""},
+    c_cpp_number_suffixes,
     NUMBER_STRINGS
 };
 
@@ -215,11 +219,12 @@ static struct SHD cpp_syntax = {
     sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
-    0x60, 0x50, 0x05, 0x20, 0x50,
+    0x60, 0x50, 0x05, 0x20, 0x50, 0x40,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
     {"0x", "0", "0b"},
+    c_cpp_number_suffixes,
     NUMBER_STRINGS
 };
 
@@ -311,11 +316,12 @@ static struct SHD python_syntax = {
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
-    0x40, 0x50, 0x05, 0x20, 0x50,
+    0x40, 0x50, 0x05, 0x20, 0x50, 0x40,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
     {"0x", "0o", "0b"},
+    "jJ",
     NUMBER_STRINGS
 };
 
@@ -369,11 +375,12 @@ static struct SHD sh_syntax = {
     sizeof sh_exts / sizeof *sh_exts, sh_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
-    0x40, 0x50, 0x05, 0x20, 0,
+    0x40, 0x50, 0x05, 0x20, 0, 0,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
     {"", "", ""},
+    "",
     NUMBER_STRINGS
 };
 
@@ -386,11 +393,12 @@ struct SHD default_syntax = {
     0, NULL,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
     0, NULL,
-    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
     "",
     "", {"", ""},
     {"", ""},
     {"", "", ""},
+    "",
     {"", "", "", ""}
 };
 
