@@ -110,7 +110,6 @@ void syntaxHighlight(void) {
             }
 
             if (i == 0 || strchr(config.current_syntax->word_separators, lines[at].data[i - 1])) {
-                bool did = 0;
                 unsigned int numlen = 0, prefixlen = 0, suffixlen = 0;
                 const char *numbers = config.current_syntax->number_strings[3];
 
@@ -138,18 +137,17 @@ void syntaxHighlight(void) {
                 numlen = prefixlen;
                 while ((i + numlen) < lines[at].length && strchr(numbers, lines[at].data[i + numlen])) numlen++;
 
-                if ((did = numlen != prefixlen))
+                if (numlen != prefixlen && numlen != 0)
                     while ((i + numlen + suffixlen) < lines[at].length
                     && strchr(config.current_syntax->number_suffixes, lines[at].data[i + numlen + suffixlen])) suffixlen++;
 
-                if ((i + numlen + suffixlen) == lines[at].length
-                    || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen + suffixlen])) {
+                if (numlen - prefixlen > 0 && ((i + numlen + suffixlen) == lines[at].length
+                    || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen + suffixlen]))) {
 
-                    if (did)
-                        for (unsigned int j = 0; j < prefixlen; j++)
+                    for (unsigned int j = 0; j < prefixlen; j++)
                             lines[at].color[i + j] = config.current_syntax->number_prefix_color;
 
-                    for (unsigned int j = did ? prefixlen : 0; j < numlen; j++)
+                    for (unsigned int j = numlen - prefixlen > 0 ? prefixlen : 0; j < numlen; j++)
                         if (!lines[at].color[i + j])
                             lines[at].color[i + j] = config.current_syntax->number_color;
 

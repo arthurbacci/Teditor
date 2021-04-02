@@ -97,7 +97,8 @@ static struct SHD c_syntax = {
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
-    LITERAL_COLOR, PAREN_COLOR, 0x05, LITERAL_COLOR, PAREN_COLOR, TYPES_COLOR,
+    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
@@ -226,7 +227,8 @@ static struct SHD cpp_syntax = {
     sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
-    LITERAL_COLOR, PAREN_COLOR, 0x05, 0x20, PAREN_COLOR, TYPES_COLOR,
+    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
@@ -323,7 +325,8 @@ static struct SHD python_syntax = {
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
-    TYPES_COLOR, PAREN_COLOR, 0x05, 0x20, PAREN_COLOR, TYPES_COLOR,
+    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
@@ -382,7 +385,8 @@ static struct SHD sh_syntax = {
     sizeof sh_exts / sizeof *sh_exts, sh_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
-    TYPES_COLOR, PAREN_COLOR, 0x05, 0x20, 0, 0,
+    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, 0, 0,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
@@ -462,7 +466,8 @@ static struct SHD rust_syntax = {
     sizeof rust_exts / sizeof *rust_exts, rust_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof rust_kwd / sizeof *rust_kwd, rust_kwd, //Keywords
-    LITERAL_COLOR, PAREN_COLOR, 0x05, LITERAL_COLOR, PAREN_COLOR, TYPES_COLOR,
+    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
