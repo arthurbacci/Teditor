@@ -1,7 +1,5 @@
 #include "syntax.h"
 
-#define NUMBER_STRINGS {"0123456789aAbBcCdDeEfF", "01234567", "01", "0123456789"}
-
 // U/u: unsigned L/l: long F/f: float (for fp numbers) .: trailing dot (for fp numbers)
 static const char c_cpp_number_suffixes[] = "UuLlFf.";
 
@@ -96,7 +94,7 @@ static struct SHD c_syntax = {
     {"{[(", "}])"},
     {"0x", "0", ""},
     c_cpp_number_suffixes,
-    NUMBER_STRINGS
+    {"0123456789aAbBcCdDeEfF", "01234567", "01", "0123456789"}
 };
 
 /*
@@ -225,7 +223,7 @@ static struct SHD cpp_syntax = {
     {"{[(", "}])"},
     {"0x", "0", "0b"},
     c_cpp_number_suffixes,
-    NUMBER_STRINGS
+    {"0123456789aAbBcCdDeEfF'", "01234567'", "01'", "0123456789'"} // ' is a digit divisor
 };
 
 /*
@@ -322,7 +320,7 @@ static struct SHD python_syntax = {
     {"{[(", "}])"},
     {"0x", "0o", "0b"},
     "jJ",
-    NUMBER_STRINGS
+    {"0123456789aAbBcCdDeEfF_", "01234567_", "01_", "0123456789_"} // _ is a digit divisor
 };
 
 /*
@@ -381,7 +379,7 @@ static struct SHD sh_syntax = {
     {"{[(", "}])"},
     {"", "", ""},
     "",
-    NUMBER_STRINGS
+    {"0123456789aAbBcCdDeEfF", "01234567", "01", "0123456789"}
 };
 
 /*
