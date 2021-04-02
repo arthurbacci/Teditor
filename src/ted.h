@@ -25,6 +25,9 @@
 
 #define NUM_PAIRS 6
 
+#define IN_RANGE(x, min, max)   ((x) >= (min)) && ((x) <= (max))
+#define OUT_RANGE(x, min, max)  ((x) < (min)) || ((x) > (max))
+
 typedef uint32_t uchar32_t;
 
 // message_and_prompt.c
@@ -72,8 +75,9 @@ void change_position(unsigned int x, unsigned int y);
 void processMouseEvent(MEVENT ev);
 
 // utf8.c
-void utf8ReadFile(unsigned char uc, unsigned int lc, unsigned int i, FILE *fp);
-uint16_t utf8ToMultibyte(uchar32_t c, unsigned char *out);
+void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_);
+int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
+bool validate_utf8(unsigned char *ucs);
 
 // color.c
 void syntaxHighlight(void);
@@ -131,6 +135,7 @@ struct BUFFER {
 };
 
 struct CFG {
+    bool strict_utf8; // high/low surrogates will be replaced (for now leave it always set)
     unsigned int tablen;
     int lines;
     unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
@@ -186,5 +191,7 @@ extern bool colors_on;
 extern bool needs_to_free_filename;
 extern char *menu_message;
 extern struct SHD default_syntax;
+extern const uchar32_t substitute_char;
+extern const char *substitute_string;
 
 #endif

@@ -107,7 +107,16 @@ void show_lines(void) {
                 size += config.tablen - 1;
             } else {
                 unsigned char b[4];
-                printw("%.*s", utf8ToMultibyte(el, b), b);
+                int len = utf8ToMultibyte(el, b, 1);
+
+                if (len == -1) {
+                    b[0] = substitute_string[0];
+                    b[1] = substitute_string[1];
+                    b[2] = substitute_string[2];
+                    len = 3;
+                }
+                
+                printw("%.*s", len, b);
             }
             
             if (j == cursor.x + text_scroll.x && i == cursor.y)
