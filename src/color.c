@@ -114,13 +114,20 @@ void syntaxHighlight(void) {
                 const char *numbers = config.current_syntax->number_strings[3];
 
                 if (hexprefixlen != 0 && lines[at].length - i >= hexprefixlen
-                    && !uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[0], hexprefixlen)) {
+                    && !uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[0], hexprefixlen)
+                    && ((hexprefixlen >= octprefixlen && hexprefixlen >= binprefixlen)
+                    || (uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[1], octprefixlen)
+                    && uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[2], binprefixlen)))) {
                     prefixlen = hexprefixlen;
                     numbers = config.current_syntax->number_strings[0];
+
                 } else if (octprefixlen != 0 && lines[at].length - i >= octprefixlen
-                    && !uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[1], octprefixlen)) {
+                    && !uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[1], octprefixlen)
+                    && ((octprefixlen >= binprefixlen)
+                    || uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[2], binprefixlen))) {
                     prefixlen = octprefixlen;
                     numbers = config.current_syntax->number_strings[1];
+
                 } else if (binprefixlen != 0 && lines[at].length - i >= binprefixlen
                     && !uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[2], binprefixlen)) {
                     prefixlen = binprefixlen;
