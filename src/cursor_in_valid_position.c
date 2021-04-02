@@ -28,5 +28,4 @@ void change_position(unsigned int x, unsigned int y) {
     cursor.y = y;
     cursor.x = x;
     cursor_in_valid_position();
-    syntaxHighlight();
 }

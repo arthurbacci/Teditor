@@ -13,15 +13,9 @@ void savefile(void) {
 
     if (config.insert_newline && lines[num_lines - 1].length > 0) {
         lines = realloc(lines, ++num_lines * sizeof(*lines));
-        const unsigned int ln = num_lines - 1;
-        lines[ln].len = READ_BLOCKSIZE;
-        lines[ln].data = malloc(lines[ln].len * sizeof(*lines[ln].data));
-        lines[ln].color = malloc(lines[ln].len * sizeof(*lines[ln].data));
-        lines[ln].length = 0;
-        lines[ln].ident = 0;
-        *lines[ln].data = '\0';
+        lines[num_lines - 1] = blank_line();
     }
-    
+
     for (unsigned int i = 0; i < num_lines; i++) {
         for (unsigned int j = 0; j < lines[i].length; j++) {
             unsigned char b[4];
@@ -45,14 +39,9 @@ void savefile(void) {
 void read_lines(void) {
     if (fp == NULL) {
         num_lines = 1;
-        lines = malloc(sizeof(struct LINE));
+        lines = malloc(num_lines * sizeof(*lines));
 
-        lines[0].len = READ_BLOCKSIZE;
-        lines[0].data = malloc(lines[0].len * sizeof(uchar32_t));
-        lines[0].color = malloc(lines[0].len * sizeof(unsigned char));
-        lines[0].length = 0;
-        lines[0].data[0] = '\0';
-        lines[0].ident = 0;
+        lines[0] = blank_line();
         return;
     }
 
@@ -67,13 +56,9 @@ void read_lines(void) {
         else
             fseek(fp, -1, SEEK_CUR);
 
-        lines = realloc(lines, ++num_lines * sizeof(struct LINE));
+        lines = realloc(lines, ++num_lines * sizeof(*lines));
 
-        lines[i].len = READ_BLOCKSIZE;
-        lines[i].data = malloc(lines[i].len * sizeof *(lines[i].data));
-        lines[i].color = malloc(lines[i].len * sizeof *(lines[i].color));
-        lines[i].length = 0;
-        lines[i].ident = 0;
+        lines[i] = blank_line();
 
         char c;
         unsigned int j;
@@ -83,8 +68,8 @@ void read_lines(void) {
 
             if (lines[i].length + 1 >= lines[i].len) {
                 lines[i].len += READ_BLOCKSIZE;
-                lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(uchar32_t));
-                lines[i].color = realloc(lines[i].color, lines[i].len * sizeof(unsigned char));
+                lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(*lines[i].data));
+                lines[i].color = realloc(lines[i].color, lines[i].len * sizeof(*lines[i].color));
             }
 
             if (passed_spaces == 0 && c != ' ')
