@@ -1,5 +1,7 @@
 #include "syntax.h"
 
+#define NUMBER_STRINGS {"0123456789aAbBcCdDeEfF", "01234567", "01", "0123456789"}
+
 /*
 C syntax highlighting descriptor
 */
@@ -89,7 +91,8 @@ static struct SHD c_syntax = {
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
-    {"0x", "0", ""}
+    {"0x", "0", ""},
+    NUMBER_STRINGS
 };
 
 /*
@@ -216,7 +219,8 @@ static struct SHD cpp_syntax = {
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
-    {"0x", "0", "0b"}
+    {"0x", "0", "0b"},
+    NUMBER_STRINGS
 };
 
 /*
@@ -311,7 +315,8 @@ static struct SHD python_syntax = {
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
-    {"0x", "0o", "0b"}
+    {"0x", "0o", "0b"},
+    NUMBER_STRINGS
 };
 
 /*
@@ -368,7 +373,8 @@ static struct SHD sh_syntax = {
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
-    {"", "", ""}
+    {"", "", ""},
+    NUMBER_STRINGS
 };
 
 /*
@@ -384,7 +390,8 @@ struct SHD default_syntax = {
     "",
     "", {"", ""},
     {"", ""},
-    {"", "", ""}
+    {"", "", ""},
+    {"", "", "", ""}
 };
 
 /*

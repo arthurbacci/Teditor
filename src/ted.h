@@ -85,6 +85,7 @@ char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
 void calculate_len_line_number(void);
 int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
+int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
 
 // extension.c
@@ -122,6 +123,7 @@ struct SHD {
     const char *multiline_comment[2];
     const char *match[2];
     const char *number_prefix[3]; // 0: hexadecimal 1: octal 2: binary
+    const char *number_strings[4]; // 0: hexadecimal 1: octal 2: binary 3: decimal
 };
 
 struct BUFFER {

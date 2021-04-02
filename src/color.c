@@ -111,20 +111,20 @@ void syntaxHighlight(void) {
 
             if (i == 0 || strchr(config.current_syntax->word_separators, lines[at].data[i - 1])) {
                 unsigned int numlen = 0, prefixlen = 0;
-                char *numbers = "0123456789";
+                const char *numbers = config.current_syntax->number_strings[3];
 
                 if (hexprefixlen != 0 && lines[at].length - i >= hexprefixlen
-                    && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[0], hexprefixlen)) {
+                    && !uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[0], hexprefixlen)) {
                     prefixlen = hexprefixlen;
-                    numbers = "0123456789aAbBcCdDeEfF";
+                    numbers = config.current_syntax->number_strings[0];
                 } else if (octprefixlen != 0 && lines[at].length - i >= octprefixlen
-                    && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[1], octprefixlen)) {
+                    && !uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[1], octprefixlen)) {
                     prefixlen = octprefixlen;
-                    numbers = "01234567";
+                    numbers = config.current_syntax->number_strings[1];
                 } else if (binprefixlen != 0 && lines[at].length - i >= binprefixlen
-                    && !uchar32_cmp(&lines[at].data[i], config.current_syntax->number_prefix[2], binprefixlen)) {
+                    && !uchar32_casecmp(&lines[at].data[i], config.current_syntax->number_prefix[2], binprefixlen)) {
                     prefixlen = binprefixlen;
-                    numbers = "01";
+                    numbers = config.current_syntax->number_strings[2];
                 }
 
                 numlen += prefixlen;
