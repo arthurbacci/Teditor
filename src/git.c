@@ -1,34 +1,102 @@
 #include "ted.h"
 
+// setup for the git bindings
 void git_setup(void) {
     char buf[4000];
-    char cwd[1000];
-    getcwd(cwd, 1000);
+    char *slash = strrchr(filename, '/');
 
-    snprintf(buf, 4000,
-            "git --version > /dev/null 2> /dev/null || exit -1;"
-            "cd %s > /dev/null 2> /dev/null;"
-            "git rev-parse --git-dir > /dev/null 2> /dev/null || exit -2",
-            cwd);
+    if (slash) {
+        int len = slash - filename;
+        snprintf(buf, 4000,
+                "git --version > /dev/null 2> /dev/null || exit 3;"
+                "cd %.*s > /dev/null 2> /dev/null || exit 2;"
+                "git rev-parse --git-dir > /dev/null 2> /dev/null || exit 2;"
+                "git ls-files --error-unmatch %s > /dev/null 2> /dev/null; exit $?",
+                len, filename, filename);
+    } else {
+        char cwd[1000];
+        getcwd(cwd, 1000);
+        snprintf(buf, 4000,
+                "git --version > /dev/null 2> /dev/null || exit 3;"
+                "cd %s > /dev/null 2> /dev/null || exit 2;"
+                "git rev-parse --git-dir > /dev/null 2> /dev/null || exit 2;"
+                "git ls-files --error-unmatch %s > /dev/null 2> /dev/null; exit $?",
+                cwd, filename);
+    }
 
-    int ec = system(buf);
-
-    if (ec == -1)
-        config.git_installed = 0, config.git_in_repo = 0;
-    else if (ec == -2)
-        config.git_installed = 1, config.git_in_repo = 0;
-    else
-        config.git_installed = 1, config.git_in_repo = 1;
+    int ec = WEXITSTATUS(system(buf));
+    if (ec == 3) {
+        config.git_installed = 0;
+        config.selected_buf.git_in_repo = 0;
+        config.selected_buf.git_tracked = 0;
+    } else if (ec == 2) {
+        config.git_installed = 1;
+        config.selected_buf.git_in_repo = 0;
+        config.selected_buf.git_tracked = 0;
+    } else if (ec == 1) {
+        config.git_installed = 1;
+        config.selected_buf.git_in_repo = 1;
+        config.selected_buf.git_tracked = 0;
+    } else {
+        config.git_installed = 1;
+        config.selected_buf.git_in_repo = 1;
+        config.selected_buf.git_tracked = 1;
+    }
 }
 
+// call when opening a new file
+void git_update_info(char *fname) {
+    if (!config.git_installed) return;
+
+    char buf[4000];
+    char *slash = strrchr(fname, '/');
+
+    if (slash) {
+        int len = slash - fname;
+        snprintf(buf, 4000,
+                "cd %.*s > /dev/null 2> /dev/null || exit 2;"
+                "git rev-parse --git-dir > /dev/null 2> /dev/null || exit 2;"
+                "git ls-files --error-unmatch %s > /dev/null 2> /dev/null; exit $?",
+                len, fname, fname);
+    } else {
+        char cwd[1000];
+        getcwd(cwd, 1000);
+        snprintf(buf, 4000,
+                "cd %s > /dev/null 2> /dev/null || exit 2;"
+                "git rev-parse --git-dir > /dev/null 2> /dev/null || exit 2;"
+                "git ls-files --error-unmatch %s > /dev/null 2> /dev/null; exit $?",
+                cwd, fname);
+    }
+
+    int ec = WEXITSTATUS(system(buf));
+    if (ec == 2) {
+        config.git_installed = 1;
+        config.selected_buf.git_in_repo = 0;
+        config.selected_buf.git_tracked = 0;
+    } else if (ec == 1) {
+        config.git_installed = 1;
+        config.selected_buf.git_in_repo = 1;
+        config.selected_buf.git_tracked = 0;
+    } else {
+        config.git_installed = 1;
+        config.selected_buf.git_in_repo = 1;
+        config.selected_buf.git_tracked = 1;
+    }
+}
+
+/*Utilities for future use*/
 bool git_in_repo(char *path) {
     if (!config.git_installed) return 0;
     char buf[4000];
+    char *temp;
 
     if (path == NULL) {
         char cwd[1000];
         if (getcwd(cwd, 1000) == NULL) return 0;
         snprintf(buf, 4000, "cd %s;", cwd);
+    } else if ((temp = strrchr(path, '/'))) {
+        int len = temp - path;
+        snprintf(buf, 4000, "cd %.*s;", len, path);
     } else
         snprintf(buf, 4000, "cd %s;", path);
 
@@ -37,7 +105,7 @@ bool git_in_repo(char *path) {
 }
 
 bool git_current_branch(char *buf, unsigned int buflen) {
-    if (!config.git_installed || !config.git_in_repo) return 0;
+    if (!config.git_installed || !config.selected_buf.git_in_repo) return 0;
 
     int stdout_pipe[2];
     if (pipe(stdout_pipe) < 0) return 0;
@@ -66,7 +134,6 @@ bool git_current_branch(char *buf, unsigned int buflen) {
 bool git_tracked(char *fname) {
     if (!config.git_installed) return 0;
     char buf[4000];
-
     snprintf(buf, 4000, "git ls-files --error-unmatch %s", fname);
     return system(buf) == 0;
 }

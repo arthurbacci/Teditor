@@ -15,10 +15,11 @@ void show_menu(char *message, char *shadow) {
         printw("I:%u %u%% %s", lines[cy].ident, scrolled, filename);
 
         char buf[500];
-        if (git_current_branch(buf, 500)) {
+        if (config.selected_buf.git_in_repo && git_current_branch(buf, 500)) {
             setcolor(COLOR_PAIR(1));
             printw(" on branch %s", buf);
             setcolor(COLOR_PAIR(2));
+            printw(" (%s)", config.selected_buf.git_tracked ? "tracked" : "untracked");
         }
 
         int len = snprintf(buf, 500, "%s%s%s %s %s",
