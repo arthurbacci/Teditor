@@ -1,13 +1,13 @@
 #include "syntax.h"
 
-// utility macros for the recurring color scheme
-#define KEYWORD_COLOR   COLOR(PALETTE_RED, PALETTE_OFF)
-#define OPERATOR_COLOR  COLOR(PALETTE_GREEN, PALETTE_OFF)
-#define TYPES_COLOR     COLOR(PALETTE_MAGENTA, PALETTE_OFF)
-#define MACRO_COLOR     COLOR(PALETTE_MAGENTA, PALETTE_OFF)
-#define PAREN_COLOR     COLOR(PALETTE_CYAN, PALETTE_OFF)
-#define LITERAL_COLOR   COLOR(PALETTE_YELLOW, PALETTE_OFF)
-#define STDLIB_COLOR    COLOR(PALETTE_CYAN, PALETTE_OFF)
+// utility macros for the recurring PALETTE_COLOR scheme
+#define KEYWORD_COLOR   PALETTE_COLOR(PALETTE_RED, PALETTE_OFF)
+#define OPERATOR_COLOR  PALETTE_COLOR(PALETTE_GREEN, PALETTE_OFF)
+#define TYPES_COLOR     PALETTE_COLOR(PALETTE_MAGENTA, PALETTE_OFF)
+#define MACRO_COLOR     PALETTE_COLOR(PALETTE_MAGENTA, PALETTE_OFF)
+#define PAREN_COLOR     PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF)
+#define LITERAL_COLOR   PALETTE_COLOR(PALETTE_YELLOW, PALETTE_OFF)
+#define STDLIB_COLOR    PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF)
 
 // U/u: unsigned L/l: long F/f: float (for fp numbers) .: trailing dot (for fp numbers)
 static const char c_cpp_number_suffixes[] = "UuLlFf.";
@@ -97,7 +97,7 @@ static struct SHD c_syntax = {
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
-    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
@@ -227,7 +227,7 @@ static struct SHD cpp_syntax = {
     sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
-    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
@@ -325,7 +325,7 @@ static struct SHD python_syntax = {
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
-    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
@@ -385,7 +385,7 @@ static struct SHD sh_syntax = {
     sizeof sh_exts / sizeof *sh_exts, sh_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
-    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, 0, 0,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
@@ -466,7 +466,7 @@ static struct SHD rust_syntax = {
     sizeof rust_exts / sizeof *rust_exts, rust_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof rust_kwd / sizeof *rust_kwd, rust_kwd, //Keywords
-    LITERAL_COLOR, COLOR(PALETTE_CYAN, PALETTE_OFF), COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"", // Strings charaters
     "//", {"/*", "*/"}, // Comments

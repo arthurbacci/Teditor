@@ -85,8 +85,11 @@ void show_lines(void) {
             
             unsigned char fg, bg;
             readColor(i, text_scroll.x + j, &fg, &bg);
-            
-            int palette[] = {-1, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_MAGENTA, COLOR_CYAN, COLOR_YELLOW};
+
+            int palette[] = {
+                -1, COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN,// base colors
+                COLOR_BLACK, COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN,// bright colors
+            };
             
             if (colors_on)
                 init_pair(NUM_PAIRS + lines[i].color[text_scroll.x + j], palette[fg], palette[bg]);
@@ -97,9 +100,11 @@ void show_lines(void) {
                 setcolor(COLOR_PAIR(4));
             else
                 setcolor(COLOR_PAIR(2));
-            
+
             if (j + text_scroll.x == cursor.x && i == cursor.y)
                 attron(A_REVERSE);
+            else if (fg > 6)
+                attron(A_BOLD);
             
             if (el == '\t') {
                 for (unsigned int k = 0; k < config.tablen; k++)
@@ -115,12 +120,14 @@ void show_lines(void) {
                     b[2] = substitute_string[2];
                     len = 3;
                 }
-                
                 printw("%.*s", len, b);
             }
             
             if (j == cursor.x + text_scroll.x && i == cursor.y)
                 attroff(A_REVERSE);
+            else if (fg > 6)
+                attroff(A_BOLD);
+
             if (bg)
                 setcolor(COLOR_PAIR(2));
             
