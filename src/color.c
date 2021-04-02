@@ -137,24 +137,26 @@ void syntaxHighlight(void) {
                 numlen = prefixlen;
                 while ((i + numlen) < lines[at].length && strchr(numbers, lines[at].data[i + numlen])) numlen++;
 
-                if (numlen != prefixlen && numlen != 0)
+                if (numlen != 0) {
                     while ((i + numlen + suffixlen) < lines[at].length
                     && strchr(config.current_syntax->number_suffixes, lines[at].data[i + numlen + suffixlen])) suffixlen++;
 
-                if (numlen - prefixlen > 0 && ((i + numlen + suffixlen) == lines[at].length
-                    || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen + suffixlen]))) {
+                    if ((i + numlen + suffixlen) == lines[at].length
+                        || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen + suffixlen])) {
+                        
+                        if (numlen - prefixlen > 0)
+                            for (unsigned int j = 0; j < prefixlen; j++)
+                                    lines[at].color[i + j] = config.current_syntax->number_prefix_color;
 
-                    for (unsigned int j = 0; j < prefixlen; j++)
-                            lines[at].color[i + j] = config.current_syntax->number_prefix_color;
+                        for (unsigned int j = numlen - prefixlen > 0 ? prefixlen : 0; j < numlen; j++)
+                            if (!lines[at].color[i + j])
+                                lines[at].color[i + j] = config.current_syntax->number_color;
 
-                    for (unsigned int j = numlen - prefixlen > 0 ? prefixlen : 0; j < numlen; j++)
-                        if (!lines[at].color[i + j])
-                            lines[at].color[i + j] = config.current_syntax->number_color;
-
-                    for (unsigned int j = 0; j < suffixlen; j++)
-                        lines[at].color[i + numlen + j] = config.current_syntax->number_suffix_color;
-                    
-                    i += numlen + suffixlen;
+                        for (unsigned int j = 0; j < suffixlen; j++)
+                            lines[at].color[i + numlen + j] = config.current_syntax->number_suffix_color;
+                        
+                        i += numlen + suffixlen;
+                    }
                 }
             }
             
