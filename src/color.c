@@ -135,22 +135,26 @@ void syntaxHighlight(void) {
 
                 if (numlen != 0) {
                     while ((i + numlen + suffixlen) < lines[at].length
-                           && strchr(config.current_syntax->number_suffixes, lines[at].data[i + numlen + suffixlen])) suffixlen++;
+                    && strchr(config.current_syntax->number_suffixes, lines[at].data[i + numlen + suffixlen])) suffixlen++;
 
                     if ((i + numlen + suffixlen) == lines[at].length
                         || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen + suffixlen])) {
-                        
-                        if (numlen - prefixlen > 0)
-                            for (unsigned int j = 0; j < prefixlen; j++)
-                                    lines[at].color[i + j] = config.current_syntax->number_prefix_color;
+                        unsigned int start = 0;
 
-                        for (unsigned int j = numlen - prefixlen > 0 ? prefixlen : 0; j < numlen; j++)
+                        if (numlen == prefixlen) {
+                            for (unsigned int j = 0; j < prefixlen; j++)
+                                if (!strchr(numbers, lines[at].data[i + j])) {
+                                    start = prefixlen;
+                                    break;
+                                }
+                        } else
+                            memset(&lines[at].color[i], config.current_syntax->number_prefix_color, prefixlen);
+
+                        for (unsigned int j = start; j < numlen; j++)
                             if (!lines[at].color[i + j])
                                 lines[at].color[i + j] = config.current_syntax->number_color;
 
-                        for (unsigned int j = 0; j < suffixlen; j++)
-                            lines[at].color[i + numlen + j] = config.current_syntax->number_suffix_color;
-                        
+                        memset(&lines[at].color[i + numlen], config.current_syntax->number_suffix_color, suffixlen);
                         i += numlen + suffixlen;
                     }
                 }
