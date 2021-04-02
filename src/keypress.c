@@ -248,17 +248,33 @@ void process_keypress(int c) {
                 add_char(cx, cy, config.current_syntax->match[1][match - config.current_syntax->match[0]]);
         }
 
-        uchar32_t ec = c;
+        unsigned char ucs[4] = {c, 0, 0, 0};
+        int len = 1;
 
-        if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
-            ec += getch() << 8;
-        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7))
-            ec += getch() << 16;
-        if (c >= 0xF0 && c <= 0xF7)
-            ec += getch() << 24;
+        if ((c >= 0xC2 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF4)) {
+            ucs[1] = getch(), len++;
+        }
+        if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF4)) {
+            ucs[2] = getch(), len++;
+        }
+        if (c >= 0xF0 && c <= 0xF4) {
+            ucs[3] = getch(), len++;
+        }
 
-        if (add_char(cx, cy, ec))
-            process_keypress(KEY_RIGHT);
+        if (validate_utf8(ucs)) {
+            uchar32_t ec = c;
+            for (int i = 1, off = 8; i < len; i++, off += 8)
+                ec += ucs[i] << off;
+
+            if (add_char(cx, cy, ec))
+                process_keypress(KEY_RIGHT);
+        } else {
+            for (int i = 0; i < len; i++) {
+                if (add_char(cx, cy, substitute_char))
+                    process_keypress(KEY_RIGHT);
+                else break;
+            }
+        }
 
         syntaxHighlight();
     }
