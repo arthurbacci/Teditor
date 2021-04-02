@@ -48,15 +48,15 @@ static struct KWD c_kwd[] = {
     KEYWORD("char16_t", 0x40), KEYWORD("char32_t", 0x40), KEYWORD("wint_t", 0x40),
     KEYWORD("wctrans_t", 0x40), KEYWORD("wctype_t", 0x40),
 
-    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("NULL", 0x20), // stdlib constants
+    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("NULL", 0x20), // stdlib constants/variables
     KEYWORD("stdin", 0x20), KEYWORD("stdout", 0x20), KEYWORD("stderr", 0x20),
     KEYWORD("errno", 0x20), KEYWORD("_Imaginary_I", 0x20), KEYWORD("_Complex_I", 0x20),
 
-    KEYWORD("defined", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), // preprocessor
-    KEYWORD("#ifdef", 0x10), KEYWORD("#ifndef", 0x10), KEYWORD("#if", 0x10),
-    KEYWORD("#elif" , 0x10), KEYWORD("#else" , 0x10), KEYWORD("#endif" , 0x10),
-    KEYWORD("#line" , 0x10), KEYWORD("#error" , 0x10), KEYWORD("#warning" , 0x10),
-    KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10), KEYWORD("#include", 0x10),
+    KEYWORD("defined", 0x10), KEYWORD("define", 0x10), KEYWORD("undef", 0x10), // preprocessor
+    KEYWORD("ifdef", 0x10), KEYWORD("ifndef", 0x10), KEYWORD("elif" , 0x10),
+    KEYWORD("endif" , 0x10), KEYWORD("line" , 0x10), KEYWORD("error" , 0x10),
+    KEYWORD("warning" , 0x10), KEYWORD("pragma" , 0x10), KEYWORD("_Pragma" , 0x10),
+    KEYWORD("include", 0x10), OPERATOR("#" , 0x10),
 
     KEYWORD("<assert.h>", 0x60), KEYWORD("<complex.h>", 0x60), KEYWORD("<ctype.h>", 0x60), // stdlib headers
     KEYWORD("<errno.h>", 0x60), KEYWORD("<fenv.h>", 0x60), KEYWORD("<float.h>", 0x60),
@@ -141,11 +141,11 @@ static struct KWD cpp_kwd[] = {
     
     KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("nullptr", 0x20), // literals
 
-    KEYWORD("defined", 0x10), KEYWORD("#define", 0x10), KEYWORD("#undef", 0x10), // preprocessor
-    KEYWORD("#ifdef", 0x10), KEYWORD("#ifndef", 0x10), KEYWORD("#if", 0x10),
-    KEYWORD("#elif" , 0x10), KEYWORD("#else" , 0x10), KEYWORD("#endif" , 0x10),
-    KEYWORD("#line" , 0x10), KEYWORD("#error" , 0x10), KEYWORD("#warning" , 0x10),
-    KEYWORD("#pragma" , 0x10), KEYWORD("_Pragma" , 0x10), KEYWORD("#include", 0x10),
+    KEYWORD("defined", 0x10), KEYWORD("define", 0x10), KEYWORD("undef", 0x10), // preprocessor
+    KEYWORD("ifdef", 0x10), KEYWORD("ifndef", 0x10), KEYWORD("elif" , 0x10),
+    KEYWORD("endif" , 0x10), KEYWORD("line" , 0x10), KEYWORD("error" , 0x10),
+    KEYWORD("warning" , 0x10), KEYWORD("pragma" , 0x10), KEYWORD("_Pragma" , 0x10),
+    KEYWORD("include", 0x10), OPERATOR("#" , 0x10),
     KEYWORD("export" , 0x10), KEYWORD("import" , 0x10), KEYWORD("module", 0x10), // c++20 modules
 
     KEYWORD("<concepts>", 0x60), KEYWORD("<coroutine>", 0x60), KEYWORD("<cstdlib>", 0x60), // stdlib headers
