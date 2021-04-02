@@ -123,7 +123,6 @@ Syntax Highlighting Descriptor
 */
 struct SHD {
     const char *name;
-    bool limited_scroll; // if set syntaxHighlight won't scroll over all the source
     unsigned int exts_len;
     const char **extensions;
     const char *word_separators;

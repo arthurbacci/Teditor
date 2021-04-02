@@ -93,7 +93,7 @@ static struct KWD c_kwd[] = {
 static const char *c_exts[] = {"c", "h"};
 
 static struct SHD c_syntax = {
-    "C", 0,
+    "C",
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
@@ -223,7 +223,7 @@ static struct KWD cpp_kwd[] = {
 static const char *cpp_exts[] = {"cpp", "hpp", "cc", "hh"};
 
 static struct SHD cpp_syntax = {
-    "C++", 0,
+    "C++",
     sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
@@ -321,7 +321,7 @@ static struct KWD python_kwd[] = {
 static const char *python_exts[] = {"py", "py3", "pyx", "pyw", "pyd", "pyde"};
 
 static struct SHD python_syntax = {
-    "Python", 0,
+    "Python",
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
@@ -381,7 +381,7 @@ static struct KWD sh_kwd[] = {
 static const char *sh_exts[] = {"sh", "zsh"};
 
 static struct SHD sh_syntax = {
-    "Shell", 0,
+    "Shell",
     sizeof sh_exts / sizeof *sh_exts, sh_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
@@ -462,7 +462,7 @@ static struct KWD rust_kwd[] = {
 static const char *rust_exts[] = {"rs"};
 
 static struct SHD rust_syntax = {
-    "Rust", 0,
+    "Rust",
     sizeof rust_exts / sizeof *rust_exts, rust_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof rust_kwd / sizeof *rust_kwd, rust_kwd, //Keywords
@@ -481,7 +481,7 @@ Default syntax
 */
 
 struct SHD default_syntax = {
-    "Default", 1,
+    "Default",
     0, NULL,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
     0, NULL,
