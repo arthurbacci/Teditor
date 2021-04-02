@@ -1,5 +1,4 @@
 #include "ted.h"
-
 #include "syntax.h"
 
 struct LINE *lines = NULL;

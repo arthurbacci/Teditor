@@ -86,7 +86,6 @@ void process_keypress(int c) {
         for (unsigned int i = 0; i < (unsigned int)(ccy % config.lines + config.lines) && cy > 0; i++)
             cy--;
         cursor_in_valid_position();
-        syntaxHighlight();
         break;
     } case KEY_NPAGE:
     {
@@ -94,7 +93,6 @@ void process_keypress(int c) {
         for (unsigned int i = 0; i < (unsigned int)(config.lines - (ccy % config.lines) - 1 + config.lines) && cy < num_lines - 1; i++)
             cy++;
         cursor_in_valid_position();
-        syntaxHighlight();
         break;
     } case KEY_MOUSE:
     {

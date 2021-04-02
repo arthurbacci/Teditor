@@ -90,7 +90,9 @@ char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
 void calculate_len_line_number(void);
 int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
+int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
+struct LINE blank_line(void);
 
 // extension.c
 bool detect_extension(char *fname);
@@ -119,6 +121,7 @@ Syntax Highlighting Descriptor
 */
 struct SHD {
     const char *name;
+    bool limited_scroll; // if set syntaxHighlight won't scroll over all the source
     unsigned int exts_len;
     const char **extensions;
     const char *word_separators;
@@ -129,11 +132,14 @@ struct SHD {
     unsigned char match_color;
     unsigned char number_color;
     unsigned char number_prefix_color;
+    unsigned char number_suffix_color;
     const char *stringchars;
     const char *singleline_comment;
     const char *multiline_comment[2];
     const char *match[2];
     const char *number_prefix[3]; // 0: hexadecimal 1: octal 2: binary
+    const char *number_suffixes;
+    const char *number_strings[4]; // 0: hexadecimal 1: octal 2: binary 3: decimal
 };
 
 struct BUFFER {
@@ -177,7 +183,10 @@ struct LINE {
     unsigned char *color;
     unsigned int length;
     unsigned int ident;
+    bool multiline_comment;
 };
+
+
 
 struct CURSOR {
     unsigned int x;
