@@ -1,5 +1,14 @@
 #include "syntax.h"
 
+// utility macros for the recurring color scheme
+#define KEYWORD_COLOR   COLOR(PALETTE_RED, PALETTE_OFF)
+#define OPERATOR_COLOR  COLOR(PALETTE_GREEN, PALETTE_OFF)
+#define TYPES_COLOR     COLOR(PALETTE_MAGENTA, PALETTE_OFF)
+#define MACRO_COLOR     COLOR(PALETTE_MAGENTA, PALETTE_OFF)
+#define PAREN_COLOR     COLOR(PALETTE_CYAN, PALETTE_OFF)
+#define LITERAL_COLOR   COLOR(PALETTE_YELLOW, PALETTE_OFF)
+#define STDLIB_COLOR    COLOR(PALETTE_CYAN, PALETTE_OFF)
+
 // U/u: unsigned L/l: long F/f: float (for fp numbers) .: trailing dot (for fp numbers)
 static const char c_cpp_number_suffixes[] = "UuLlFf.";
 
@@ -8,77 +17,77 @@ C syntax highlighting descriptor
 */
 
 static struct KWD c_kwd[] = {
-    KEYWORD("break", 0x10), KEYWORD("case", 0x10), KEYWORD("default", 0x10), // ansi c
-    KEYWORD("continue", 0x10), KEYWORD("while", 0x10), KEYWORD("enum", 0x10),
-    KEYWORD("do", 0x10), KEYWORD("else", 0x10), KEYWORD("extern", 0x10),
-    KEYWORD("for", 0x10), KEYWORD("goto", 0x10), KEYWORD("if", 0x10),
-    KEYWORD("return", 0x10), KEYWORD("sizeof", 0x10), KEYWORD("struct", 0x10),
-    KEYWORD("switch", 0x10), KEYWORD("typedef", 0x10), KEYWORD("union", 0x10),
-    KEYWORD("asm" , 0x10), KEYWORD("fortran" , 0x10),
+    KEYWORD("break", KEYWORD_COLOR), KEYWORD("case", KEYWORD_COLOR), KEYWORD("default", KEYWORD_COLOR), // ansi c
+    KEYWORD("continue", KEYWORD_COLOR), KEYWORD("while", KEYWORD_COLOR), KEYWORD("enum", KEYWORD_COLOR),
+    KEYWORD("do", KEYWORD_COLOR), KEYWORD("else", KEYWORD_COLOR), KEYWORD("extern", KEYWORD_COLOR),
+    KEYWORD("for", KEYWORD_COLOR), KEYWORD("goto", KEYWORD_COLOR), KEYWORD("if", KEYWORD_COLOR),
+    KEYWORD("return", KEYWORD_COLOR), KEYWORD("sizeof", KEYWORD_COLOR), KEYWORD("struct", KEYWORD_COLOR),
+    KEYWORD("switch", KEYWORD_COLOR), KEYWORD("typedef", KEYWORD_COLOR), KEYWORD("union", KEYWORD_COLOR),
+    KEYWORD("asm" , KEYWORD_COLOR), KEYWORD("fortran" , KEYWORD_COLOR),
 
-    KEYWORD("char", 0x40), KEYWORD("double", 0x40), KEYWORD("long", 0x40), // primitives
-    KEYWORD("short", 0x40), KEYWORD("int", 0x40), KEYWORD("void", 0x40),
-    KEYWORD("float", 0x40), KEYWORD("auto", 0x40), // auto is c11
+    KEYWORD("char", TYPES_COLOR), KEYWORD("double", TYPES_COLOR), KEYWORD("long", TYPES_COLOR), // primitives
+    KEYWORD("short", TYPES_COLOR), KEYWORD("int", TYPES_COLOR), KEYWORD("void", TYPES_COLOR),
+    KEYWORD("float", TYPES_COLOR), KEYWORD("auto", TYPES_COLOR), // auto is c11
     
-    KEYWORD("const", 0x40), KEYWORD("signed", 0x40), KEYWORD("unsigned", 0x40), //type modifiers
-    KEYWORD("inline", 0x40), KEYWORD("volatile", 0x40), KEYWORD("static", 0x40),
-    KEYWORD("restrict", 0x40), KEYWORD("register", 0x40),
+    KEYWORD("const", TYPES_COLOR), KEYWORD("signed", TYPES_COLOR), KEYWORD("unsigned", TYPES_COLOR), //type modifiers
+    KEYWORD("inline", TYPES_COLOR), KEYWORD("volatile", TYPES_COLOR), KEYWORD("static", TYPES_COLOR),
+    KEYWORD("restrict", TYPES_COLOR), KEYWORD("register", TYPES_COLOR),
 
-    KEYWORD("_Alignas", 0x40), KEYWORD("_Alignof", 0x40), // c11 and c99
-    KEYWORD("_Atomic", 0x40), KEYWORD("_Bool", 0x40), KEYWORD("_Complex", 0x40),
-    KEYWORD("_Decimal128", 0x40), KEYWORD("_Decimal32", 0x40), KEYWORD("_Decimal64", 0x40),
-    KEYWORD("_Generic", 0x40), KEYWORD("_Imaginary", 0x40), KEYWORD("_Noreturn", 0x40),
-    KEYWORD("_Static_assert", 0x40), KEYWORD("_Thread_local", 0x40),
+    KEYWORD("_Alignas", TYPES_COLOR), KEYWORD("_Alignof", TYPES_COLOR), // c11 and c99
+    KEYWORD("_Atomic", TYPES_COLOR), KEYWORD("_Bool", TYPES_COLOR), KEYWORD("_Complex", TYPES_COLOR),
+    KEYWORD("_Decimal128", TYPES_COLOR), KEYWORD("_Decimal32", TYPES_COLOR), KEYWORD("_Decimal64", TYPES_COLOR),
+    KEYWORD("_Generic", TYPES_COLOR), KEYWORD("_Imaginary", TYPES_COLOR), KEYWORD("_Noreturn", TYPES_COLOR),
+    KEYWORD("_Static_assert", TYPES_COLOR), KEYWORD("_Thread_local", TYPES_COLOR),
 
-    KEYWORD("bool", 0x10), KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), // stdlib macros/typedefs
-    KEYWORD("complex", 0x10), KEYWORD("imaginary", 0x10), KEYWORD("thread_local", 0x10),
-    KEYWORD("static_assert", 0x10), KEYWORD("assert", 0x10), KEYWORD("noreturn", 0x10),
-    KEYWORD("va_list", 0x40), KEYWORD("uintmax_t", 0x10), KEYWORD("intmax_t", 0x40),
-    KEYWORD("size_t", 0x40), KEYWORD("wchar_t", 0x40), KEYWORD("ptrdiff_t", 0x40),
-    KEYWORD("int8_t", 0x40), KEYWORD("int16_t", 0x40), KEYWORD("int32_t", 0x40),
-    KEYWORD("int64_t", 0x40), KEYWORD("uint8_t", 0x40), KEYWORD("uint16_t", 0x40),
-    KEYWORD("uint32_t", 0x40), KEYWORD("uint64_t", 0x40), KEYWORD("intptr_t", 0x40),
-    KEYWORD("uintptr_t", 0x40), KEYWORD("fexcept_t", 0x40), KEYWORD("fenv_t", 0x40),
-    KEYWORD("time_t", 0x40), KEYWORD("clock_t", 0x40), KEYWORD("imaxdiv_t", 0x40),
-    KEYWORD("ldiv_t", 0x40), KEYWORD("lldiv_t", 0x40), KEYWORD("div_t", 0x40),
-    KEYWORD("float_t", 0x40), KEYWORD("double_t", 0x40), KEYWORD("sig_atomic_t", 0x40),
-    KEYWORD("memory_order", 0x40), KEYWORD("atomic_flag", 0x40), KEYWORD("thrd_t", 0x40),
-    KEYWORD("mtx_t", 0x40), KEYWORD("thrd_start_t", 0x40), KEYWORD("cnd_t", 0x40),
-    KEYWORD("tss_t", 0x40), KEYWORD("tss_dtor_t", 0x40), KEYWORD("mbstate_t", 0x40),
-    KEYWORD("char16_t", 0x40), KEYWORD("char32_t", 0x40), KEYWORD("wint_t", 0x40),
-    KEYWORD("wctrans_t", 0x40), KEYWORD("wctype_t", 0x40),
+    KEYWORD("bool", MACRO_COLOR), KEYWORD("alignas", MACRO_COLOR), KEYWORD("alignof", MACRO_COLOR), // stdlib macros/typedefs
+    KEYWORD("complex", MACRO_COLOR), KEYWORD("imaginary", MACRO_COLOR), KEYWORD("thread_local", MACRO_COLOR),
+    KEYWORD("static_assert", MACRO_COLOR), KEYWORD("assert", MACRO_COLOR), KEYWORD("noreturn", MACRO_COLOR),
+    KEYWORD("va_list", TYPES_COLOR), KEYWORD("uintmax_t", TYPES_COLOR), KEYWORD("intmax_t", TYPES_COLOR),
+    KEYWORD("size_t", TYPES_COLOR), KEYWORD("wchar_t", TYPES_COLOR), KEYWORD("ptrdiff_t", TYPES_COLOR),
+    KEYWORD("int8_t", TYPES_COLOR), KEYWORD("int16_t", TYPES_COLOR), KEYWORD("int32_t", TYPES_COLOR),
+    KEYWORD("int64_t", TYPES_COLOR), KEYWORD("uint8_t", TYPES_COLOR), KEYWORD("uint16_t", TYPES_COLOR),
+    KEYWORD("uint32_t", TYPES_COLOR), KEYWORD("uint64_t", TYPES_COLOR), KEYWORD("intptr_t", TYPES_COLOR),
+    KEYWORD("uintptr_t", TYPES_COLOR), KEYWORD("fexcept_t", TYPES_COLOR), KEYWORD("fenv_t", TYPES_COLOR),
+    KEYWORD("time_t", TYPES_COLOR), KEYWORD("clock_t", TYPES_COLOR), KEYWORD("imaxdiv_t", TYPES_COLOR),
+    KEYWORD("ldiv_t", TYPES_COLOR), KEYWORD("lldiv_t", TYPES_COLOR), KEYWORD("div_t", TYPES_COLOR),
+    KEYWORD("float_t", TYPES_COLOR), KEYWORD("double_t", TYPES_COLOR), KEYWORD("sig_atomic_t", TYPES_COLOR),
+    KEYWORD("memory_order", TYPES_COLOR), KEYWORD("atomic_flag", TYPES_COLOR), KEYWORD("thrd_t", TYPES_COLOR),
+    KEYWORD("mtx_t", TYPES_COLOR), KEYWORD("thrd_start_t", TYPES_COLOR), KEYWORD("cnd_t", TYPES_COLOR),
+    KEYWORD("tss_t", TYPES_COLOR), KEYWORD("tss_dtor_t", TYPES_COLOR), KEYWORD("mbstate_t", TYPES_COLOR),
+    KEYWORD("char16_t", TYPES_COLOR), KEYWORD("char32_t", TYPES_COLOR), KEYWORD("wint_t", TYPES_COLOR),
+    KEYWORD("wctrans_t", TYPES_COLOR), KEYWORD("wctype_t", TYPES_COLOR),
 
-    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("NULL", 0x20), // stdlib constants/variables
-    KEYWORD("stdin", 0x20), KEYWORD("stdout", 0x20), KEYWORD("stderr", 0x20),
-    KEYWORD("errno", 0x20), KEYWORD("_Imaginary_I", 0x20), KEYWORD("_Complex_I", 0x20),
+    KEYWORD("false", STDLIB_COLOR), KEYWORD("true", STDLIB_COLOR), KEYWORD("NULL", STDLIB_COLOR), // stdlib constants/variables
+    KEYWORD("stdin", STDLIB_COLOR), KEYWORD("stdout", STDLIB_COLOR), KEYWORD("stderr", STDLIB_COLOR),
+    KEYWORD("errno", STDLIB_COLOR), KEYWORD("_Imaginary_I", STDLIB_COLOR), KEYWORD("_Complex_I", STDLIB_COLOR),
 
-    KEYWORD("defined", 0x10), KEYWORD("define", 0x10), KEYWORD("undef", 0x10), // preprocessor
-    KEYWORD("ifdef", 0x10), KEYWORD("ifndef", 0x10), KEYWORD("elif" , 0x10),
-    KEYWORD("endif" , 0x10), KEYWORD("line" , 0x10), KEYWORD("error" , 0x10),
-    KEYWORD("warning" , 0x10), KEYWORD("pragma" , 0x10), KEYWORD("_Pragma" , 0x10),
-    KEYWORD("include", 0x10), OPERATOR("#" , 0x10),
+    KEYWORD("defined", KEYWORD_COLOR), KEYWORD("define", KEYWORD_COLOR), KEYWORD("undef", KEYWORD_COLOR), // preprocessor
+    KEYWORD("ifdef", KEYWORD_COLOR), KEYWORD("ifndef", KEYWORD_COLOR), KEYWORD("elif" , KEYWORD_COLOR),
+    KEYWORD("endif" , KEYWORD_COLOR), KEYWORD("line" , KEYWORD_COLOR), KEYWORD("error" , KEYWORD_COLOR),
+    KEYWORD("warning" , KEYWORD_COLOR), KEYWORD("pragma" , KEYWORD_COLOR), KEYWORD("_Pragma" , KEYWORD_COLOR),
+    KEYWORD("include", KEYWORD_COLOR), OPERATOR("#" , KEYWORD_COLOR),
 
-    KEYWORD("<assert.h>", 0x60), KEYWORD("<complex.h>", 0x60), KEYWORD("<ctype.h>", 0x60), // stdlib headers
-    KEYWORD("<errno.h>", 0x60), KEYWORD("<fenv.h>", 0x60), KEYWORD("<float.h>", 0x60),
-    KEYWORD("<inttypes.h>", 0x60), KEYWORD("<iso646.h>", 0x60), KEYWORD("<limits.h>", 0x60),
-    KEYWORD("<locale.h>", 0x60), KEYWORD("<math.h>", 0x60), KEYWORD("<setjmp.h>", 0x60),
-    KEYWORD("<signal.h>", 0x60), KEYWORD("<stdalign.h>", 0x60), KEYWORD("<stdarg.h>", 0x60),
-    KEYWORD("<stdatomic.h>", 0x60), KEYWORD("<stdbool.h>", 0x60), KEYWORD("<stddef.h>", 0x60),
-    KEYWORD("<stdint.h>", 0x60), KEYWORD("<stdio.h>", 0x60), KEYWORD("<stdlib.h>", 0x60),
-    KEYWORD("<stdnoreturn.h>", 0x60), KEYWORD("<string.h>", 0x60), KEYWORD("<tgmath.h>", 0x60),
-    KEYWORD("<threads.h>", 0x60), KEYWORD("<time.h>", 0x60), KEYWORD("<uchar.h>", 0x60),
-    KEYWORD("<wchar.h>", 0x60), KEYWORD("<wctype.h>", 0x60),
+    KEYWORD("<assert.h>", LITERAL_COLOR), KEYWORD("<complex.h>", LITERAL_COLOR), KEYWORD("<ctype.h>", LITERAL_COLOR), // stdlib headers
+    KEYWORD("<errno.h>", LITERAL_COLOR), KEYWORD("<fenv.h>", LITERAL_COLOR), KEYWORD("<float.h>", LITERAL_COLOR),
+    KEYWORD("<inttypes.h>", LITERAL_COLOR), KEYWORD("<iso646.h>", LITERAL_COLOR), KEYWORD("<limits.h>", LITERAL_COLOR),
+    KEYWORD("<locale.h>", LITERAL_COLOR), KEYWORD("<math.h>", LITERAL_COLOR), KEYWORD("<setjmp.h>", LITERAL_COLOR),
+    KEYWORD("<signal.h>", LITERAL_COLOR), KEYWORD("<stdalign.h>", LITERAL_COLOR), KEYWORD("<stdarg.h>", LITERAL_COLOR),
+    KEYWORD("<stdatomic.h>", LITERAL_COLOR), KEYWORD("<stdbool.h>", LITERAL_COLOR), KEYWORD("<stddef.h>", LITERAL_COLOR),
+    KEYWORD("<stdint.h>", LITERAL_COLOR), KEYWORD("<stdio.h>", LITERAL_COLOR), KEYWORD("<stdlib.h>", LITERAL_COLOR),
+    KEYWORD("<stdnoreturn.h>", LITERAL_COLOR), KEYWORD("<string.h>", LITERAL_COLOR), KEYWORD("<tgmath.h>", LITERAL_COLOR),
+    KEYWORD("<threads.h>", LITERAL_COLOR), KEYWORD("<time.h>", LITERAL_COLOR), KEYWORD("<uchar.h>", LITERAL_COLOR),
+    KEYWORD("<wchar.h>", LITERAL_COLOR), KEYWORD("<wctype.h>", LITERAL_COLOR),
 
-    OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
-    OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
-    OPERATOR("%" , 0x30), OPERATOR("^" , 0x30), OPERATOR("&" , 0x30),
-    OPERATOR("~" , 0x30), OPERATOR("|" , 0x30), OPERATOR("!" , 0x30),
-    OPERATOR("<" , 0x30), OPERATOR(">" , 0x30), OPERATOR("=" , 0x30),
-    OPERATOR("?" , 0x30), OPERATOR(":" , 0x30), OPERATOR("." , 0x30),
+    OPERATOR("*" , OPERATOR_COLOR), OPERATOR("," , OPERATOR_COLOR), OPERATOR(";" , OPERATOR_COLOR),
+    OPERATOR("/" , OPERATOR_COLOR), OPERATOR("-" , OPERATOR_COLOR), OPERATOR("+" , OPERATOR_COLOR),
+    OPERATOR("%" , OPERATOR_COLOR), OPERATOR("^" , OPERATOR_COLOR), OPERATOR("&" , OPERATOR_COLOR),
+    OPERATOR("~" , OPERATOR_COLOR), OPERATOR("|" , OPERATOR_COLOR), OPERATOR("!" , OPERATOR_COLOR),
+    OPERATOR("<" , OPERATOR_COLOR), OPERATOR(">" , OPERATOR_COLOR), OPERATOR("=" , OPERATOR_COLOR),
+    OPERATOR("?" , OPERATOR_COLOR), OPERATOR(":" , OPERATOR_COLOR), OPERATOR("." , OPERATOR_COLOR),
     
-    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
-    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
-    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
+    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
+    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
+    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR),
 };
 
 static const char *c_exts[] = {"c", "h"};
@@ -88,7 +97,7 @@ static struct SHD c_syntax = {
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
-    0x60, 0x50, 0x05, 0x20, 0x50, 0x40,
+    LITERAL_COLOR, PAREN_COLOR, 0x05, LITERAL_COLOR, PAREN_COLOR, TYPES_COLOR,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
@@ -102,112 +111,112 @@ C++ syntax highlighting descriptor
 */
 
 static struct KWD cpp_kwd[] = {
-    KEYWORD("alignas", 0x10), KEYWORD("alignof", 0x10), KEYWORD("and", 0x10),
-    KEYWORD("and_eq", 0x10), KEYWORD("asm", 0x10), KEYWORD("catch", 0x10),
-    KEYWORD("bitand", 0x10), KEYWORD("bitor", 0x10), KEYWORD("compl", 0x10),
-    KEYWORD("break", 0x10), KEYWORD("case", 0x10), KEYWORD("class", 0x10),
-    KEYWORD("concept", 0x10), KEYWORD("const_cast", 0x10), KEYWORD("continue", 0x10),
-    KEYWORD("co_await", 0x10), KEYWORD("co_return", 0x10), KEYWORD("co_yield", 0x10),
-    KEYWORD("decltype", 0x10), KEYWORD("default", 0x10), KEYWORD("delete", 0x10),
-    KEYWORD("do", 0x10), KEYWORD("else", 0x10), KEYWORD("enum", 0x10),
-    KEYWORD("dynamic_cast", 0x10), KEYWORD("goto", 0x10), KEYWORD("if", 0x10),
-    KEYWORD("explicit", 0x10), KEYWORD("export", 0x10), KEYWORD("extern", 0x10),
-    KEYWORD("for", 0x10), KEYWORD("namespace", 0x10), KEYWORD("new", 0x10),
-    KEYWORD("noexcept", 0x10), KEYWORD("not", 0x10), KEYWORD("not_eq", 0x10),
-    KEYWORD("operator", 0x10), KEYWORD("or", 0x10), KEYWORD("sizeof", 0x10),
-    KEYWORD("or_eq", 0x10), KEYWORD("reinterpret_cast", 0x10), KEYWORD("requires", 0x10),
-    KEYWORD("return", 0x10), KEYWORD("static_assert", 0x10), KEYWORD("static_cast", 0x10),
-    KEYWORD("struct", 0x10), KEYWORD("switch", 0x10), KEYWORD("synchronized", 0x10),
-    KEYWORD("template", 0x10), KEYWORD("throw", 0x10), KEYWORD("try", 0x10),
-    KEYWORD("typedef", 0x10), KEYWORD("typeid", 0x10), KEYWORD("typename", 0x10),
-    KEYWORD("union", 0x10), KEYWORD("using", 0x10), KEYWORD("while", 0x10),
-    KEYWORD("xor_eq", 0x10), KEYWORD("transaction_safe_dynamic", 0x10), KEYWORD("final", 0x10),
-    KEYWORD("override", 0x10), KEYWORD("transaction_safe", 0x10), KEYWORD("xor", 0x10),
-    KEYWORD("this", 0x10),
+    KEYWORD("alignas", KEYWORD_COLOR), KEYWORD("alignof", KEYWORD_COLOR), KEYWORD("and", KEYWORD_COLOR),
+    KEYWORD("and_eq", KEYWORD_COLOR), KEYWORD("asm", KEYWORD_COLOR), KEYWORD("catch", KEYWORD_COLOR),
+    KEYWORD("bitand", KEYWORD_COLOR), KEYWORD("bitor", KEYWORD_COLOR), KEYWORD("compl", KEYWORD_COLOR),
+    KEYWORD("break", KEYWORD_COLOR), KEYWORD("case", KEYWORD_COLOR), KEYWORD("class", KEYWORD_COLOR),
+    KEYWORD("concept", KEYWORD_COLOR), KEYWORD("const_cast", KEYWORD_COLOR), KEYWORD("continue", KEYWORD_COLOR),
+    KEYWORD("co_await", KEYWORD_COLOR), KEYWORD("co_return", KEYWORD_COLOR), KEYWORD("co_yield", KEYWORD_COLOR),
+    KEYWORD("decltype", KEYWORD_COLOR), KEYWORD("default", KEYWORD_COLOR), KEYWORD("delete", KEYWORD_COLOR),
+    KEYWORD("do", KEYWORD_COLOR), KEYWORD("else", KEYWORD_COLOR), KEYWORD("enum", KEYWORD_COLOR),
+    KEYWORD("dynamic_cast", KEYWORD_COLOR), KEYWORD("goto", KEYWORD_COLOR), KEYWORD("if", KEYWORD_COLOR),
+    KEYWORD("explicit", KEYWORD_COLOR), KEYWORD("export", KEYWORD_COLOR), KEYWORD("extern", KEYWORD_COLOR),
+    KEYWORD("for", KEYWORD_COLOR), KEYWORD("namespace", KEYWORD_COLOR), KEYWORD("new", KEYWORD_COLOR),
+    KEYWORD("noexcept", KEYWORD_COLOR), KEYWORD("not", KEYWORD_COLOR), KEYWORD("not_eq", KEYWORD_COLOR),
+    KEYWORD("operator", KEYWORD_COLOR), KEYWORD("or", KEYWORD_COLOR), KEYWORD("sizeof", KEYWORD_COLOR),
+    KEYWORD("or_eq", KEYWORD_COLOR), KEYWORD("reinterpret_cast", KEYWORD_COLOR), KEYWORD("requires", KEYWORD_COLOR),
+    KEYWORD("return", KEYWORD_COLOR), KEYWORD("static_assert", KEYWORD_COLOR), KEYWORD("static_cast", KEYWORD_COLOR),
+    KEYWORD("struct", KEYWORD_COLOR), KEYWORD("switch", KEYWORD_COLOR), KEYWORD("synchronized", KEYWORD_COLOR),
+    KEYWORD("template", KEYWORD_COLOR), KEYWORD("throw", KEYWORD_COLOR), KEYWORD("try", KEYWORD_COLOR),
+    KEYWORD("typedef", KEYWORD_COLOR), KEYWORD("typeid", KEYWORD_COLOR), KEYWORD("typename", KEYWORD_COLOR),
+    KEYWORD("union", KEYWORD_COLOR), KEYWORD("using", KEYWORD_COLOR), KEYWORD("while", KEYWORD_COLOR),
+    KEYWORD("xor_eq", KEYWORD_COLOR), KEYWORD("transaction_safe_dynamic", KEYWORD_COLOR), KEYWORD("final", KEYWORD_COLOR),
+    KEYWORD("override", KEYWORD_COLOR), KEYWORD("transaction_safe", KEYWORD_COLOR), KEYWORD("xor", KEYWORD_COLOR),
+    KEYWORD("this", KEYWORD_COLOR),
 
-    KEYWORD("signed", 0x40), KEYWORD("unsigned", 0x40), KEYWORD("virtual", 0x40), // type modifiers
-    KEYWORD("volatile", 0x40), KEYWORD("friend", 0x40), KEYWORD("inline", 0x40),
-    KEYWORD("mutable", 0x40), KEYWORD("thread_local", 0x40), KEYWORD("atomic_cancel", 0x40),
-    KEYWORD("atomic_commit", 0x40), KEYWORD("atomic_noexcept", 0x40), KEYWORD("constinit", 0x40),
-    KEYWORD("const", 0x40), KEYWORD("consteval", 0x40), KEYWORD("constexpr", 0x40),
-    KEYWORD("private", 0x40), KEYWORD("protected", 0x40), KEYWORD("public", 0x40),
-    KEYWORD("reflexpr", 0x40), KEYWORD("register", 0x40), KEYWORD("static", 0x40),
+    KEYWORD("signed", TYPES_COLOR), KEYWORD("unsigned", TYPES_COLOR), KEYWORD("virtual", TYPES_COLOR), // type modifiers
+    KEYWORD("volatile", TYPES_COLOR), KEYWORD("friend", TYPES_COLOR), KEYWORD("inline", TYPES_COLOR),
+    KEYWORD("mutable", TYPES_COLOR), KEYWORD("thread_local", TYPES_COLOR), KEYWORD("atomic_cancel", TYPES_COLOR),
+    KEYWORD("atomic_commit", TYPES_COLOR), KEYWORD("atomic_noexcept", TYPES_COLOR), KEYWORD("constinit", TYPES_COLOR),
+    KEYWORD("const", TYPES_COLOR), KEYWORD("consteval", TYPES_COLOR), KEYWORD("constexpr", TYPES_COLOR),
+    KEYWORD("private", TYPES_COLOR), KEYWORD("protected", TYPES_COLOR), KEYWORD("public", TYPES_COLOR),
+    KEYWORD("reflexpr", TYPES_COLOR), KEYWORD("register", TYPES_COLOR), KEYWORD("static", TYPES_COLOR),
 
-    KEYWORD("char", 0x40), KEYWORD("char8_t", 0x40), KEYWORD("char16_t", 0x40), // primitives
-    KEYWORD("char32_t", 0x40), KEYWORD("int", 0x40), KEYWORD("long", 0x40),
-    KEYWORD("short", 0x40), KEYWORD("wchar_t", 0x40), KEYWORD("bool", 0x40),
-    KEYWORD("void", 0x40), KEYWORD("double", 0x40), KEYWORD("auto", 0x40),
-    KEYWORD("float", 0x40),
+    KEYWORD("char", TYPES_COLOR), KEYWORD("char8_t", TYPES_COLOR), KEYWORD("char16_t", TYPES_COLOR), // primitives
+    KEYWORD("char32_t", TYPES_COLOR), KEYWORD("int", TYPES_COLOR), KEYWORD("long", TYPES_COLOR),
+    KEYWORD("short", TYPES_COLOR), KEYWORD("wchar_t", TYPES_COLOR), KEYWORD("bool", TYPES_COLOR),
+    KEYWORD("void", TYPES_COLOR), KEYWORD("double", TYPES_COLOR), KEYWORD("auto", TYPES_COLOR),
+    KEYWORD("float", TYPES_COLOR),
     
-    KEYWORD("false", 0x20), KEYWORD("true", 0x20), KEYWORD("nullptr", 0x20), // literals
+    KEYWORD("false", LITERAL_COLOR), KEYWORD("true", LITERAL_COLOR), KEYWORD("nullptr", LITERAL_COLOR), // literals
 
-    KEYWORD("defined", 0x10), KEYWORD("define", 0x10), KEYWORD("undef", 0x10), // preprocessor
-    KEYWORD("ifdef", 0x10), KEYWORD("ifndef", 0x10), KEYWORD("elif" , 0x10),
-    KEYWORD("endif" , 0x10), KEYWORD("line" , 0x10), KEYWORD("error" , 0x10),
-    KEYWORD("warning" , 0x10), KEYWORD("pragma" , 0x10), KEYWORD("_Pragma" , 0x10),
-    KEYWORD("include", 0x10), OPERATOR("#" , 0x10),
-    KEYWORD("export" , 0x10), KEYWORD("import" , 0x10), KEYWORD("module", 0x10), // c++20 modules
+    KEYWORD("defined", KEYWORD_COLOR), KEYWORD("define", KEYWORD_COLOR), KEYWORD("undef", KEYWORD_COLOR), // preprocessor
+    KEYWORD("ifdef", KEYWORD_COLOR), KEYWORD("ifndef", KEYWORD_COLOR), KEYWORD("elif" , KEYWORD_COLOR),
+    KEYWORD("endif" , KEYWORD_COLOR), KEYWORD("line" , KEYWORD_COLOR), KEYWORD("error" , KEYWORD_COLOR),
+    KEYWORD("warning" , KEYWORD_COLOR), KEYWORD("pragma" , KEYWORD_COLOR), KEYWORD("_Pragma" , KEYWORD_COLOR),
+    KEYWORD("include", KEYWORD_COLOR), OPERATOR("#" , KEYWORD_COLOR),
+    KEYWORD("export" , KEYWORD_COLOR), KEYWORD("import" , KEYWORD_COLOR), KEYWORD("module", KEYWORD_COLOR), // c++20 modules
 
-    KEYWORD("<concepts>", 0x60), KEYWORD("<coroutine>", 0x60), KEYWORD("<cstdlib>", 0x60), // stdlib headers
-    KEYWORD("<csignal>", 0x60), KEYWORD("<csetjmp>", 0x60), KEYWORD("<cstdarg>", 0x60),
-    KEYWORD("<typeinfo>", 0x60), KEYWORD("<typeindex>", 0x60), KEYWORD("<type_traits>", 0x60),
-    KEYWORD("<bitset>", 0x60), KEYWORD("<functional>", 0x60), KEYWORD("<utility>", 0x60),
-    KEYWORD("<ctime>", 0x60), KEYWORD("<chrono>", 0x60), KEYWORD("<cstddef>", 0x60),
-    KEYWORD("<initializer_list>", 0x60), KEYWORD("<tuple>", 0x60), KEYWORD("<any>", 0x60),
-    KEYWORD("<optional>", 0x60), KEYWORD("<variant>", 0x60), KEYWORD("<compare>", 0x60),
-    KEYWORD("<version>", 0x60), KEYWORD("<source_location>", 0x60), KEYWORD("<new>", 0x60),
-    KEYWORD("<memory>", 0x60), KEYWORD("<scoped_allocator>", 0x60), KEYWORD("<memory_resource>", 0x60),
-    KEYWORD("<climits>", 0x60), KEYWORD("<cfloat>", 0x60), KEYWORD("<cstdint>", 0x60),
-    KEYWORD("<cinttypes>", 0x60), KEYWORD("<limits>", 0x60), KEYWORD("<exception>", 0x60),
-    KEYWORD("<stdexcept>", 0x60), KEYWORD("<cassert>", 0x60), KEYWORD("<system_error>", 0x60),
-    KEYWORD("<cerrno>", 0x60), KEYWORD("<cctype>", 0x60), KEYWORD("<cwctype>", 0x60),
-    KEYWORD("<cstring>", 0x60), KEYWORD("<cwchar>", 0x60), KEYWORD("<cuchar>", 0x60),
-    KEYWORD("<string>", 0x60), KEYWORD("<string_view>", 0x60), KEYWORD("<charconv>", 0x60),
-    KEYWORD("<format>", 0x60), KEYWORD("<array>", 0x60), KEYWORD("<vector>", 0x60),
-    KEYWORD("<deque>", 0x60), KEYWORD("<list>", 0x60), KEYWORD("<forward_list>", 0x60),
-    KEYWORD("<set>", 0x60), KEYWORD("<map>", 0x60), KEYWORD("<unordered_set>", 0x60),
-    KEYWORD("<unordered_map>", 0x60), KEYWORD("<stack>", 0x60), KEYWORD("<queue>", 0x60),
-    KEYWORD("<span>", 0x60), KEYWORD("<iterator>", 0x60), KEYWORD("<ranges>", 0x60),
-    KEYWORD("<algorithm>", 0x60), KEYWORD("<execution>", 0x60), KEYWORD("<cmath>", 0x60),
-    KEYWORD("<complex>", 0x60), KEYWORD("<valarray>", 0x60), KEYWORD("<random>", 0x60),
-    KEYWORD("<numeric>", 0x60), KEYWORD("<ratio>", 0x60), KEYWORD("<cfenv>", 0x60),
-    KEYWORD("<bit>", 0x60), KEYWORD("<numbers>", 0x60), KEYWORD("<locale>", 0x60),
-    KEYWORD("<clocale>", 0x60), KEYWORD("<codecvt>", 0x60), KEYWORD("<iosfwd>", 0x60),
-    KEYWORD("<ios>", 0x60), KEYWORD("<istream>", 0x60), KEYWORD("<ostream>", 0x60),
-    KEYWORD("<iostream>", 0x60), KEYWORD("<fstream>", 0x60), KEYWORD("<sstream>", 0x60),
-    KEYWORD("<syncstream>", 0x60), KEYWORD("<strstream>", 0x60), KEYWORD("<iomanip>", 0x60),
-    KEYWORD("<streambuf>", 0x60), KEYWORD("<cstdio>", 0x60), KEYWORD("<filesystem>", 0x60),
-    KEYWORD("<regex>", 0x60), KEYWORD("<atomic>", 0x60), KEYWORD("<thread>", 0x60),
-    KEYWORD("<stop_token>", 0x60), KEYWORD("<mutex>", 0x60), KEYWORD("<shared_mutex>", 0x60),
-    KEYWORD("<future>", 0x60), KEYWORD("<condition_variable>", 0x60), KEYWORD("<semaphore>", 0x60),
-    KEYWORD("<latch>", 0x60), KEYWORD("<barrier>", 0x60), KEYWORD("<cstdlib>", 0x60),
-    KEYWORD("<stdlib.h>", 0x60), KEYWORD("<assert.h>", 0x60), KEYWORD("<cassert>", 0x60),
-    KEYWORD("<ctype.h>", 0x60), KEYWORD("<cctype>", 0x60), KEYWORD("<errno.h>", 0x60),
-    KEYWORD("<cerrno>", 0x60), KEYWORD("<fenv.h>", 0x60), KEYWORD("<cfenv>", 0x60),
-    KEYWORD("<float.h>", 0x60), KEYWORD("<cfloat>", 0x60), KEYWORD("<inttypes.h>", 0x60),
-    KEYWORD("<cinttypes>", 0x60), KEYWORD("<limits.h>", 0x60), KEYWORD("<climits>", 0x60),
-    KEYWORD("<locale.h>", 0x60), KEYWORD("<clocale>", 0x60), KEYWORD("<math.h>", 0x60),
-    KEYWORD("<cmath>", 0x60), KEYWORD("<setjmp.h>", 0x60), KEYWORD("<csetjmp>", 0x60),
-    KEYWORD("<signal.h>", 0x60), KEYWORD("<csignal>", 0x60), KEYWORD("<stdarg.h>", 0x60),
-    KEYWORD("<cstdarg>", 0x60), KEYWORD("<stddef.h>", 0x60), KEYWORD("<cstddef>", 0x60),
-    KEYWORD("<stdint.h>", 0x60), KEYWORD("<cstdint>", 0x60), KEYWORD("<stdio.h>", 0x60),
-    KEYWORD("<cstdio>", 0x60), KEYWORD("<stdlib.h>", 0x60), KEYWORD("<cstdlib>", 0x60),
-    KEYWORD("<string.h>", 0x60), KEYWORD("<cstring>", 0x60), KEYWORD("<time.h>", 0x60),
-    KEYWORD("<ctime>", 0x60), KEYWORD("<uchar.h>", 0x60), KEYWORD("<cuchar>", 0x60),
-    KEYWORD("<wchar.h>", 0x60), KEYWORD("<cwchar>", 0x60), KEYWORD("<wctype.h>", 0x60),
-    KEYWORD("<cwctype>", 0x60), KEYWORD("<stdatomic.h>", 0x60), KEYWORD("<cstdatomic>", 0x60),
-    KEYWORD("std", 0x20), // stdlib namespace
+    KEYWORD("<concepts>", LITERAL_COLOR), KEYWORD("<coroutine>", LITERAL_COLOR), KEYWORD("<cstdlib>", LITERAL_COLOR), // stdlib headers
+    KEYWORD("<csignal>", LITERAL_COLOR), KEYWORD("<csetjmp>", LITERAL_COLOR), KEYWORD("<cstdarg>", LITERAL_COLOR),
+    KEYWORD("<typeinfo>", LITERAL_COLOR), KEYWORD("<typeindex>", LITERAL_COLOR), KEYWORD("<type_traits>", LITERAL_COLOR),
+    KEYWORD("<bitset>", LITERAL_COLOR), KEYWORD("<functional>", LITERAL_COLOR), KEYWORD("<utility>", LITERAL_COLOR),
+    KEYWORD("<ctime>", LITERAL_COLOR), KEYWORD("<chrono>", LITERAL_COLOR), KEYWORD("<cstddef>", LITERAL_COLOR),
+    KEYWORD("<initializer_list>", LITERAL_COLOR), KEYWORD("<tuple>", LITERAL_COLOR), KEYWORD("<any>", LITERAL_COLOR),
+    KEYWORD("<optional>", LITERAL_COLOR), KEYWORD("<variant>", LITERAL_COLOR), KEYWORD("<compare>", LITERAL_COLOR),
+    KEYWORD("<version>", LITERAL_COLOR), KEYWORD("<source_location>", LITERAL_COLOR), KEYWORD("<new>", LITERAL_COLOR),
+    KEYWORD("<memory>", LITERAL_COLOR), KEYWORD("<scoped_allocator>", LITERAL_COLOR), KEYWORD("<memory_resource>", LITERAL_COLOR),
+    KEYWORD("<climits>", LITERAL_COLOR), KEYWORD("<cfloat>", LITERAL_COLOR), KEYWORD("<cstdint>", LITERAL_COLOR),
+    KEYWORD("<cinttypes>", LITERAL_COLOR), KEYWORD("<limits>", LITERAL_COLOR), KEYWORD("<exception>", LITERAL_COLOR),
+    KEYWORD("<stdexcept>", LITERAL_COLOR), KEYWORD("<cassert>", LITERAL_COLOR), KEYWORD("<system_error>", LITERAL_COLOR),
+    KEYWORD("<cerrno>", LITERAL_COLOR), KEYWORD("<cctype>", LITERAL_COLOR), KEYWORD("<cwctype>", LITERAL_COLOR),
+    KEYWORD("<cstring>", LITERAL_COLOR), KEYWORD("<cwchar>", LITERAL_COLOR), KEYWORD("<cuchar>", LITERAL_COLOR),
+    KEYWORD("<string>", LITERAL_COLOR), KEYWORD("<string_view>", LITERAL_COLOR), KEYWORD("<charconv>", LITERAL_COLOR),
+    KEYWORD("<format>", LITERAL_COLOR), KEYWORD("<array>", LITERAL_COLOR), KEYWORD("<vector>", LITERAL_COLOR),
+    KEYWORD("<deque>", LITERAL_COLOR), KEYWORD("<list>", LITERAL_COLOR), KEYWORD("<forward_list>", LITERAL_COLOR),
+    KEYWORD("<set>", LITERAL_COLOR), KEYWORD("<map>", LITERAL_COLOR), KEYWORD("<unordered_set>", LITERAL_COLOR),
+    KEYWORD("<unordered_map>", LITERAL_COLOR), KEYWORD("<stack>", LITERAL_COLOR), KEYWORD("<queue>", LITERAL_COLOR),
+    KEYWORD("<span>", LITERAL_COLOR), KEYWORD("<iterator>", LITERAL_COLOR), KEYWORD("<ranges>", LITERAL_COLOR),
+    KEYWORD("<algorithm>", LITERAL_COLOR), KEYWORD("<execution>", LITERAL_COLOR), KEYWORD("<cmath>", LITERAL_COLOR),
+    KEYWORD("<complex>", LITERAL_COLOR), KEYWORD("<valarray>", LITERAL_COLOR), KEYWORD("<random>", LITERAL_COLOR),
+    KEYWORD("<numeric>", LITERAL_COLOR), KEYWORD("<ratio>", LITERAL_COLOR), KEYWORD("<cfenv>", LITERAL_COLOR),
+    KEYWORD("<bit>", LITERAL_COLOR), KEYWORD("<numbers>", LITERAL_COLOR), KEYWORD("<locale>", LITERAL_COLOR),
+    KEYWORD("<clocale>", LITERAL_COLOR), KEYWORD("<codecvt>", LITERAL_COLOR), KEYWORD("<iosfwd>", LITERAL_COLOR),
+    KEYWORD("<ios>", LITERAL_COLOR), KEYWORD("<istream>", LITERAL_COLOR), KEYWORD("<ostream>", LITERAL_COLOR),
+    KEYWORD("<iostream>", LITERAL_COLOR), KEYWORD("<fstream>", LITERAL_COLOR), KEYWORD("<sstream>", LITERAL_COLOR),
+    KEYWORD("<syncstream>", LITERAL_COLOR), KEYWORD("<strstream>", LITERAL_COLOR), KEYWORD("<iomanip>", LITERAL_COLOR),
+    KEYWORD("<streambuf>", LITERAL_COLOR), KEYWORD("<cstdio>", LITERAL_COLOR), KEYWORD("<filesystem>", LITERAL_COLOR),
+    KEYWORD("<regex>", LITERAL_COLOR), KEYWORD("<atomic>", LITERAL_COLOR), KEYWORD("<thread>", LITERAL_COLOR),
+    KEYWORD("<stop_token>", LITERAL_COLOR), KEYWORD("<mutex>", LITERAL_COLOR), KEYWORD("<shared_mutex>", LITERAL_COLOR),
+    KEYWORD("<future>", LITERAL_COLOR), KEYWORD("<condition_variable>", LITERAL_COLOR), KEYWORD("<semaphore>", LITERAL_COLOR),
+    KEYWORD("<latch>", LITERAL_COLOR), KEYWORD("<barrier>", LITERAL_COLOR), KEYWORD("<cstdlib>", LITERAL_COLOR),
+    KEYWORD("<stdlib.h>", LITERAL_COLOR), KEYWORD("<assert.h>", LITERAL_COLOR), KEYWORD("<cassert>", LITERAL_COLOR),
+    KEYWORD("<ctype.h>", LITERAL_COLOR), KEYWORD("<cctype>", LITERAL_COLOR), KEYWORD("<errno.h>", LITERAL_COLOR),
+    KEYWORD("<cerrno>", LITERAL_COLOR), KEYWORD("<fenv.h>", LITERAL_COLOR), KEYWORD("<cfenv>", LITERAL_COLOR),
+    KEYWORD("<float.h>", LITERAL_COLOR), KEYWORD("<cfloat>", LITERAL_COLOR), KEYWORD("<inttypes.h>", LITERAL_COLOR),
+    KEYWORD("<cinttypes>", LITERAL_COLOR), KEYWORD("<limits.h>", LITERAL_COLOR), KEYWORD("<climits>", LITERAL_COLOR),
+    KEYWORD("<locale.h>", LITERAL_COLOR), KEYWORD("<clocale>", LITERAL_COLOR), KEYWORD("<math.h>", LITERAL_COLOR),
+    KEYWORD("<cmath>", LITERAL_COLOR), KEYWORD("<setjmp.h>", LITERAL_COLOR), KEYWORD("<csetjmp>", LITERAL_COLOR),
+    KEYWORD("<signal.h>", LITERAL_COLOR), KEYWORD("<csignal>", LITERAL_COLOR), KEYWORD("<stdarg.h>", LITERAL_COLOR),
+    KEYWORD("<cstdarg>", LITERAL_COLOR), KEYWORD("<stddef.h>", LITERAL_COLOR), KEYWORD("<cstddef>", LITERAL_COLOR),
+    KEYWORD("<stdint.h>", LITERAL_COLOR), KEYWORD("<cstdint>", LITERAL_COLOR), KEYWORD("<stdio.h>", LITERAL_COLOR),
+    KEYWORD("<cstdio>", LITERAL_COLOR), KEYWORD("<stdlib.h>", LITERAL_COLOR), KEYWORD("<cstdlib>", LITERAL_COLOR),
+    KEYWORD("<string.h>", LITERAL_COLOR), KEYWORD("<cstring>", LITERAL_COLOR), KEYWORD("<time.h>", LITERAL_COLOR),
+    KEYWORD("<ctime>", LITERAL_COLOR), KEYWORD("<uchar.h>", LITERAL_COLOR), KEYWORD("<cuchar>", LITERAL_COLOR),
+    KEYWORD("<wchar.h>", LITERAL_COLOR), KEYWORD("<cwchar>", LITERAL_COLOR), KEYWORD("<wctype.h>", LITERAL_COLOR),
+    KEYWORD("<cwctype>", LITERAL_COLOR), KEYWORD("<stdatomic.h>", LITERAL_COLOR), KEYWORD("<cstdatomic>", LITERAL_COLOR),
+    KEYWORD("std", STDLIB_COLOR), // stdlib namespace
 
-    OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
-    OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
-    OPERATOR("%" , 0x30), OPERATOR("^" , 0x30), OPERATOR("&" , 0x30),
-    OPERATOR("~" , 0x30), OPERATOR("|" , 0x30), OPERATOR("!" , 0x30),
-    OPERATOR("<" , 0x30), OPERATOR(">" , 0x30), OPERATOR("=" , 0x30),
-    OPERATOR("?" , 0x30), OPERATOR(":" , 0x30), OPERATOR("." , 0x30),
+    OPERATOR("*" , OPERATOR_COLOR), OPERATOR("," , OPERATOR_COLOR), OPERATOR(";" , OPERATOR_COLOR),
+    OPERATOR("/" , OPERATOR_COLOR), OPERATOR("-" , OPERATOR_COLOR), OPERATOR("+" , OPERATOR_COLOR),
+    OPERATOR("%" , OPERATOR_COLOR), OPERATOR("^" , OPERATOR_COLOR), OPERATOR("&" , OPERATOR_COLOR),
+    OPERATOR("~" , OPERATOR_COLOR), OPERATOR("|" , OPERATOR_COLOR), OPERATOR("!" , OPERATOR_COLOR),
+    OPERATOR("<" , OPERATOR_COLOR), OPERATOR(">" , OPERATOR_COLOR), OPERATOR("=" , OPERATOR_COLOR),
+    OPERATOR("?" , OPERATOR_COLOR), OPERATOR(":" , OPERATOR_COLOR), OPERATOR("." , OPERATOR_COLOR),
     
-    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
-    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
-    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
+    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
+    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
+    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR),
 };
 
 static const char *cpp_exts[] = {"cpp", "hpp", "cc", "hh"};
@@ -217,7 +226,7 @@ static struct SHD cpp_syntax = {
     sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
-    0x60, 0x50, 0x05, 0x20, 0x50, 0x40,
+    LITERAL_COLOR, PAREN_COLOR, 0x05, 0x20, PAREN_COLOR, TYPES_COLOR,
     "\"\'", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
@@ -231,80 +240,80 @@ Python syntax highlighting descriptor
 */
 
 static struct KWD python_kwd[] = {
-    KEYWORD("await", 0x10), KEYWORD("else", 0x10), KEYWORD("import", 0x10),
-    KEYWORD("pass", 0x10), KEYWORD("break", 0x10), KEYWORD("except", 0x10),
-    KEYWORD("in", 0x10), KEYWORD("raise", 0x10), KEYWORD("class", 0x10),
-    KEYWORD("finally", 0x10), KEYWORD("is", 0x10), KEYWORD("return", 0x10),
-    KEYWORD("and", 0x10), KEYWORD("continue", 0x10), KEYWORD("for", 0x10),
-    KEYWORD("lambda", 0x10), KEYWORD("try", 0x10), KEYWORD("as", 0x10),
-    KEYWORD("def", 0x10), KEYWORD("from", 0x10), KEYWORD("nonlocal", 0x10),
-    KEYWORD("while", 0x10), KEYWORD("assert", 0x10), KEYWORD("del", 0x10),
-    KEYWORD("global", 0x10), KEYWORD("not", 0x10), KEYWORD("with", 0x10),
-    KEYWORD("async", 0x10), KEYWORD("elif", 0x10), KEYWORD("if", 0x10),
-    KEYWORD("or", 0x10), KEYWORD("yield", 0x10),
+    KEYWORD("await", KEYWORD_COLOR), KEYWORD("else", KEYWORD_COLOR), KEYWORD("import", KEYWORD_COLOR),
+    KEYWORD("pass", KEYWORD_COLOR), KEYWORD("break", KEYWORD_COLOR), KEYWORD("except", KEYWORD_COLOR),
+    KEYWORD("in", KEYWORD_COLOR), KEYWORD("raise", KEYWORD_COLOR), KEYWORD("class", KEYWORD_COLOR),
+    KEYWORD("finally", KEYWORD_COLOR), KEYWORD("is", KEYWORD_COLOR), KEYWORD("return", KEYWORD_COLOR),
+    KEYWORD("and", KEYWORD_COLOR), KEYWORD("continue", KEYWORD_COLOR), KEYWORD("for", KEYWORD_COLOR),
+    KEYWORD("lambda", KEYWORD_COLOR), KEYWORD("try", KEYWORD_COLOR), KEYWORD("as", KEYWORD_COLOR),
+    KEYWORD("def", KEYWORD_COLOR), KEYWORD("from", KEYWORD_COLOR), KEYWORD("nonlocal", KEYWORD_COLOR),
+    KEYWORD("while", KEYWORD_COLOR), KEYWORD("assert", KEYWORD_COLOR), KEYWORD("del", KEYWORD_COLOR),
+    KEYWORD("global", KEYWORD_COLOR), KEYWORD("not", KEYWORD_COLOR), KEYWORD("with", KEYWORD_COLOR),
+    KEYWORD("async", KEYWORD_COLOR), KEYWORD("elif", KEYWORD_COLOR), KEYWORD("if", KEYWORD_COLOR),
+    KEYWORD("or", KEYWORD_COLOR), KEYWORD("yield", KEYWORD_COLOR),
 
-    KEYWORD("abs", 0x20), KEYWORD("all", 0x20), KEYWORD("any", 0x20), // builtins
-    KEYWORD("ascii", 0x20), KEYWORD("bin", 0x20), KEYWORD("isinstance", 0x20),
-    KEYWORD("breakpoint", 0x20), KEYWORD("bytearray", 0x20), KEYWORD("bytes", 0x20),
-    KEYWORD("callable", 0x20), KEYWORD("chr", 0x20), KEYWORD("classmethod", 0x20),
-    KEYWORD("compile", 0x20), KEYWORD("complex", 0x20), KEYWORD("copyright", 0x20),
-    KEYWORD("credits", 0x20), KEYWORD("delattr", 0x20), KEYWORD("dict", 0x20),
-    KEYWORD("dir", 0x20), KEYWORD("divmod", 0x20), KEYWORD("enumerate", 0x20),
-    KEYWORD("eval", 0x20), KEYWORD("exec", 0x20), KEYWORD("exit", 0x20),
-    KEYWORD("filter", 0x20), KEYWORD("format", 0x20), KEYWORD("frozenset", 0x20),
-    KEYWORD("getattr", 0x20), KEYWORD("globals", 0x20), KEYWORD("issubclass", 0x20),
-    KEYWORD("hasattr", 0x20), KEYWORD("hash", 0x20), KEYWORD("help", 0x20),
-    KEYWORD("hex", 0x20), KEYWORD("id", 0x20), KEYWORD("input", 0x20),
-    KEYWORD("iter", 0x20), KEYWORD("len", 0x20), KEYWORD("license", 0x20),
-    KEYWORD("list", 0x20), KEYWORD("locals", 0x20), KEYWORD("map", 0x20),
-    KEYWORD("max", 0x20), KEYWORD("memoryview", 0x20), KEYWORD("min", 0x20),
-    KEYWORD("next", 0x20), KEYWORD("object", 0x20), KEYWORD("oct", 0x20),
-    KEYWORD("open", 0x20), KEYWORD("ord", 0x20), KEYWORD("pow", 0x20),
-    KEYWORD("print", 0x20), KEYWORD("property", 0x20), KEYWORD("quit", 0x20),
-    KEYWORD("range", 0x20), KEYWORD("repr", 0x20), KEYWORD("reversed", 0x20),
-    KEYWORD("round", 0x20), KEYWORD("set", 0x20), KEYWORD("setattr", 0x20),
-    KEYWORD("slice", 0x20), KEYWORD("sorted", 0x20), KEYWORD("staticmethod", 0x20),
-    KEYWORD("str", 0x20), KEYWORD("sum", 0x20), KEYWORD("super", 0x20),
-    KEYWORD("tuple", 0x20), KEYWORD("type", 0x20), KEYWORD("vars", 0x20),
-    KEYWORD("zip", 0x20),
+    KEYWORD("abs", STDLIB_COLOR), KEYWORD("all", STDLIB_COLOR), KEYWORD("any", STDLIB_COLOR), // builtins
+    KEYWORD("ascii", STDLIB_COLOR), KEYWORD("bin", STDLIB_COLOR), KEYWORD("isinstance", STDLIB_COLOR),
+    KEYWORD("breakpoint", STDLIB_COLOR), KEYWORD("bytearray", STDLIB_COLOR), KEYWORD("bytes", STDLIB_COLOR),
+    KEYWORD("callable", STDLIB_COLOR), KEYWORD("chr", STDLIB_COLOR), KEYWORD("classmethod", STDLIB_COLOR),
+    KEYWORD("compile", STDLIB_COLOR), KEYWORD("complex", STDLIB_COLOR), KEYWORD("copyright", STDLIB_COLOR),
+    KEYWORD("credits", STDLIB_COLOR), KEYWORD("delattr", STDLIB_COLOR), KEYWORD("dict", STDLIB_COLOR),
+    KEYWORD("dir", STDLIB_COLOR), KEYWORD("divmod", STDLIB_COLOR), KEYWORD("enumerate", STDLIB_COLOR),
+    KEYWORD("eval", STDLIB_COLOR), KEYWORD("exec", STDLIB_COLOR), KEYWORD("exit", STDLIB_COLOR),
+    KEYWORD("filter", STDLIB_COLOR), KEYWORD("format", STDLIB_COLOR), KEYWORD("frozenset", STDLIB_COLOR),
+    KEYWORD("getattr", STDLIB_COLOR), KEYWORD("globals", STDLIB_COLOR), KEYWORD("issubclass", STDLIB_COLOR),
+    KEYWORD("hasattr", STDLIB_COLOR), KEYWORD("hash", STDLIB_COLOR), KEYWORD("help", STDLIB_COLOR),
+    KEYWORD("hex", STDLIB_COLOR), KEYWORD("id", STDLIB_COLOR), KEYWORD("input", STDLIB_COLOR),
+    KEYWORD("iter", STDLIB_COLOR), KEYWORD("len", STDLIB_COLOR), KEYWORD("license", STDLIB_COLOR),
+    KEYWORD("list", STDLIB_COLOR), KEYWORD("locals", STDLIB_COLOR), KEYWORD("map", STDLIB_COLOR),
+    KEYWORD("max", STDLIB_COLOR), KEYWORD("memoryview", STDLIB_COLOR), KEYWORD("min", STDLIB_COLOR),
+    KEYWORD("next", STDLIB_COLOR), KEYWORD("object", STDLIB_COLOR), KEYWORD("oct", STDLIB_COLOR),
+    KEYWORD("open", STDLIB_COLOR), KEYWORD("ord", STDLIB_COLOR), KEYWORD("pow", STDLIB_COLOR),
+    KEYWORD("print", STDLIB_COLOR), KEYWORD("property", STDLIB_COLOR), KEYWORD("quit", STDLIB_COLOR),
+    KEYWORD("range", STDLIB_COLOR), KEYWORD("repr", STDLIB_COLOR), KEYWORD("reversed", STDLIB_COLOR),
+    KEYWORD("round", STDLIB_COLOR), KEYWORD("set", STDLIB_COLOR), KEYWORD("setattr", STDLIB_COLOR),
+    KEYWORD("slice", STDLIB_COLOR), KEYWORD("sorted", STDLIB_COLOR), KEYWORD("staticmethod", STDLIB_COLOR),
+    KEYWORD("str", STDLIB_COLOR), KEYWORD("sum", STDLIB_COLOR), KEYWORD("super", STDLIB_COLOR),
+    KEYWORD("tuple", STDLIB_COLOR), KEYWORD("type", STDLIB_COLOR), KEYWORD("vars", STDLIB_COLOR),
+    KEYWORD("zip", STDLIB_COLOR),
 
-    KEYWORD("False", 0x40), KEYWORD("None", 0x40), KEYWORD("True", 0x40), // builtin types
-    KEYWORD("bool", 0x40), KEYWORD("int", 0x40), KEYWORD("float", 0x40),
-    KEYWORD("ArithmeticError", 0x40), KEYWORD("AssertionError", 0x40), KEYWORD("AttributeError", 0x40),
-    KEYWORD("BaseException", 0x40), KEYWORD("BlockingIOError", 0x40), KEYWORD("BrokenPipeError", 0x40),
-    KEYWORD("BufferError", 0x40), KEYWORD("BytesWarning", 0x40), KEYWORD("ChildProcessError", 0x40),
-    KEYWORD("ConnectionAbortedError", 0x40), KEYWORD("ConnectionError", 0x40), KEYWORD("ConnectionRefusedError", 0x40),
-    KEYWORD("ConnectionResetError", 0x40), KEYWORD("DeprecationWarning", 0x40), KEYWORD("EOFError", 0x40),
-    KEYWORD("Ellipsis", 0x40), KEYWORD("EnvironmentError", 0x40), KEYWORD("Exception", 0x40),
-    KEYWORD("False", 0x40), KEYWORD("FileExistsError", 0x40), KEYWORD("FileNotFoundError", 0x40),
-    KEYWORD("FloatingPointError", 0x40), KEYWORD("FutureWarning", 0x40), KEYWORD("GeneratorExit", 0x40),
-    KEYWORD("IOError", 0x40), KEYWORD("ImportError", 0x40), KEYWORD("ImportWarning", 0x40),
-    KEYWORD("IndentationError", 0x40), KEYWORD("IndexError", 0x40), KEYWORD("InterruptedError", 0x40),
-    KEYWORD("IsADirectoryError", 0x40), KEYWORD("KeyError", 0x40), KEYWORD("KeyboardInterrupt", 0x40),
-    KEYWORD("LookupError", 0x40), KEYWORD("MemoryError", 0x40), KEYWORD("ModuleNotFoundError", 0x40),
-    KEYWORD("NameError", 0x40), KEYWORD("None", 0x40), KEYWORD("NotADirectoryError", 0x40),
-    KEYWORD("NotImplemented", 0x40), KEYWORD("NotImplementedError", 0x40), KEYWORD("OSError", 0x40),
-    KEYWORD("OverflowError", 0x40), KEYWORD("PendingDeprecationWarning", 0x40), KEYWORD("PermissionError", 0x40),
-    KEYWORD("ProcessLookupError", 0x40), KEYWORD("RecursionError", 0x40), KEYWORD("ReferenceError", 0x40),
-    KEYWORD("ResourceWarning", 0x40), KEYWORD("RuntimeError", 0x40), KEYWORD("RuntimeWarning", 0x40),
-    KEYWORD("StopAsyncIteration", 0x40), KEYWORD("StopIteration", 0x40), KEYWORD("SyntaxError", 0x40),
-    KEYWORD("SyntaxWarning", 0x40), KEYWORD("SystemError", 0x40), KEYWORD("SystemExit", 0x40),
-    KEYWORD("TabError", 0x40), KEYWORD("TimeoutError", 0x40), KEYWORD("True", 0x40),
-    KEYWORD("TypeError", 0x40), KEYWORD("UnboundLocalError", 0x40), KEYWORD("UnicodeDecodeError", 0x40),
-    KEYWORD("UnicodeEncodeError", 0x40), KEYWORD("UnicodeError", 0x40), KEYWORD("UnicodeTranslateError", 0x40),
-    KEYWORD("UnicodeWarning", 0x40), KEYWORD("UserWarning", 0x40), KEYWORD("ValueError", 0x40),
-    KEYWORD("Warning", 0x40), KEYWORD("ZeroDivisionError", 0x40),
+    KEYWORD("False", TYPES_COLOR), KEYWORD("None", TYPES_COLOR), KEYWORD("True", TYPES_COLOR), // builtin types
+    KEYWORD("bool", TYPES_COLOR), KEYWORD("int", TYPES_COLOR), KEYWORD("float", TYPES_COLOR),
+    KEYWORD("ArithmeticError", TYPES_COLOR), KEYWORD("AssertionError", TYPES_COLOR), KEYWORD("AttributeError", TYPES_COLOR),
+    KEYWORD("BaseException", TYPES_COLOR), KEYWORD("BlockingIOError", TYPES_COLOR), KEYWORD("BrokenPipeError", TYPES_COLOR),
+    KEYWORD("BufferError", TYPES_COLOR), KEYWORD("BytesWarning", TYPES_COLOR), KEYWORD("ChildProcessError", TYPES_COLOR),
+    KEYWORD("ConnectionAbortedError", TYPES_COLOR), KEYWORD("ConnectionError", TYPES_COLOR), KEYWORD("ConnectionRefusedError", TYPES_COLOR),
+    KEYWORD("ConnectionResetError", TYPES_COLOR), KEYWORD("DeprecationWarning", TYPES_COLOR), KEYWORD("EOFError", TYPES_COLOR),
+    KEYWORD("Ellipsis", TYPES_COLOR), KEYWORD("EnvironmentError", TYPES_COLOR), KEYWORD("Exception", TYPES_COLOR),
+    KEYWORD("False", TYPES_COLOR), KEYWORD("FileExistsError", TYPES_COLOR), KEYWORD("FileNotFoundError", TYPES_COLOR),
+    KEYWORD("FloatingPointError", TYPES_COLOR), KEYWORD("FutureWarning", TYPES_COLOR), KEYWORD("GeneratorExit", TYPES_COLOR),
+    KEYWORD("IOError", TYPES_COLOR), KEYWORD("ImportError", TYPES_COLOR), KEYWORD("ImportWarning", TYPES_COLOR),
+    KEYWORD("IndentationError", TYPES_COLOR), KEYWORD("IndexError", TYPES_COLOR), KEYWORD("InterruptedError", TYPES_COLOR),
+    KEYWORD("IsADirectoryError", TYPES_COLOR), KEYWORD("KeyError", TYPES_COLOR), KEYWORD("KeyboardInterrupt", TYPES_COLOR),
+    KEYWORD("LookupError", TYPES_COLOR), KEYWORD("MemoryError", TYPES_COLOR), KEYWORD("ModuleNotFoundError", TYPES_COLOR),
+    KEYWORD("NameError", TYPES_COLOR), KEYWORD("None", TYPES_COLOR), KEYWORD("NotADirectoryError", TYPES_COLOR),
+    KEYWORD("NotImplemented", TYPES_COLOR), KEYWORD("NotImplementedError", TYPES_COLOR), KEYWORD("OSError", TYPES_COLOR),
+    KEYWORD("OverflowError", TYPES_COLOR), KEYWORD("PendingDeprecationWarning", TYPES_COLOR), KEYWORD("PermissionError", TYPES_COLOR),
+    KEYWORD("ProcessLookupError", TYPES_COLOR), KEYWORD("RecursionError", TYPES_COLOR), KEYWORD("ReferenceError", TYPES_COLOR),
+    KEYWORD("ResourceWarning", TYPES_COLOR), KEYWORD("RuntimeError", TYPES_COLOR), KEYWORD("RuntimeWarning", TYPES_COLOR),
+    KEYWORD("StopAsyncIteration", TYPES_COLOR), KEYWORD("StopIteration", TYPES_COLOR), KEYWORD("SyntaxError", TYPES_COLOR),
+    KEYWORD("SyntaxWarning", TYPES_COLOR), KEYWORD("SystemError", TYPES_COLOR), KEYWORD("SystemExit", TYPES_COLOR),
+    KEYWORD("TabError", TYPES_COLOR), KEYWORD("TimeoutError", TYPES_COLOR), KEYWORD("True", TYPES_COLOR),
+    KEYWORD("TypeError", TYPES_COLOR), KEYWORD("UnboundLocalError", TYPES_COLOR), KEYWORD("UnicodeDecodeError", TYPES_COLOR),
+    KEYWORD("UnicodeEncodeError", TYPES_COLOR), KEYWORD("UnicodeError", TYPES_COLOR), KEYWORD("UnicodeTranslateError", TYPES_COLOR),
+    KEYWORD("UnicodeWarning", TYPES_COLOR), KEYWORD("UserWarning", TYPES_COLOR), KEYWORD("ValueError", TYPES_COLOR),
+    KEYWORD("Warning", TYPES_COLOR), KEYWORD("ZeroDivisionError", TYPES_COLOR),
 
-    OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
-    OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
-    OPERATOR("%" , 0x30), OPERATOR("^" , 0x30), OPERATOR("&" , 0x30),
-    OPERATOR("~" , 0x30), OPERATOR("|" , 0x30), OPERATOR("!" , 0x30),
-    OPERATOR("<" , 0x30), OPERATOR(">" , 0x30), OPERATOR("=" , 0x30),
-    OPERATOR(":" , 0x30), OPERATOR("." , 0x30), OPERATOR("\\" , 0x30),
+    OPERATOR("*" , OPERATOR_COLOR), OPERATOR("," , OPERATOR_COLOR), OPERATOR(";" , OPERATOR_COLOR),
+    OPERATOR("/" , OPERATOR_COLOR), OPERATOR("-" , OPERATOR_COLOR), OPERATOR("+" , OPERATOR_COLOR),
+    OPERATOR("%" , OPERATOR_COLOR), OPERATOR("^" , OPERATOR_COLOR), OPERATOR("&" , OPERATOR_COLOR),
+    OPERATOR("~" , OPERATOR_COLOR), OPERATOR("|" , OPERATOR_COLOR), OPERATOR("!" , OPERATOR_COLOR),
+    OPERATOR("<" , OPERATOR_COLOR), OPERATOR(">" , OPERATOR_COLOR), OPERATOR("=" , OPERATOR_COLOR),
+    OPERATOR(":" , OPERATOR_COLOR), OPERATOR("." , OPERATOR_COLOR), OPERATOR("\\" , OPERATOR_COLOR),
 
-    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
-    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
-    OPERATOR("[", 0x50), OPERATOR("]", 0x50)
+    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
+    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
+    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR)
 };
 
 static const char *python_exts[] = {"py", "py3", "pyx", "pyw", "pyd", "pyde"};
@@ -314,7 +323,7 @@ static struct SHD python_syntax = {
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
-    0x40, 0x50, 0x05, 0x20, 0x50, 0x40,
+    TYPES_COLOR, PAREN_COLOR, 0x05, 0x20, PAREN_COLOR, TYPES_COLOR,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
@@ -328,42 +337,42 @@ Shell syntax highlighting descriptor
 */
 
 static struct KWD sh_kwd[] = {
-    KEYWORD("if", 0x10), KEYWORD("then", 0x10), KEYWORD("else", 0x10),
-    KEYWORD("fi", 0x10), KEYWORD("while", 0x10), KEYWORD("for", 0x10),
-    KEYWORD("do", 0x10), KEYWORD("done", 0x10), KEYWORD("break", 0x10),
-    KEYWORD("continue", 0x10), KEYWORD("return", 0x10), KEYWORD("in", 0x10),
-    KEYWORD("case", 0x10), KEYWORD("esac", 0x10), KEYWORD("until", 0x10),
-    KEYWORD("function", 0x10), KEYWORD("elif", 0x10),
+    KEYWORD("if", KEYWORD_COLOR), KEYWORD("then", KEYWORD_COLOR), KEYWORD("else", KEYWORD_COLOR),
+    KEYWORD("fi", KEYWORD_COLOR), KEYWORD("while", KEYWORD_COLOR), KEYWORD("for", KEYWORD_COLOR),
+    KEYWORD("do", KEYWORD_COLOR), KEYWORD("done", KEYWORD_COLOR), KEYWORD("break", KEYWORD_COLOR),
+    KEYWORD("continue", KEYWORD_COLOR), KEYWORD("return", KEYWORD_COLOR), KEYWORD("in", KEYWORD_COLOR),
+    KEYWORD("case", KEYWORD_COLOR), KEYWORD("esac", KEYWORD_COLOR), KEYWORD("until", KEYWORD_COLOR),
+    KEYWORD("function", KEYWORD_COLOR), KEYWORD("elif", KEYWORD_COLOR),
 
-    KEYWORD("$?", 0x40), KEYWORD("~", 0x40), KEYWORD(".", 0x40), // special
+    KEYWORD("$?", TYPES_COLOR), KEYWORD("~", TYPES_COLOR), KEYWORD(".", TYPES_COLOR), // special
 
-    KEYWORD("alias", 0x20), KEYWORD("bg", 0x20), KEYWORD("bind", 0x20), //builtins
-    KEYWORD("builtin", 0x20), KEYWORD("cd", 0x20), KEYWORD("command", 0x20),
-    KEYWORD("continue", 0x20), KEYWORD("declare", 0x20), KEYWORD("dirs", 0x20),
-    KEYWORD("disown", 0x20), KEYWORD("echo", 0x20), KEYWORD("enable", 0x20),
-    KEYWORD("eval", 0x20), KEYWORD("exec", 0x20), KEYWORD("exit", 0x20),
-    KEYWORD("export", 0x20), KEYWORD("false", 0x20), KEYWORD("fc", 0x20),
-    KEYWORD("fg", 0x20), KEYWORD("getopts", 0x20), KEYWORD("hash", 0x20),
-    KEYWORD("help", 0x20), KEYWORD("history", 0x20), KEYWORD("jobs", 0x20),
-    KEYWORD("kill", 0x20), KEYWORD("let", 0x20), KEYWORD("local", 0x20),
-    KEYWORD("logout", 0x20), KEYWORD("popd", 0x20), KEYWORD("pushd", 0x20),
-    KEYWORD("printf", 0x20), KEYWORD("pwd", 0x20), KEYWORD("read", 0x20),
-    KEYWORD("readarray", 0x20), KEYWORD("readonly", 0x20), KEYWORD("set", 0x20),
-    KEYWORD("shift", 0x20), KEYWORD("source", 0x20), KEYWORD("suspend", 0x20),
-    KEYWORD("test", 0x20), KEYWORD("times", 0x20), KEYWORD("time", 0x20),
-    KEYWORD("trap", 0x20), KEYWORD("true", 0x20), KEYWORD("type", 0x20),
-    KEYWORD("ulimit", 0x20), KEYWORD("umask", 0x20), KEYWORD("unalias", 0x20),
-    KEYWORD("unset", 0x20), KEYWORD("wait", 0x20), KEYWORD("shopt", 0x20),
+    KEYWORD("alias", STDLIB_COLOR), KEYWORD("bg", STDLIB_COLOR), KEYWORD("bind", STDLIB_COLOR), //builtins
+    KEYWORD("builtin", STDLIB_COLOR), KEYWORD("cd", STDLIB_COLOR), KEYWORD("command", STDLIB_COLOR),
+    KEYWORD("continue", STDLIB_COLOR), KEYWORD("declare", STDLIB_COLOR), KEYWORD("dirs", STDLIB_COLOR),
+    KEYWORD("disown", STDLIB_COLOR), KEYWORD("echo", STDLIB_COLOR), KEYWORD("enable", STDLIB_COLOR),
+    KEYWORD("eval", STDLIB_COLOR), KEYWORD("exec", STDLIB_COLOR), KEYWORD("exit", STDLIB_COLOR),
+    KEYWORD("export", STDLIB_COLOR), KEYWORD("false", STDLIB_COLOR), KEYWORD("fc", STDLIB_COLOR),
+    KEYWORD("fg", STDLIB_COLOR), KEYWORD("getopts", STDLIB_COLOR), KEYWORD("hash", STDLIB_COLOR),
+    KEYWORD("help", STDLIB_COLOR), KEYWORD("history", STDLIB_COLOR), KEYWORD("jobs", STDLIB_COLOR),
+    KEYWORD("kill", STDLIB_COLOR), KEYWORD("let", STDLIB_COLOR), KEYWORD("local", STDLIB_COLOR),
+    KEYWORD("logout", STDLIB_COLOR), KEYWORD("popd", STDLIB_COLOR), KEYWORD("pushd", STDLIB_COLOR),
+    KEYWORD("printf", STDLIB_COLOR), KEYWORD("pwd", STDLIB_COLOR), KEYWORD("read", STDLIB_COLOR),
+    KEYWORD("readarray", STDLIB_COLOR), KEYWORD("readonly", STDLIB_COLOR), KEYWORD("set", STDLIB_COLOR),
+    KEYWORD("shift", STDLIB_COLOR), KEYWORD("source", STDLIB_COLOR), KEYWORD("suspend", STDLIB_COLOR),
+    KEYWORD("test", STDLIB_COLOR), KEYWORD("times", STDLIB_COLOR), KEYWORD("time", STDLIB_COLOR),
+    KEYWORD("trap", STDLIB_COLOR), KEYWORD("true", STDLIB_COLOR), KEYWORD("type", STDLIB_COLOR),
+    KEYWORD("ulimit", STDLIB_COLOR), KEYWORD("umask", STDLIB_COLOR), KEYWORD("unalias", STDLIB_COLOR),
+    KEYWORD("unset", STDLIB_COLOR), KEYWORD("wait", STDLIB_COLOR), KEYWORD("shopt", STDLIB_COLOR),
 
-    OPERATOR("$", 0x30), OPERATOR(";", 0x30), OPERATOR("=", 0x30),
-    OPERATOR("<<-", 0x30), OPERATOR("|", 0x30), OPERATOR("&", 0x30),
-    OPERATOR("<", 0x30), OPERATOR(">", 0x30), OPERATOR("2>", 0x30),
-    OPERATOR("!", 0x30), OPERATOR("+", 0x30), OPERATOR("@", 0x30),
-    OPERATOR("*", 0x30), OPERATOR("-", 0x30), OPERATOR("?", 0x30),
+    OPERATOR("$", OPERATOR_COLOR), OPERATOR(";", OPERATOR_COLOR), OPERATOR("=", OPERATOR_COLOR),
+    OPERATOR("<<-", OPERATOR_COLOR), OPERATOR("|", OPERATOR_COLOR), OPERATOR("&", OPERATOR_COLOR),
+    OPERATOR("<", OPERATOR_COLOR), OPERATOR(">", OPERATOR_COLOR), OPERATOR("2>", OPERATOR_COLOR),
+    OPERATOR("!", OPERATOR_COLOR), OPERATOR("+", OPERATOR_COLOR), OPERATOR("@", OPERATOR_COLOR),
+    OPERATOR("*", OPERATOR_COLOR), OPERATOR("-", OPERATOR_COLOR), OPERATOR("?", OPERATOR_COLOR),
 
-    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
-    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
-    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
+    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
+    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
+    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR),
 };
 
 static const char *sh_exts[] = {"sh", "zsh"};
@@ -373,7 +382,7 @@ static struct SHD sh_syntax = {
     sizeof sh_exts / sizeof *sh_exts, sh_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
-    0x40, 0x50, 0x05, 0x20, 0, 0,
+    TYPES_COLOR, PAREN_COLOR, 0x05, 0x20, 0, 0,
     "\"\'`", // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
@@ -388,61 +397,62 @@ Rust syntax highlighting descriptor
 */
 
 static struct KWD rust_kwd[] = {
-    KEYWORD("break", 0x10), KEYWORD("as", 0x10), KEYWORD("const", 0x10),
-    KEYWORD("continue", 0x10), KEYWORD("while", 0x10), KEYWORD("enum", 0x10),
-    KEYWORD("crate", 0x10), KEYWORD("else", 0x10), KEYWORD("extern", 0x10),
-    KEYWORD("for", 0x10), KEYWORD("fn", 0x10), KEYWORD("if", 0x10),
-    KEYWORD("return", 0x10), KEYWORD("match", 0x10), KEYWORD("struct", 0x10),
-    KEYWORD("impl", 0x10), KEYWORD("in", 0x10), KEYWORD("union", 0x10),
-    KEYWORD("loop" , 0x10), KEYWORD("let" , 0x10), KEYWORD("mod" , 0x10),
-    KEYWORD("move" , 0x10), KEYWORD("mut" , 0x10), KEYWORD("pub" , 0x10),
-    KEYWORD("ref" , 0x10), KEYWORD("static" , 0x10), KEYWORD("super" , 0x10),
-    KEYWORD("trait" , 0x10), KEYWORD("type" , 0x10), KEYWORD("unsafe" , 0x10),
-    KEYWORD("use" , 0x10), KEYWORD("where" , 0x10), KEYWORD("async" , 0x10),
-    KEYWORD("await" , 0x10), KEYWORD("dyn" , 0x10), KEYWORD("try" , 0x10),
+    KEYWORD("break", KEYWORD_COLOR), KEYWORD("as", KEYWORD_COLOR), KEYWORD("const", KEYWORD_COLOR),
+    KEYWORD("continue", KEYWORD_COLOR), KEYWORD("while", KEYWORD_COLOR), KEYWORD("enum", KEYWORD_COLOR),
+    KEYWORD("crate", KEYWORD_COLOR), KEYWORD("else", KEYWORD_COLOR), KEYWORD("extern", KEYWORD_COLOR),
+    KEYWORD("for", KEYWORD_COLOR), KEYWORD("fn", KEYWORD_COLOR), KEYWORD("if", KEYWORD_COLOR),
+    KEYWORD("return", KEYWORD_COLOR), KEYWORD("match", KEYWORD_COLOR), KEYWORD("struct", KEYWORD_COLOR),
+    KEYWORD("impl", KEYWORD_COLOR), KEYWORD("in", KEYWORD_COLOR), KEYWORD("union", KEYWORD_COLOR),
+    KEYWORD("loop" , KEYWORD_COLOR), KEYWORD("let" , KEYWORD_COLOR), KEYWORD("mod" , KEYWORD_COLOR),
+    KEYWORD("move" , KEYWORD_COLOR), KEYWORD("mut" , KEYWORD_COLOR), KEYWORD("pub" , KEYWORD_COLOR),
+    KEYWORD("ref" , KEYWORD_COLOR), KEYWORD("static" , KEYWORD_COLOR), KEYWORD("super" , KEYWORD_COLOR),
+    KEYWORD("trait" , KEYWORD_COLOR), KEYWORD("type" , KEYWORD_COLOR), KEYWORD("unsafe" , KEYWORD_COLOR),
+    KEYWORD("use" , KEYWORD_COLOR), KEYWORD("where" , KEYWORD_COLOR), KEYWORD("async" , KEYWORD_COLOR),
+    KEYWORD("await" , KEYWORD_COLOR), KEYWORD("dyn" , KEYWORD_COLOR), KEYWORD("try" , KEYWORD_COLOR),
 
-    KEYWORD("char", 0x40), KEYWORD("str", 0x40), KEYWORD("u8", 0x40), // primitives
-    KEYWORD("u16", 0x40), KEYWORD("u32", 0x40), KEYWORD("u64", 0x40),
-    KEYWORD("u128", 0x40), KEYWORD("i8", 0x40), KEYWORD("i16", 0x40),
-    KEYWORD("i32", 0x40), KEYWORD("i64", 0x40), KEYWORD("i128", 0x40),
-    KEYWORD("usize", 0x40), KEYWORD("isize", 0x40), KEYWORD("f32", 0x40),
-    KEYWORD("f64", 0x40), KEYWORD("bool", 0x40),
+    KEYWORD("char", TYPES_COLOR), KEYWORD("str", TYPES_COLOR), KEYWORD("u8", TYPES_COLOR), // primitives
+    KEYWORD("u16", TYPES_COLOR), KEYWORD("u32", TYPES_COLOR), KEYWORD("u64", TYPES_COLOR),
+    KEYWORD("u128", TYPES_COLOR), KEYWORD("i8", TYPES_COLOR), KEYWORD("i16", TYPES_COLOR),
+    KEYWORD("i32", TYPES_COLOR), KEYWORD("i64", TYPES_COLOR), KEYWORD("i128", TYPES_COLOR),
+    KEYWORD("usize", TYPES_COLOR), KEYWORD("isize", TYPES_COLOR), KEYWORD("f32", TYPES_COLOR),
+    KEYWORD("f64", TYPES_COLOR), KEYWORD("bool", TYPES_COLOR),
 
-    KEYWORD("Self", 0x20), KEYWORD("self", 0x20), KEYWORD("_", 0x20),// special identifiers
-    KEYWORD("'_", 0x60), KEYWORD("'static", 0x60),
+    KEYWORD("Self", MACRO_COLOR), KEYWORD("self", MACRO_COLOR), KEYWORD("_", MACRO_COLOR),// special identifiers
 
-    KEYWORD("false", 0x20), KEYWORD("true", 0x20), // literals
+    KEYWORD("'_", LITERAL_COLOR), KEYWORD("'static", LITERAL_COLOR),// special lifetimes
 
-    KEYWORD("std", 0x20), KEYWORD("core", 0x20), KEYWORD("alloc", 0x20),// special crates
+    KEYWORD("false", LITERAL_COLOR), KEYWORD("true", LITERAL_COLOR), // literals
 
-    KEYWORD("Box", 0x40), KEYWORD("Rc", 0x40), KEYWORD("Arc", 0x40),// prelude traits/enums/structs
-    KEYWORD("Pin", 0x40), KEYWORD("UnsafeCell", 0x40), KEYWORD("Cell", 0x40),
-    KEYWORD("RefCell", 0x40), KEYWORD("PhantomData", 0x40), KEYWORD("Deref", 0x40),
-    KEYWORD("DerefMut", 0x40), KEYWORD("Drop", 0x40), KEYWORD("Copy", 0x40),
-    KEYWORD("Clone", 0x40), KEYWORD("Send", 0x40), KEYWORD("Sync", 0x40),
-    KEYWORD("Unpin", 0x40), KEYWORD("UnwindSafe", 0x40), KEYWORD("RefUnwindSafe", 0x40),
-    KEYWORD("Sized", 0x40), KEYWORD("Debug", 0x40), KEYWORD("Default", 0x40),
-    KEYWORD("Vec", 0x40), KEYWORD("String", 0x40), KEYWORD("ToString", 0x40),
-    KEYWORD("Hash", 0x40), KEYWORD("ToOwned", 0x40), KEYWORD("AsMut", 0x40),
-    KEYWORD("AsRef", 0x40), KEYWORD("From", 0x40), KEYWORD("Into", 0x40),
-    KEYWORD("Fn", 0x40), KEYWORD("FnMut", 0x40), KEYWORD("FnOnce", 0x40),
-    KEYWORD("Eq", 0x40), KEYWORD("PartialEq", 0x40), KEYWORD("Ord", 0x40),
-    KEYWORD("PartialOrd", 0x40), KEYWORD("DoubleEndedIterator", 0x40), KEYWORD("ExactSizeIterator", 0x40),
-    KEYWORD("Extend", 0x40), KEYWORD("IntoIterator", 0x40), KEYWORD("Iterator", 0x40),
-    KEYWORD("Option", 0x40), KEYWORD("None", 0x40), KEYWORD("Some", 0x40),
-    KEYWORD("Result", 0x40), KEYWORD("Err", 0x40), KEYWORD("Ok", 0x40),
+    KEYWORD("std", STDLIB_COLOR), KEYWORD("core", STDLIB_COLOR), KEYWORD("alloc", STDLIB_COLOR),// special crates
 
-    OPERATOR("*" , 0x30), OPERATOR("," , 0x30), OPERATOR(";" , 0x30),
-    OPERATOR("/" , 0x30), OPERATOR("-" , 0x30), OPERATOR("+" , 0x30),
-    OPERATOR("%" , 0x30), OPERATOR("^" , 0x30), OPERATOR("&" , 0x30),
-    OPERATOR("~" , 0x30), OPERATOR("|" , 0x30), OPERATOR("!" , 0x30),
-    OPERATOR("<" , 0x30), OPERATOR(">" , 0x30), OPERATOR("=" , 0x30),
-    OPERATOR("?" , 0x30), OPERATOR(":" , 0x30), OPERATOR("." , 0x30),
-    OPERATOR("@" , 0x30), OPERATOR("#" , 0x30), OPERATOR("$" , 0x30),
+    KEYWORD("Box", TYPES_COLOR), KEYWORD("Rc", TYPES_COLOR), KEYWORD("Arc", TYPES_COLOR),// prelude traits/enums/structs
+    KEYWORD("Pin", TYPES_COLOR), KEYWORD("UnsafeCell", TYPES_COLOR), KEYWORD("Cell", TYPES_COLOR),
+    KEYWORD("RefCell", TYPES_COLOR), KEYWORD("PhantomData", TYPES_COLOR), KEYWORD("Deref", TYPES_COLOR),
+    KEYWORD("DerefMut", TYPES_COLOR), KEYWORD("Drop", TYPES_COLOR), KEYWORD("Copy", TYPES_COLOR),
+    KEYWORD("Clone", TYPES_COLOR), KEYWORD("Send", TYPES_COLOR), KEYWORD("Sync", TYPES_COLOR),
+    KEYWORD("Unpin", TYPES_COLOR), KEYWORD("UnwindSafe", TYPES_COLOR), KEYWORD("RefUnwindSafe", TYPES_COLOR),
+    KEYWORD("Sized", TYPES_COLOR), KEYWORD("Debug", TYPES_COLOR), KEYWORD("Default", TYPES_COLOR),
+    KEYWORD("Vec", TYPES_COLOR), KEYWORD("String", TYPES_COLOR), KEYWORD("ToString", TYPES_COLOR),
+    KEYWORD("Hash", TYPES_COLOR), KEYWORD("ToOwned", TYPES_COLOR), KEYWORD("AsMut", TYPES_COLOR),
+    KEYWORD("AsRef", TYPES_COLOR), KEYWORD("From", TYPES_COLOR), KEYWORD("Into", TYPES_COLOR),
+    KEYWORD("Fn", TYPES_COLOR), KEYWORD("FnMut", TYPES_COLOR), KEYWORD("FnOnce", TYPES_COLOR),
+    KEYWORD("Eq", TYPES_COLOR), KEYWORD("PartialEq", TYPES_COLOR), KEYWORD("Ord", TYPES_COLOR),
+    KEYWORD("PartialOrd", TYPES_COLOR), KEYWORD("DoubleEndedIterator", TYPES_COLOR), KEYWORD("ExactSizeIterator", TYPES_COLOR),
+    KEYWORD("Extend", TYPES_COLOR), KEYWORD("IntoIterator", TYPES_COLOR), KEYWORD("Iterator", TYPES_COLOR),
+    KEYWORD("Option", TYPES_COLOR), KEYWORD("None", TYPES_COLOR), KEYWORD("Some", TYPES_COLOR),
+    KEYWORD("Result", TYPES_COLOR), KEYWORD("Err", TYPES_COLOR), KEYWORD("Ok", TYPES_COLOR),
+
+    OPERATOR("*" , OPERATOR_COLOR), OPERATOR("," , OPERATOR_COLOR), OPERATOR(";" , OPERATOR_COLOR),
+    OPERATOR("/" , OPERATOR_COLOR), OPERATOR("-" , OPERATOR_COLOR), OPERATOR("+" , OPERATOR_COLOR),
+    OPERATOR("%" , OPERATOR_COLOR), OPERATOR("^" , OPERATOR_COLOR), OPERATOR("&" , OPERATOR_COLOR),
+    OPERATOR("~" , OPERATOR_COLOR), OPERATOR("|" , OPERATOR_COLOR), OPERATOR("!" , OPERATOR_COLOR),
+    OPERATOR("<" , OPERATOR_COLOR), OPERATOR(">" , OPERATOR_COLOR), OPERATOR("=" , OPERATOR_COLOR),
+    OPERATOR("?" , OPERATOR_COLOR), OPERATOR(":" , OPERATOR_COLOR), OPERATOR("." , OPERATOR_COLOR),
+    OPERATOR("@" , OPERATOR_COLOR), OPERATOR("#" , OPERATOR_COLOR), OPERATOR("$" , OPERATOR_COLOR),
     
-    OPERATOR("(", 0x50), OPERATOR(")", 0x50),
-    OPERATOR("{", 0x50), OPERATOR("}", 0x50),
-    OPERATOR("[", 0x50), OPERATOR("]", 0x50),
+    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
+    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
+    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR),
 };
 
 static const char *rust_exts[] = {"rs"};
@@ -452,7 +462,7 @@ static struct SHD rust_syntax = {
     sizeof rust_exts / sizeof *rust_exts, rust_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof rust_kwd / sizeof *rust_kwd, rust_kwd, //Keywords
-    0x60, 0x50, 0x05, 0x20, 0x50, 0x40,
+    LITERAL_COLOR, PAREN_COLOR, 0x05, LITERAL_COLOR, PAREN_COLOR, TYPES_COLOR,
     "\"", // Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
