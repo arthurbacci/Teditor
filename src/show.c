@@ -14,14 +14,14 @@ void show_menu(char *message, char *shadow) {
         unsigned int scrolled = ((double)cy / ((double)num_lines - 1)) * 100;
         printw("I:%u %u%% %s", lines[cy].ident, scrolled, filename);
 
-        char buf[500];
-        if (config.selected_buf.git_in_repo && git_current_branch(buf, 500)) {
+        if (config.selected_buf.git_in_repo && config.selected_buf.git_branch) {
             setcolor(COLOR_PAIR(1));
-            printw(" on branch %s", buf);
+            printw(" on branch %s", config.selected_buf.git_branch);
             setcolor(COLOR_PAIR(2));
             printw(" (%s)", config.selected_buf.git_tracked ? "tracked" : "untracked");
         }
 
+        char buf[500];
         int len = snprintf(buf, 500, "%s%s%s %s %s",
                            config.selected_buf.modified ? "!" : ".",
                            config.selected_buf.read_only ? "o" : "c",

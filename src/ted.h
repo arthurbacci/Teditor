@@ -92,7 +92,9 @@ void calculate_len_line_number(void);
 int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
-struct LINE blank_line(void);
+
+struct LINE;//forward declaration
+void blank_line(struct LINE *ln);
 
 // extension.c
 bool detect_extension(char *fname);
@@ -148,6 +150,7 @@ struct BUFFER {
     bool can_write;
     bool git_tracked;
     bool git_in_repo;
+    char *git_branch;
 };
 
 struct CFG {

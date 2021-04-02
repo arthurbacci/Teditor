@@ -42,6 +42,16 @@ void git_setup(void) {
         config.selected_buf.git_in_repo = 1;
         config.selected_buf.git_tracked = 1;
     }
+
+    char *branch = malloc(1000);
+    if (git_current_branch(branch, 1000)) {
+        if (config.selected_buf.git_branch)
+            free(config.selected_buf.git_branch);
+        config.selected_buf.git_branch = branch;
+    } else {
+        free(branch);
+        config.selected_buf.git_branch = NULL;
+    }
 }
 
 // call when opening a new file
@@ -81,6 +91,16 @@ void git_update_info(char *fname) {
         config.git_installed = 1;
         config.selected_buf.git_in_repo = 1;
         config.selected_buf.git_tracked = 1;
+    }
+
+    char *branch = malloc(1000);
+    if (git_current_branch(branch, 1000)) {
+        if (config.selected_buf.git_branch)
+            free(config.selected_buf.git_branch);
+        config.selected_buf.git_branch = branch;
+    } else {
+        free(branch);
+        config.selected_buf.git_branch = NULL;
     }
 }
 
