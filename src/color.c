@@ -141,11 +141,12 @@ void syntaxHighlight(void) {
                     while ((i + numlen + suffixlen) < lines[at].length
                     && strchr(config.current_syntax->number_suffixes, lines[at].data[i + numlen + suffixlen])) suffixlen++;
 
-                if (numlen - prefixlen > 0 && ((i + numlen + suffixlen) == lines[at].length
+                if (numlen != 0 && ((i + numlen + suffixlen) == lines[at].length
                     || strchr(config.current_syntax->word_separators, lines[at].data[i + numlen + suffixlen]))) {
-
-                    for (unsigned int j = 0; j < prefixlen; j++)
-                            lines[at].color[i + j] = config.current_syntax->number_prefix_color;
+                    
+                    if (numlen - prefixlen > 0)
+                        for (unsigned int j = 0; j < prefixlen; j++)
+                                lines[at].color[i + j] = config.current_syntax->number_prefix_color;
 
                     for (unsigned int j = numlen - prefixlen > 0 ? prefixlen : 0; j < numlen; j++)
                         if (!lines[at].color[i + j])
