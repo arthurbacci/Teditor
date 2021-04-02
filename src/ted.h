@@ -108,6 +108,11 @@ struct KWD {
     bool operator;
 };
 
+struct MATCH {
+    const char *name;
+    unsigned int length;
+};
+
 /*
 Syntax Highlighting Descriptor
 */
@@ -119,13 +124,16 @@ struct SHD {
     const char *word_separators;
     unsigned int kwdlen;
     struct KWD *keywords;
-    unsigned char syntax_string_color;
-    unsigned char syntax_comment_color;
+    unsigned char string_color;
+    unsigned char stringmatch_color;
+    unsigned char comment_color;
     unsigned char match_color;
     unsigned char number_color;
     unsigned char number_prefix_color;
     unsigned char number_suffix_color;
     const char *stringchars;
+    unsigned int stringmatch_len;
+    const struct MATCH *stringmatch;
     const char *singleline_comment;
     const char *multiline_comment[2];
     const char *match[2];

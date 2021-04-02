@@ -25,7 +25,7 @@ void syntaxHighlight(void) {
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {
-                lines[at].color[i] = string ? config.current_syntax->syntax_string_color : 0;
+                lines[at].color[i] = string ? config.current_syntax->string_color : 0;
                 backslash = !backslash;
                 continue;
             }
@@ -33,16 +33,26 @@ void syntaxHighlight(void) {
                 if (!string)
                     string = lines[at].data[i];
                 else if (lines[at].data[i] == (uchar32_t)string) {
-                    lines[at].color[i] = config.current_syntax->syntax_string_color;
+                    lines[at].color[i] = config.current_syntax->string_color;
                     string = '\0';
                     continue;
                 }
             }
-            
             backslash = 0;
             
             if (string) {
-                lines[at].color[i] = config.current_syntax->syntax_string_color;
+                unsigned int len = 0;
+                for (unsigned int j = 0; j < config.current_syntax->stringmatch_len; j++)
+                    if (!uchar32_cmp(&lines[at].data[i], config.current_syntax->stringmatch[j].name, config.current_syntax->stringmatch[j].length)) {
+                        len = config.current_syntax->stringmatch[j].length;
+                        break;
+                    }
+
+                if (len) {
+                    memset(&lines[at].color[i], config.current_syntax->stringmatch_color, len);
+                    i += len - 1;
+                } else
+                    lines[at].color[i] = config.current_syntax->string_color;
                 continue;
             }
         
@@ -65,7 +75,7 @@ void syntaxHighlight(void) {
                 multi_line_comment = 0;
                 
             free(datachar);
-            lines[at].color[i] = comment || multi_line_comment ? config.current_syntax->syntax_comment_color : 0x0;
+            lines[at].color[i] = comment || multi_line_comment ? config.current_syntax->comment_color : 0;
             if (comment || multi_line_comment) continue;
             
             if (lines[at].data[i] &&

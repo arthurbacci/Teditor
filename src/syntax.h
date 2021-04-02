@@ -5,6 +5,7 @@
 
 #define KEYWORD(name, color)    {name, color, sizeof(name) - sizeof(char), 0}
 #define OPERATOR(op, color)     {op, color, sizeof(op) - sizeof(char), 1}
+#define STRMATCH(name)          {name, sizeof(name) - sizeof(char)}
 
 #define PALETTE_COLOR(fg, bg) ((fg) << 4) + (bg)
 

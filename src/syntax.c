@@ -11,6 +11,14 @@
 
 // U/u: unsigned L/l: long F/f: float (for fp numbers) .: trailing dot (for fp numbers)
 static const char c_cpp_number_suffixes[] = "UuLlFf.";
+static const struct MATCH c_cpp_number_strmatch[] = {
+    STRMATCH("%E"), STRMATCH("%c"), STRMATCH("%lf"), STRMATCH("%x"), STRMATCH("%g"),
+    STRMATCH("%%"), STRMATCH("%s"), STRMATCH("%u"), STRMATCH("%ld"), STRMATCH("%o"),
+    STRMATCH("%lu"), STRMATCH("%G"), STRMATCH("%e"), STRMATCH("%hi"), STRMATCH("%llu"),
+    STRMATCH("%hu"), STRMATCH("%lld"), STRMATCH("%X"), STRMATCH("%n"), STRMATCH("%Lf"),
+    STRMATCH("%lli"), STRMATCH("%li"), STRMATCH("%i"), STRMATCH("%d"), STRMATCH("%f"),
+    STRMATCH("%p"), STRMATCH("%l"),
+};
 
 /*
 C syntax highlighting descriptor
@@ -97,9 +105,10 @@ static struct SHD c_syntax = {
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
-    "\"\'", // Strings charaters
+    "\"\'", sizeof c_cpp_number_strmatch / sizeof *c_cpp_number_strmatch, c_cpp_number_strmatch,// Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
     {"0x", "0", ""},
@@ -227,9 +236,10 @@ static struct SHD cpp_syntax = {
     sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
-    "\"\'", // Strings charaters
+    "\"\'", sizeof c_cpp_number_strmatch / sizeof *c_cpp_number_strmatch, c_cpp_number_strmatch,// Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
     {"0x", "0", "0b"},
@@ -319,15 +329,27 @@ static struct KWD python_kwd[] = {
 };
 
 static const char *python_exts[] = {"py", "py3", "pyx", "pyw", "pyd", "pyde"};
+static const struct MATCH python_strmatch[] = {
+    STRMATCH("{}"), STRMATCH("{!s}"), STRMATCH("{!r}"), STRMATCH("{!a}"), STRMATCH("{:%}"),
+    STRMATCH("{:b}"), STRMATCH("{:c}"), STRMATCH("{:d}"), STRMATCH("{:e}"), STRMATCH("{:X}"),
+    STRMATCH("{:E}"), STRMATCH("{:f}"), STRMATCH("{:F}"), STRMATCH("{:g}"), STRMATCH("{:x}"),
+    STRMATCH("{:G}"), STRMATCH("{:o}"), STRMATCH("{:s}"), STRMATCH("%d"), STRMATCH("%f"),
+    STRMATCH("%E"), STRMATCH("%c"), STRMATCH("%lf"), STRMATCH("%x"), STRMATCH("%g"),
+    STRMATCH("%%"), STRMATCH("%s"), STRMATCH("%u"), STRMATCH("%ld"), STRMATCH("%o"),
+    STRMATCH("%lu"), STRMATCH("%G"), STRMATCH("%e"), STRMATCH("%hi"), STRMATCH("%llu"),
+    STRMATCH("%hu"), STRMATCH("%lld"), STRMATCH("%X"), STRMATCH("%n"), STRMATCH("%Lf"),
+    STRMATCH("%lli"), STRMATCH("%li"), STRMATCH("%i"), STRMATCH("%p"), STRMATCH("%l"),
+};
 
 static struct SHD python_syntax = {
     "Python", 0,
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
-    "\"\'`", // Strings charaters
+    "\"\'`", sizeof python_strmatch / sizeof *python_strmatch, python_strmatch,// Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
     {"0x", "0o", "0b"},
@@ -385,9 +407,10 @@ static struct SHD sh_syntax = {
     sizeof sh_exts / sizeof *sh_exts, sh_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, 0, 0,
-    "\"\'`", // Strings charaters
+    "\"\'`", 0, NULL, // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
     {"", "", ""},
@@ -460,15 +483,17 @@ static struct KWD rust_kwd[] = {
 };
 
 static const char *rust_exts[] = {"rs"};
+static const struct MATCH rust_strmatch[] = {STRMATCH("{}"), STRMATCH("{:?}"), STRMATCH("{:#?}"), STRMATCH("{:.*}"), STRMATCH("{:+}")};
 
 static struct SHD rust_syntax = {
     "Rust", 0,
     sizeof rust_exts / sizeof *rust_exts, rust_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof rust_kwd / sizeof *rust_kwd, rust_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
+    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
-    "\"", // Strings charaters
+    "\"", sizeof rust_strmatch / sizeof *rust_strmatch, rust_strmatch,// Strings charaters
     "//", {"/*", "*/"}, // Comments
     {"{[(", "}])"},
     {"0x", "0o", "0b"},
@@ -485,8 +510,8 @@ struct SHD default_syntax = {
     0, NULL,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
     0, NULL,
-    0, 0, 0, 0, 0, 0,
-    "",
+    0, 0, 0, 0, 0, 0, 0,
+    "", 0, NULL,
     "", {"", ""},
     {"", ""},
     {"", "", ""},
