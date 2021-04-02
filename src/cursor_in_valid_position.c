@@ -12,14 +12,10 @@ void cursor_in_valid_position(void) {
 
     /* Scroll related */
     // y
-    if (cursor.y < text_scroll.y) {
+    if (cursor.y < text_scroll.y)
         text_scroll.y = cursor.y;
-        syntaxHighlight();
-    }
-    if (cursor.y > text_scroll.y + config.lines - 1) {
+    if (cursor.y > text_scroll.y + config.lines - 1)
         text_scroll.y = cursor.y + 1 - config.lines;
-        syntaxHighlight();
-    }
     // x
     if (cursor.x < text_scroll.x)
         text_scroll.x = cursor.x;

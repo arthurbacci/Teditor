@@ -20,8 +20,8 @@ void syntaxHighlight(void) {
     unsigned int octprefixlen = strlen(config.current_syntax->number_prefix[1]);
     unsigned int binprefixlen = strlen(config.current_syntax->number_prefix[2]);
 
-    unsigned int syntax_start = config.current_syntax->limited_scroll ? text_scroll.y : 0;
-    unsigned int syntax_end = text_scroll.y + config.lines;
+    unsigned int syntax_start = 0;
+    unsigned int syntax_end = num_lines;
 
     for (unsigned int at = syntax_start; (at < syntax_end) && (at != num_lines); ++at) {
         bool comment = 0;
@@ -53,8 +53,7 @@ void syntaxHighlight(void) {
             for (unsigned int l = 0; l <= lines[at].length; l++)
                 datachar[l] = (char)lines[at].data[l];
                 
-            if (at >= text_scroll.y && // Only with visible lines
-                slinecommentlen != 0 &&
+            if (slinecommentlen != 0 &&
                 lines[at].length >= slinecommentlen && i <= lines[at].length - slinecommentlen &&
                 memcmp(&datachar[i], config.current_syntax->singleline_comment, slinecommentlen) == 0)
                 comment = 1;
@@ -109,10 +108,7 @@ void syntaxHighlight(void) {
                 }
             }
 
-            if (
-                at >= text_scroll.y && // Only with visible lines
-                (i == 0 || strchr(config.current_syntax->word_separators, lines[at].data[i - 1]))
-                ) {
+            if (i == 0 || strchr(config.current_syntax->word_separators, lines[at].data[i - 1])) {
                 unsigned int numlen = 0, prefixlen = 0, suffixlen = 0;
                 const char *numbers = config.current_syntax->number_strings[3];
 
@@ -163,8 +159,6 @@ void syntaxHighlight(void) {
                 }
             }
 
-            // Only visible lines
-            if (at >= text_scroll.y) {
                 for (unsigned int k = 0; k < config.current_syntax->kwdlen; k++) {
                     unsigned int stringlen = config.current_syntax->keywords[k].length;
                     if (lines[at].length - i < stringlen) continue;
@@ -183,7 +177,6 @@ void syntaxHighlight(void) {
                     i += stringlen - 1;
                     break;
                 }
-            }
         }
     }
 }
