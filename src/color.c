@@ -27,6 +27,15 @@ void syntaxHighlight(void) {
             if (lines[at].data[i] == '\\') {
                 lines[at].color[i] = string ? config.current_syntax->string_color : 0;
                 backslash = !backslash;
+                for (unsigned int j = 0; j < config.current_syntax->stringmatch_len; j++)
+                    if (!uchar32_cmp(&lines[at].data[i], config.current_syntax->stringmatch[j].name, config.current_syntax->stringmatch[j].length)) {
+                        unsigned int len = config.current_syntax->stringmatch[j].length;
+                        memset(&lines[at].color[i], config.current_syntax->stringmatch_color, len);
+                        i += len - 1;
+                        if (strchr(config.current_syntax->stringmatch[j].name, '\\'))
+                            backslash = !backslash;
+                        break;
+                    }
                 continue;
             }
             if (!(comment || multi_line_comment) && strchr(config.current_syntax->stringchars, lines[at].data[i]) && !backslash) {

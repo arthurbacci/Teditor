@@ -17,7 +17,10 @@ static const struct MATCH c_cpp_number_strmatch[] = {
     STRMATCH("%lu"), STRMATCH("%G"), STRMATCH("%e"), STRMATCH("%hi"), STRMATCH("%llu"),
     STRMATCH("%hu"), STRMATCH("%lld"), STRMATCH("%X"), STRMATCH("%n"), STRMATCH("%Lf"),
     STRMATCH("%lli"), STRMATCH("%li"), STRMATCH("%i"), STRMATCH("%d"), STRMATCH("%f"),
-    STRMATCH("%p"), STRMATCH("%l"),
+    STRMATCH("%p"), STRMATCH("%l"), STRMATCH("\\a"), STRMATCH("\\0"), STRMATCH("\\b"),
+    STRMATCH("\\f"), STRMATCH("\\n"), STRMATCH("\\r"), STRMATCH("\\t"), STRMATCH("\\v"),
+    STRMATCH("\\\\"), STRMATCH("\\'"), STRMATCH("\\\""), STRMATCH("\\?"), STRMATCH("\\x"),
+    STRMATCH("\\u"), STRMATCH("\\U"),
 };
 
 /*
@@ -339,6 +342,9 @@ static const struct MATCH python_strmatch[] = {
     STRMATCH("%lu"), STRMATCH("%G"), STRMATCH("%e"), STRMATCH("%hi"), STRMATCH("%llu"),
     STRMATCH("%hu"), STRMATCH("%lld"), STRMATCH("%X"), STRMATCH("%n"), STRMATCH("%Lf"),
     STRMATCH("%lli"), STRMATCH("%li"), STRMATCH("%i"), STRMATCH("%p"), STRMATCH("%l"),
+    STRMATCH("\\b"), STRMATCH("\\n"), STRMATCH("\\r"), STRMATCH("\\t"), STRMATCH("\\f"),
+    STRMATCH("\\\\"), STRMATCH("\\'"), STRMATCH("\\\""), STRMATCH("\\x"), STRMATCH("\\u"),
+    STRMATCH("\\U"), STRMATCH("\\0"),
 };
 
 static struct SHD python_syntax = {
@@ -401,6 +407,10 @@ static struct KWD sh_kwd[] = {
 };
 
 static const char *sh_exts[] = {"sh", "zsh"};
+static const struct MATCH sh_strmatch[] = {
+    STRMATCH("\\n"), STRMATCH("\\r"), STRMATCH("\\t"), STRMATCH("\\\\"), STRMATCH("\\'"),
+    STRMATCH("\\\""), STRMATCH("\\x"), STRMATCH("\\u"), STRMATCH("\\0"),
+};
 
 static struct SHD sh_syntax = {
     "Shell", 0,
@@ -410,7 +420,7 @@ static struct SHD sh_syntax = {
     LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
     PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, 0, 0,
-    "\"\'`", 0, NULL, // Strings charaters
+    "\"\'`", sizeof sh_strmatch / sizeof *sh_strmatch, sh_strmatch, // Strings charaters
     "#", {"", ""}, // Comments
     {"{[(", "}])"},
     {"", "", ""},
@@ -497,7 +507,11 @@ static struct KWD rust_kwd[] = {
 };
 
 static const char *rust_exts[] = {"rs"};
-static const struct MATCH rust_strmatch[] = {STRMATCH("{}"), STRMATCH("{:?}"), STRMATCH("{:#?}"), STRMATCH("{:.*}"), STRMATCH("{:+}")};
+static const struct MATCH rust_strmatch[] = {
+    STRMATCH("{}"), STRMATCH("{:?}"), STRMATCH("{:#?}"), STRMATCH("{:.*}"), STRMATCH("{:+}"),
+    STRMATCH("\\n"), STRMATCH("\\r"), STRMATCH("\\t"), STRMATCH("\\\\"), STRMATCH("\\'"),
+    STRMATCH("\\\""), STRMATCH("\\x"), STRMATCH("\\u"), STRMATCH("\\0"),
+};
 
 static struct SHD rust_syntax = {
     "Rust", 0,
