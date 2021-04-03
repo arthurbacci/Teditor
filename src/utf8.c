@@ -9,7 +9,7 @@ Utf8 sequences range
 1 byte sequence (1* INCLUSIVE 0x00 - x7F)
 2 bytes sequence (1* INCLUSIVE 0xC2 - 0xDF) (2* INCLUSIVE 0x80 - 0xBF)
 3 bytes sequence (1* INCLUSIVE 0xE0 - 0xEF) (2* INCLUSIVE 0xA0 - 0xBF) (3* INCLUSIVE 0x80 - 0xBF)
-4 bytes sequence (1* INCLUSIVE 0xF0 - 0xF4) (2* INCLUSIVE 0x90 - 0x8F) (3* INCLUSIVE 0x80 - 0xBF) (4* INCLUSIVE 0x80 - 0xBF)
+4 bytes sequence (1* INCLUSIVE 0xF0 - 0xF4) (2* INCLUSIVE 0x90 - 0xBF) (3* INCLUSIVE 0x80 - 0xBF) (4* INCLUSIVE 0x80 - 0xBF)
 */
 
 void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_) {
@@ -46,7 +46,7 @@ void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_) {
 
     } else if (IN_RANGE(uc, 0xF0, 0xF4)) {
         int uc2 = fgetc(fp_);
-        if (OUT_RANGE(uc2, 0x90, 0x8F)) {
+        if (OUT_RANGE(uc2, 0x90, 0xBF)) {
             ungetc(uc2, fp_);
             goto invalid;
         }
@@ -97,7 +97,7 @@ int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate) {
         return 3;
     }
     if (IN_RANGE(out[0], 0xF0, 0xF4)) {
-        if (OUT_RANGE(out[1], 0x90, 0x8F) || OUT_RANGE(out[2], 0x80, 0xBF) || OUT_RANGE(out[3], 0x80, 0xBF))
+        if (OUT_RANGE(out[1], 0x90, 0xBF) || OUT_RANGE(out[2], 0x80, 0xBF) || OUT_RANGE(out[3], 0x80, 0xBF))
             goto invalid;
         return 4;
     }
@@ -120,7 +120,7 @@ bool validate_utf8(unsigned char *ucs) {
         return 1;
     }
     if (IN_RANGE(ucs[0], 0xF0, 0xF4)) {
-        if (OUT_RANGE(ucs[1], 0x90, 0x8F) || OUT_RANGE(ucs[2], 0x80, 0xBF) || OUT_RANGE(ucs[3], 0x80, 0xBF))
+        if (OUT_RANGE(ucs[1], 0x90, 0xBF) || OUT_RANGE(ucs[2], 0x80, 0xBF) || OUT_RANGE(ucs[3], 0x80, 0xBF))
             return 0;
         return 1;
     }
