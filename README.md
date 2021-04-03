@@ -7,7 +7,7 @@ A simple text and code editor made in ncurses with UTF-8 support,
 mouse events (including scroll and clicks), autotab, a permanent
 stratch buffer (just run `ted`, without any argument), open,
 save as, help page(s), C/C++, Python, Bash/Zsh and Rust syntax highlighting.
-All this with less than 2000 lines of C code
+All this with less than 3000 lines of C code
 (counting with cloc).
 
 ## Installing
