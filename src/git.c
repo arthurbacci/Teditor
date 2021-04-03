@@ -145,7 +145,9 @@ bool git_current_branch(char *buf, unsigned int buflen) {
         exit(1);//unreachable
     }
 
-    while (read(stdout_pipe[0], buf, buflen) == -1 && errno == EINTR);
+    int size = -1;
+    while ((size = read(stdout_pipe[0], buf, buflen)) == -1 && errno == EINTR);
+    buf[size] = '\0';
     close(stdout_pipe[0]);
     close(stdout_pipe[1]);
     return 1;
