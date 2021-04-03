@@ -1,26 +1,58 @@
 #include "ted.h"
 
+void init_syntax_state(struct SHSTATE *state, struct SHD *syntax) {
+    state->multi_line_comment = 0;
+    state->backslash = 0;
+    state->string = '\0';
+    state->waiting_to_close = 0;
+    state->slinecommentlen = strlen(syntax->singleline_comment);
+    state->mlinecommentstart = strlen(syntax->multiline_comment[0]);
+    state->mlinecommentend = strlen(syntax->multiline_comment[1]);
+    state->hexprefixlen = strlen(syntax->number_prefix[0]);
+    state->octprefixlen = strlen(syntax->number_prefix[1]);
+    state->binprefixlen = strlen(syntax->number_prefix[2]);
+    state->at_line = 0;
+}
+
 void syntaxHighlight(void) {
-    if (config.current_syntax == &default_syntax) {// just reset color to all visible lines
-        for (unsigned int at = text_scroll.y; (at < text_scroll.y + config.lines) && (at != num_lines); ++at)
+    if (config.current_syntax == &default_syntax) {// just reset color to all lines
+        for (unsigned int at = 0; at < num_lines; at++) {
+            if (syntax_yield) {
+                syntax_yield = 0;
+                longjmp(syntax_env, SYNTAX_TODO);
+            }
             memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
-        return;
+        }
+        goto END;
     }
+    bool multi_line_comment = config.selected_buf.syntax_state.multi_line_comment;
+    bool backslash = config.selected_buf.syntax_state.backslash;
+    char string = config.selected_buf.syntax_state.string;
+    unsigned int waiting_to_close = config.selected_buf.syntax_state.waiting_to_close;
+    unsigned int slinecommentlen = config.selected_buf.syntax_state.slinecommentlen;
+    unsigned int mlinecommentstart = config.selected_buf.syntax_state.mlinecommentstart;
+    unsigned int mlinecommentend = config.selected_buf.syntax_state.mlinecommentend;
+    unsigned int hexprefixlen = config.selected_buf.syntax_state.hexprefixlen;
+    unsigned int octprefixlen = config.selected_buf.syntax_state.octprefixlen;
+    unsigned int binprefixlen = config.selected_buf.syntax_state.binprefixlen;
 
-    bool multi_line_comment = 0;
-    bool backslash = 0;
-    char string = '\0';
-    unsigned int waiting_to_close = 0;
+    for (unsigned int at = config.selected_buf.syntax_state.at_line; at < num_lines; at++) {
+        if (syntax_yield) {//save state
+            config.selected_buf.syntax_state.multi_line_comment = multi_line_comment;
+            config.selected_buf.syntax_state.backslash = backslash;
+            config.selected_buf.syntax_state.string = string;
+            config.selected_buf.syntax_state.waiting_to_close = waiting_to_close;
+            config.selected_buf.syntax_state.slinecommentlen = slinecommentlen;
+            config.selected_buf.syntax_state.mlinecommentstart = mlinecommentstart;
+            config.selected_buf.syntax_state.mlinecommentend = mlinecommentend;
+            config.selected_buf.syntax_state.hexprefixlen = hexprefixlen;
+            config.selected_buf.syntax_state.octprefixlen = octprefixlen;
+            config.selected_buf.syntax_state.binprefixlen = binprefixlen;
+            config.selected_buf.syntax_state.at_line = at;
+            syntax_yield = 0;
+            longjmp(syntax_env, SYNTAX_TODO);
+        }
 
-    unsigned int slinecommentlen   = strlen(config.current_syntax->singleline_comment);
-    unsigned int mlinecommentstart = strlen(config.current_syntax->multiline_comment[0]);
-    unsigned int mlinecommentend   = strlen(config.current_syntax->multiline_comment[1]);
-
-    unsigned int hexprefixlen = strlen(config.current_syntax->number_prefix[0]);
-    unsigned int octprefixlen = strlen(config.current_syntax->number_prefix[1]);
-    unsigned int binprefixlen = strlen(config.current_syntax->number_prefix[2]);
-
-    for (unsigned int at = 0; at < num_lines; at++) {
         bool comment = 0;
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         for (unsigned int i = 0; i <= lines[at].length; i++) {
@@ -199,6 +231,9 @@ void syntaxHighlight(void) {
                 }
         }
     }
+END:
+    syntax_yield = 0;
+    longjmp(syntax_env, SYNTAX_END);
 }
 
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg) {

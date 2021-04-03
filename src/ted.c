@@ -25,8 +25,17 @@ unsigned int last_cursor_x = 0;
 struct CFG config = {
     1, 4, 0, 0, 1, 1, 1, 1,
     &default_syntax, 0, NULL,
-    {0, 0, 1},
+    {0, 0, 1, {0}},
 };
+
+sig_atomic_t syntax_yield = 0; // flag set by the SIGALRM handler
+bool syntax_change = 0; // used to reset syntax highlighting state
+jmp_buf syntax_env; // use for setjmp and longjmp by syntaxHighlight
+
+void sighandler(int x) {
+    signal(SIGALRM, sighandler);
+    syntax_yield = 1;
+}
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -68,13 +77,13 @@ int main(int argc, char **argv) {
     mousemask(ALL_MOUSE_EVENTS, NULL);
     mouseinterval(1);
     curs_set(0);
+    timeout(INPUT_TIMEOUT);
 
     register_syntax();
 
     calculate_len_line_number();
 
     colors_on = has_colors() && start_color() == OK;
-
     if (colors_on) {
         use_default_colors();
         init_pair(1, COLOR_RED, -1);
@@ -92,6 +101,30 @@ int main(int argc, char **argv) {
     read_lines();
     if (fp) fclose(fp);
     detect_read_only(filename);
+
+    struct itimerval interval = {0}, zeroed = {0};
+    interval.it_interval.tv_usec = SYNTAX_TIMEOUT;
+    interval.it_value.tv_usec = SYNTAX_TIMEOUT;
+    signal(SIGALRM, sighandler);
+    init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
+    setitimer(ITIMER_REAL, &interval, NULL);
+    bool syntax_todo = 0;
+
+    switch (setjmp(syntax_env)) {//pass control between the main loop and syntaxHighlight
+        case SYNTAX_END: {
+            syntax_todo = 0;
+            setitimer(ITIMER_REAL, &zeroed, NULL);
+            break;
+        }
+        case SYNTAX_TODO: {
+            syntax_todo = 1;
+            break;
+        }
+        case 0: {
+            syntaxHighlight();
+            break;
+        }
+    }
     
     int c;
     while (1) {
@@ -120,6 +153,15 @@ int main(int argc, char **argv) {
                 break;
         }
         process_keypress(c);
+
+        if (syntax_change) { // reset syntax state and call syntaxHighlight
+            syntax_todo = 0;
+            syntax_change = 0;
+            setitimer(ITIMER_REAL, &interval, NULL);
+            init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
+            syntaxHighlight();
+        } else if (syntax_todo)
+            syntaxHighlight(); // pass control to syntaxHighlight after processing char
     }
 
     // TODO: add free_everything function

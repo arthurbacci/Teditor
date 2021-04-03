@@ -87,7 +87,7 @@ void show_lines(void) {
             readColor(i, text_scroll.x + j, &fg, &bg);
 
             int palette[] = {
-                -1, COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN,// base colors
+                -1, -1, -1, COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN,// base colors
                 COLOR_BLACK, COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN,// bright colors
             };
             
@@ -103,7 +103,7 @@ void show_lines(void) {
 
             if (j + text_scroll.x == cursor.x && i == cursor.y)
                 attron(A_REVERSE);
-            else if (fg > 6)
+            else if (fg > 8)
                 attron(A_BOLD);
             
             if (el == '\t') {
@@ -125,7 +125,7 @@ void show_lines(void) {
             
             if (j == cursor.x + text_scroll.x && i == cursor.y)
                 attroff(A_REVERSE);
-            else if (fg > 6)
+            else if (fg > 8)
                 attroff(A_BOLD);
 
             if (bg)
