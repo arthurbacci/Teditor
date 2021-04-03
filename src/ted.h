@@ -211,7 +211,6 @@ struct LINE {
 };
 
 
-
 struct CURSOR {
     unsigned int x;
     unsigned int y;

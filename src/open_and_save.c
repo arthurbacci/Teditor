@@ -40,7 +40,6 @@ void read_lines(void) {
     if (fp == NULL) {
         num_lines = 1;
         lines = malloc(num_lines * sizeof(*lines));
-
         lines[0] = blank_line();
         return;
     }
