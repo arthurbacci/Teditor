@@ -36,6 +36,10 @@ void syntaxHighlight(void) {
     unsigned int octprefixlen = config.selected_buf.syntax_state.octprefixlen;
     unsigned int binprefixlen = config.selected_buf.syntax_state.binprefixlen;
 
+    struct itimerval interval = {0}, zeroed = {0};// set preemptive timer
+    interval.it_value.tv_usec = SYNTAX_TIMEOUT;
+    setitimer(ITIMER_REAL, &interval, NULL);
+
     for (unsigned int at = config.selected_buf.syntax_state.at_line; at < num_lines; at++) {
         if (syntax_yield) {//save state
             config.selected_buf.syntax_state.multi_line_comment = multi_line_comment;
@@ -232,6 +236,7 @@ void syntaxHighlight(void) {
         }
     }
 END:
+    setitimer(ITIMER_REAL, &zeroed, NULL);
     syntax_yield = 0;
     longjmp(syntax_env, SYNTAX_END);
 }

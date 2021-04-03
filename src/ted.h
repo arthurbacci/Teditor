@@ -34,8 +34,8 @@
 #define SYNTAX_END  -1  // syntaxHighlight highlighted all the file
 #define SYNTAX_TODO -2  // syntaxHighlight didn't finish yet
 
-#define INPUT_TIMEOUT   10    //timeout for input in ncurses (in milliseconds)
-#define SYNTAX_TIMEOUT  25000 //time slice in which syntaxHighlight runs (in microseconds) (25 milliseconds)
+#define INPUT_TIMEOUT  5     //timeout for input in ncurses (in milliseconds)
+#define SYNTAX_TIMEOUT 30000 //time slice in which syntaxHighlight runs (in microseconds) (30 milliseconds)
 
 typedef uint32_t uchar32_t;
 

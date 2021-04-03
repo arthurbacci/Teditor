@@ -34,7 +34,7 @@ jmp_buf syntax_env; // use for setjmp and longjmp by syntaxHighlight
 
 void sighandler(int x) {
     signal(SIGALRM, sighandler);
-    syntax_yield = 1;
+    syntax_yield = 1;// set the flag for yielding from syntaxHighlight
 }
 
 int main(int argc, char **argv) {
@@ -102,25 +102,22 @@ int main(int argc, char **argv) {
     if (fp) fclose(fp);
     detect_read_only(filename);
 
-    struct itimerval interval = {0}, zeroed = {0};
-    interval.it_interval.tv_usec = SYNTAX_TIMEOUT;
-    interval.it_value.tv_usec = SYNTAX_TIMEOUT;
     signal(SIGALRM, sighandler);
     init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
-    setitimer(ITIMER_REAL, &interval, NULL);
     bool syntax_todo = 0;
 
     switch (setjmp(syntax_env)) {//pass control between the main loop and syntaxHighlight
-        case SYNTAX_END: {
+        case SYNTAX_END: {// syntaxHighlight finished
             syntax_todo = 0;
-            setitimer(ITIMER_REAL, &zeroed, NULL);
+            syntax_yield = 0;
             break;
         }
-        case SYNTAX_TODO: {
+        case SYNTAX_TODO: {// syntaxHighlight didn't finished
             syntax_todo = 1;
+            syntax_yield = 0;
             break;
         }
-        case 0: {
+        case 0: {// setjmp initializated
             syntaxHighlight();
             break;
         }
@@ -140,7 +137,6 @@ int main(int argc, char **argv) {
         refresh();
 
         c = getch();
-
         if (c == ctrl('c')) {
             if (config.selected_buf.modified) {
                 char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
@@ -157,7 +153,7 @@ int main(int argc, char **argv) {
         if (syntax_change) { // reset syntax state and call syntaxHighlight
             syntax_todo = 0;
             syntax_change = 0;
-            setitimer(ITIMER_REAL, &interval, NULL);
+            syntax_yield = 0;
             init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
             syntaxHighlight();
         } else if (syntax_todo)
