@@ -25,11 +25,11 @@ unsigned int last_cursor_x = 0;
 struct CFG config = {
     1, 4, 0, 0, 1, 1, 1, 1,
     &default_syntax, 0, NULL,
-    {0, 0, 1, {0}},
+    {0, 0, 1, 0},
 };
 
 sig_atomic_t syntax_yield = 0; // flag set by the SIGALRM handler
-bool syntax_change = 0; // used to reset syntax highlighting state
+bool syntax_change = 0; // used to update syntax highlighting
 
 void sighandler(int x) {
     signal(SIGALRM, sighandler);
@@ -100,9 +100,9 @@ int main(int argc, char **argv) {
     read_lines();
     if (fp) fclose(fp);
     detect_read_only(filename);
+    memset(&lines[0].state, 0, sizeof(lines[0].state)); // reset first line state
 
     signal(SIGALRM, sighandler);
-    init_syntax_state(&config.selected_buf.syntax_state);
     bool syntax_todo = syntaxHighlight() == SYNTAX_TODO;
 
     while (1) {
@@ -132,11 +132,7 @@ int main(int argc, char **argv) {
         process_keypress(c);
 
         if (syntax_todo || syntax_change) {// call syntaxHighlight after processing char
-            if (syntax_change) { // reset syntax state before calling syntaxHighlight
-                syntax_change = 0;
-                syntax_yield = 0;
-                init_syntax_state(&config.selected_buf.syntax_state);
-            }
+            syntax_change = 0, syntax_yield = 0;
             syntax_todo = syntaxHighlight() == SYNTAX_TODO;
         }
     }

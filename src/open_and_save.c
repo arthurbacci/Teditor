@@ -132,7 +132,10 @@ void openFile(char *fname, bool needs_to_free) {
 
     calculate_len_line_number();
     detect_read_only(fname);
-    syntax_change = 1; // signal change to syntaxHighlight
+
+    memset(&lines[0].state, 0, sizeof(lines[0].state)); // reset first line state
+    config.selected_buf.syntax_at = 0;
+    syntax_change = 1;
 }
 
 void detect_read_only(char *fname) {

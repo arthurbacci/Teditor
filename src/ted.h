@@ -33,8 +33,8 @@
 #define SYNTAX_END  -1  // syntaxHighlight highlighted all the file
 #define SYNTAX_TODO -2  // syntaxHighlight didn't finish yet
 
-#define INPUT_TIMEOUT  5     //timeout for input in ncurses (in milliseconds)
-#define SYNTAX_TIMEOUT 30000 //time slice in which syntaxHighlight runs (in microseconds) (30 milliseconds)
+#define INPUT_TIMEOUT  10    //timeout for input in ncurses (in milliseconds)
+#define SYNTAX_TIMEOUT 25000 //time slice in which syntaxHighlight runs (in microseconds) (25 milliseconds)
 
 typedef uint32_t uchar32_t;
 
@@ -126,7 +126,6 @@ Syntax Highlighting Descriptor
 */
 struct SHD {
     const char *name;
-    bool limited_scroll; // if set syntaxHighlight won't scroll over all the source
     unsigned int exts_len;
     const char **extensions;
     const char *word_separators;
@@ -156,16 +155,13 @@ struct SHSTATE {
     bool backslash;
     char string;
     unsigned int waiting_to_close;
-    unsigned int at_line;
 };
-
-void init_syntax_state(struct SHSTATE *state);
 
 struct BUFFER {
     bool modified;
     bool read_only;
     bool can_write;
-    struct SHSTATE syntax_state;
+    unsigned int syntax_at;
 };
 
 struct CFG {
@@ -183,7 +179,6 @@ struct CFG {
     struct BUFFER selected_buf;
 };
 
-
 /*
 ffffbbbb
 00000000 == default with default background
@@ -200,9 +195,8 @@ struct LINE {
     unsigned char *color;
     unsigned int length;
     unsigned int ident;
-    bool multiline_comment;
+    struct SHSTATE state;
 };
-
 
 struct CURSOR {
     unsigned int x;

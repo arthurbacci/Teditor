@@ -98,7 +98,12 @@ static void syntax(char **words, unsigned int words_len) {
     } else
         config.current_syntax = &default_syntax;
     
-    syntax_change = 1; // signal change to syntaxHighlight
+    memset(&lines[0].state, 0, sizeof(lines[0].state)); // reset first line state
+    for (unsigned int at = 0; at < num_lines; at++) // reset to white all lines
+        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
+
+    config.selected_buf.syntax_at = 0;
+    syntax_change = 1;
 }
 
 static void read_only(char **words, unsigned int words_len) {

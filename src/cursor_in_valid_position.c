@@ -21,8 +21,6 @@ void cursor_in_valid_position(void) {
         text_scroll.x = cursor.x;
     else if (cursor.x > text_scroll.x + (COLS - len_line_number - 3))
         text_scroll.x = cursor.x - (COLS - len_line_number - 3);
-        
-    syntax_change = 1;
 }
 
 // This should be an inline function
