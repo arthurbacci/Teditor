@@ -16,9 +16,10 @@ void init_syntax_state(struct SHSTATE *state, struct SHD *syntax) {
 
 int syntaxHighlight(void) {
     if (config.current_syntax == &default_syntax) {// just reset color to all lines
-        for (unsigned int at = 0; at < num_lines; at++) {
+        for (unsigned int at = config.selected_buf.syntax_state.at_line; at < num_lines; at++) {
             if (syntax_yield) {
                 syntax_yield = 0;
+                config.selected_buf.syntax_state.at_line = at;
                 return SYNTAX_TODO;
             }
             memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
