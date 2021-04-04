@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <signal.h>
-#include <setjmp.h>
 
 #define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
@@ -89,7 +88,7 @@ int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
 bool validate_utf8(unsigned char *ucs);
 
 // color.c
-void syntaxHighlight(void);
+int syntaxHighlight(void);
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
 // utils.c
@@ -238,6 +237,5 @@ extern const uchar32_t substitute_char;
 extern const char *substitute_string;
 extern sig_atomic_t syntax_yield;
 extern bool syntax_change;
-extern jmp_buf syntax_env;
 
 #endif

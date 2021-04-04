@@ -30,7 +30,6 @@ struct CFG config = {
 
 sig_atomic_t syntax_yield = 0; // flag set by the SIGALRM handler
 bool syntax_change = 0; // used to reset syntax highlighting state
-jmp_buf syntax_env; // use for setjmp and longjmp by syntaxHighlight
 
 void sighandler(int x) {
     signal(SIGALRM, sighandler);
@@ -104,26 +103,8 @@ int main(int argc, char **argv) {
 
     signal(SIGALRM, sighandler);
     init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
-    bool syntax_todo = 0;
+    bool syntax_todo = syntaxHighlight() == SYNTAX_TODO;
 
-    switch (setjmp(syntax_env)) {//pass control between the main loop and syntaxHighlight
-        case SYNTAX_END: {// syntaxHighlight finished
-            syntax_todo = 0;
-            syntax_yield = 0;
-            break;
-        }
-        case SYNTAX_TODO: {// syntaxHighlight didn't finished
-            syntax_todo = 1;
-            syntax_yield = 0;
-            break;
-        }
-        case 0: {// setjmp initializated
-            syntaxHighlight();
-            break;
-        }
-    }
-    
-    int c;
     while (1) {
         if (last_LINES != LINES || last_COLS != COLS) {
             last_LINES = LINES;
@@ -136,7 +117,7 @@ int main(int argc, char **argv) {
         show_menu(menu_message, NULL);
         refresh();
 
-        c = getch();
+        int c = getch();
         if (c == ctrl('c')) {
             if (config.selected_buf.modified) {
                 char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
@@ -150,14 +131,14 @@ int main(int argc, char **argv) {
         }
         process_keypress(c);
 
-        if (syntax_change) { // reset syntax state and call syntaxHighlight
-            syntax_todo = 0;
-            syntax_change = 0;
-            syntax_yield = 0;
-            init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
-            syntaxHighlight();
-        } else if (syntax_todo)
-            syntaxHighlight(); // pass control to syntaxHighlight after processing char
+        if (syntax_todo || syntax_change) {// call syntaxHighlight after processing char
+            if (syntax_change) { // reset syntax state before calling syntaxHighlight
+                syntax_change = 0;
+                syntax_yield = 0;
+                init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
+            }
+            syntax_todo = syntaxHighlight() == SYNTAX_TODO;
+        }
     }
 
     // TODO: add free_everything function

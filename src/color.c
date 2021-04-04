@@ -14,12 +14,12 @@ void init_syntax_state(struct SHSTATE *state, struct SHD *syntax) {
     state->at_line = 0;
 }
 
-void syntaxHighlight(void) {
+int syntaxHighlight(void) {
     if (config.current_syntax == &default_syntax) {// just reset color to all lines
         for (unsigned int at = 0; at < num_lines; at++) {
             if (syntax_yield) {
                 syntax_yield = 0;
-                longjmp(syntax_env, SYNTAX_TODO);
+                return SYNTAX_TODO;
             }
             memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         }
@@ -54,7 +54,7 @@ void syntaxHighlight(void) {
             config.selected_buf.syntax_state.binprefixlen = binprefixlen;
             config.selected_buf.syntax_state.at_line = at;
             syntax_yield = 0;
-            longjmp(syntax_env, SYNTAX_TODO);
+            return SYNTAX_TODO;
         }
 
         bool comment = 0;
@@ -238,7 +238,7 @@ void syntaxHighlight(void) {
 END:
     setitimer(ITIMER_REAL, &zeroed, NULL);
     syntax_yield = 0;
-    longjmp(syntax_env, SYNTAX_END);
+    return SYNTAX_END;
 }
 
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg) {
