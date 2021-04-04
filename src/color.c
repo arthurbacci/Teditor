@@ -9,7 +9,7 @@ int syntaxHighlight(void) {
         for (unsigned int at = config.selected_buf.syntax_at; at < num_lines; at++) {
             if (syntax_yield) {
                 syntax_yield = 0;
-                config.selected_buf.syntax_at = at;
+                config.selected_buf.syntax_at = at - (at > 0);
                 return SYNTAX_TODO;
             }
             memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
@@ -26,7 +26,7 @@ int syntaxHighlight(void) {
     for (unsigned int at = config.selected_buf.syntax_at; at < num_lines; at++) {
         memset(&lines[at].state, 0, sizeof(lines[at].state)); //reset the state of the line we are updating
         if (syntax_yield) {//save state
-            config.selected_buf.syntax_at = at - at > 0;
+            config.selected_buf.syntax_at = at - (at > 0);
             syntax_yield = 0;
             return SYNTAX_TODO;
         }
