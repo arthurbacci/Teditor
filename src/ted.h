@@ -239,3 +239,4 @@ extern sig_atomic_t syntax_yield;
 extern bool syntax_change;
 
 #endif
+

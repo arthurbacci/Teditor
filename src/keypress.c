@@ -278,3 +278,4 @@ void process_keypress(int c) {
         syntax_change = 1; // signal change to syntaxHighlight
     }
 }
+
