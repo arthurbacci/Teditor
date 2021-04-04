@@ -40,7 +40,6 @@ void read_lines(void) {
     if (fp == NULL) {
         num_lines = 1;
         lines = malloc(num_lines * sizeof(*lines));
-
         lines[0] = blank_line();
         return;
     }
@@ -88,7 +87,6 @@ void read_lines(void) {
             fgetc(fp);
     }
     detect_extension(filename);
-    syntaxHighlight();
 }
 
 void detect_linebreak(void) {
@@ -134,6 +132,7 @@ void openFile(char *fname, bool needs_to_free) {
 
     calculate_len_line_number();
     detect_read_only(fname);
+    syntax_change = 1; // signal change to syntaxHighlight
 }
 
 void detect_read_only(char *fname) {

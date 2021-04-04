@@ -11,19 +11,19 @@
 
 // to keep update with palette in show_lines
 #define PALETTE_OFF             0
-#define PALETTE_RED             1
-#define PALETTE_GREEN           2
-#define PALETTE_YELLOW          3
-#define PALETTE_BLUE            4
-#define PALETTE_MAGENTA         5
-#define PALETTE_CYAN            6
-#define PALETTE_GRAY            7
-#define PALETTE_BRIGHT_RED      8
-#define PALETTE_BRIGHT_GREEN    9
-#define PALETTE_BRIGHT_YELLOW   10
-#define PALETTE_BRIGHT_BLUE     11
-#define PALETTE_BRIGHT_MAGENTA  12
-#define PALETTE_BRIGHT_CYAN     13
+#define PALETTE_RED             3
+#define PALETTE_GREEN           4
+#define PALETTE_YELLOW          5
+#define PALETTE_BLUE            6
+#define PALETTE_MAGENTA         7
+#define PALETTE_CYAN            8
+#define PALETTE_GRAY            9
+#define PALETTE_BRIGHT_RED      10
+#define PALETTE_BRIGHT_GREEN    11
+#define PALETTE_BRIGHT_YELLOW   12
+#define PALETTE_BRIGHT_BLUE     13
+#define PALETTE_BRIGHT_MAGENTA  14
+#define PALETTE_BRIGHT_CYAN     15
 
 extern struct SHD *syntaxes[];
 

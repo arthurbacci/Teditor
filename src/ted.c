@@ -25,8 +25,16 @@ unsigned int last_cursor_x = 0;
 struct CFG config = {
     1, 4, 0, 0, 1, 1, 1, 1,
     &default_syntax, 0, NULL,
-    {0, 0, 1},
+    {0, 0, 1, {0}},
 };
+
+sig_atomic_t syntax_yield = 0; // flag set by the SIGALRM handler
+bool syntax_change = 0; // used to reset syntax highlighting state
+
+void sighandler(int x) {
+    signal(SIGALRM, sighandler);
+    syntax_yield = 1;// set the flag for yielding from syntaxHighlight
+}
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -68,13 +76,13 @@ int main(int argc, char **argv) {
     mousemask(ALL_MOUSE_EVENTS, NULL);
     mouseinterval(1);
     curs_set(0);
+    timeout(INPUT_TIMEOUT);
 
     register_syntax();
 
     calculate_len_line_number();
 
     colors_on = has_colors() && start_color() == OK;
-
     if (colors_on) {
         use_default_colors();
         init_pair(1, COLOR_RED, -1);
@@ -92,8 +100,11 @@ int main(int argc, char **argv) {
     read_lines();
     if (fp) fclose(fp);
     detect_read_only(filename);
-    
-    int c;
+
+    signal(SIGALRM, sighandler);
+    init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
+    bool syntax_todo = syntaxHighlight() == SYNTAX_TODO;
+
     while (1) {
         if (last_LINES != LINES || last_COLS != COLS) {
             last_LINES = LINES;
@@ -106,8 +117,7 @@ int main(int argc, char **argv) {
         show_menu(menu_message, NULL);
         refresh();
 
-        c = getch();
-
+        int c = getch();
         if (c == ctrl('c')) {
             if (config.selected_buf.modified) {
                 char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
@@ -120,6 +130,15 @@ int main(int argc, char **argv) {
                 break;
         }
         process_keypress(c);
+
+        if (syntax_todo || syntax_change) {// call syntaxHighlight after processing char
+            if (syntax_change) { // reset syntax state before calling syntaxHighlight
+                syntax_change = 0;
+                syntax_yield = 0;
+                init_syntax_state(&config.selected_buf.syntax_state, config.current_syntax);
+            }
+            syntax_todo = syntaxHighlight() == SYNTAX_TODO;
+        }
     }
 
     // TODO: add free_everything function
@@ -130,3 +149,4 @@ int main(int argc, char **argv) {
     endwin();
     return 0;
 }
+

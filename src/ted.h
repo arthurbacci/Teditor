@@ -11,9 +11,11 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <errno.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
@@ -27,6 +29,12 @@
 
 #define IN_RANGE(x, min, max)   ((x) >= (min)) && ((x) <= (max))
 #define OUT_RANGE(x, min, max)  ((x) < (min)) || ((x) > (max))
+
+#define SYNTAX_END  -1  // syntaxHighlight highlighted all the file
+#define SYNTAX_TODO -2  // syntaxHighlight didn't finish yet
+
+#define INPUT_TIMEOUT  5     //timeout for input in ncurses (in milliseconds)
+#define SYNTAX_TIMEOUT 30000 //time slice in which syntaxHighlight runs (in microseconds) (30 milliseconds)
 
 typedef uint32_t uchar32_t;
 
@@ -80,7 +88,7 @@ int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
 bool validate_utf8(unsigned char *ucs);
 
 // color.c
-void syntaxHighlight(void);
+int syntaxHighlight(void);
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
 // utils.c
@@ -142,10 +150,28 @@ struct SHD {
     const char *number_strings[4]; // 0: hexadecimal 1: octal 2: binary 3: decimal
 };
 
+// syntaxHighlight state
+struct SHSTATE {
+    bool multi_line_comment;
+    bool backslash;
+    char string;
+    unsigned int waiting_to_close;
+    unsigned int slinecommentlen;
+    unsigned int mlinecommentstart;
+    unsigned int mlinecommentend;
+    unsigned int hexprefixlen;
+    unsigned int octprefixlen;
+    unsigned int binprefixlen;
+    unsigned int at_line;
+};
+
+void init_syntax_state(struct SHSTATE *state, struct SHD *syntax);
+
 struct BUFFER {
     bool modified;
     bool read_only;
     bool can_write;
+    struct SHSTATE syntax_state;
 };
 
 struct CFG {
@@ -184,7 +210,6 @@ struct LINE {
 };
 
 
-
 struct CURSOR {
     unsigned int x;
     unsigned int y;
@@ -210,5 +235,8 @@ extern char *menu_message;
 extern struct SHD default_syntax;
 extern const uchar32_t substitute_char;
 extern const char *substitute_string;
+extern sig_atomic_t syntax_yield;
+extern bool syntax_change;
 
 #endif
+

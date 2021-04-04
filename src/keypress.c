@@ -115,7 +115,8 @@ void process_keypress(int c) {
             }
             cursor_in_valid_position();
             calculate_len_line_number();
-            syntaxHighlight();
+
+            syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
     } case ctrl('w'):
@@ -128,7 +129,8 @@ void process_keypress(int c) {
             if (cx > 0 && !strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1]))
                 passed_spaces = 1;
         }
-        syntaxHighlight();
+        
+        syntax_change = 1; // signal change to syntaxHighlight
         break;
     } case ctrl('o'):
     {
@@ -195,7 +197,7 @@ void process_keypress(int c) {
                 if (lines[cy].data[i] != ' ') break;
                 lines[cy].ident++;
             }
-            syntaxHighlight();
+            syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
     } case '\n': case KEY_ENTER: case '\r':
@@ -229,7 +231,7 @@ void process_keypress(int c) {
             } else
                 lines[cy].ident = 0;
 
-            syntaxHighlight();
+            syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
     }
@@ -273,8 +275,7 @@ void process_keypress(int c) {
                 else break;
             }
         }
-
-        syntaxHighlight();
+        syntax_change = 1; // signal change to syntaxHighlight
     }
 }
 
