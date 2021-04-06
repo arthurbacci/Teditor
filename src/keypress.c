@@ -234,7 +234,7 @@ void process_keypress(int c) {
             } else
                 lines[cy].ident = 0;
 
-            config.selected_buf.syntax_at = cy - (cy > 0); // update from current position
+            config.selected_buf.syntax_at = cy - 1; // update from current position
             syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
@@ -278,7 +278,7 @@ void process_keypress(int c) {
                 else break;
             }
         }
-        config.selected_buf.syntax_at = cy - (cy > 0); // update from current position
+        config.selected_buf.syntax_at = cy; // update from current position
         syntax_change = 1; // signal change to syntaxHighlight
     }
 }

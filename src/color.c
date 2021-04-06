@@ -24,15 +24,22 @@ int syntaxHighlight(void) {
     unsigned int binprefixlen = config.current_syntax->number_prefix[2].length;
 
     for (unsigned int at = config.selected_buf.syntax_at; at < num_lines; at++) {
-        memset(&lines[at].state, 0, sizeof(lines[at].state)); //reset the state of the line we are updating
         if (syntax_yield) {//save state
             config.selected_buf.syntax_at = at - (at > 0);
             syntax_yield = 0;
             return SYNTAX_TODO;
         }
+        // clear line state and color
+        memset(&lines[at].state, 0, sizeof(lines[at].state));
+        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
+
+        // restore multiline state consistent with the previous line
+        lines[at].state.multi_line_comment = lines[at - (at > 0)].state.multi_line_comment;
+        lines[at].state.string = lines[at - (at > 0)].state.string;
+        lines[at].state.backslash = lines[at - (at > 0)].state.backslash;
+        lines[at].state.waiting_to_close = lines[at - (at > 0)].state.waiting_to_close;
 
         bool comment = 0;
-        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {
                 lines[at].color[i] = lines[at].state.string ? config.current_syntax->string_color : 0;
@@ -48,7 +55,7 @@ int syntaxHighlight(void) {
                     }
                 continue;
             }
-            if (!(comment || lines[config.selected_buf.syntax_at].state.multi_line_comment)
+            if (!(comment || lines[at].state.multi_line_comment)
                 && strchr(config.current_syntax->stringchars, lines[at].data[i]) && !lines[at].state.backslash) {
                 if (!lines[at].state.string)
                     lines[at].state.string = lines[at].data[i];
@@ -88,15 +95,15 @@ int syntaxHighlight(void) {
             else if (mlinecommentstart != 0
                      && lines[at].length >= slinecommentlen && i <= lines[at].length - mlinecommentstart
                      && memcmp(&datachar[i], config.current_syntax->multiline_comment[0].name, mlinecommentstart) == 0)
-                lines[config.selected_buf.syntax_at].state.multi_line_comment = 1;
+                lines[at].state.multi_line_comment = 1;
 
             else if (mlinecommentend != 0 && i >= mlinecommentend
                      && memcmp(&datachar[i - mlinecommentend], config.current_syntax->multiline_comment[1].name, mlinecommentend) == 0)
-                lines[config.selected_buf.syntax_at].state.multi_line_comment = 0;
+                lines[at].state.multi_line_comment = 0;
                 
             free(datachar);
-            lines[at].color[i] = comment || lines[config.selected_buf.syntax_at].state.multi_line_comment ? config.current_syntax->comment_color : 0;
-            if (comment || lines[config.selected_buf.syntax_at].state.multi_line_comment) continue;
+            lines[at].color[i] = comment || lines[at].state.multi_line_comment ? config.current_syntax->comment_color : 0;
+            if (comment || lines[at].state.multi_line_comment) continue;
             
             if (lines[at].data[i] &&
                 (strchr(config.current_syntax->match[0], lines[at].data[i]) || strchr(config.current_syntax->match[1], lines[at].data[i]))
