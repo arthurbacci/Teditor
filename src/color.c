@@ -112,8 +112,10 @@ int syntaxHighlight(void) {
 
             if (lines[at].data[i] && (opening || closing)) {
                 if (lines[at].state.waiting_to_close && !opening) {
-                    if (lines[at].state.waiting_to_close == 1)
+                    if (lines[at].state.waiting_to_close == 1) {
                         lines[at].color[i] = config.current_syntax->hover_match_color;
+                        syntax_matched = 1;
+                    }
                     lines[at].state.waiting_to_close--;
                     continue;
                 } else if (lines[at].state.waiting_to_close && opening)
@@ -121,6 +123,7 @@ int syntaxHighlight(void) {
                 
                 if (at == cursor.y && (i + 1) == cursor.x) {
                     lines[at].color[i] = config.current_syntax->hover_match_color;
+                    syntax_matched = 1;
 
                     if (opening) {
                         lines[at].state.waiting_to_close = 1;

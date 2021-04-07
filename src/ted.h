@@ -228,6 +228,7 @@ extern const char *substitute_string;
 extern sig_atomic_t syntax_yield;
 extern bool syntax_change;
 extern bool syntax_update_fast;
+extern bool syntax_matched;
 
 #endif
 

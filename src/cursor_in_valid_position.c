@@ -22,13 +22,14 @@ void cursor_in_valid_position(void) {
     else if (cursor.x > text_scroll.x + (COLS - len_line_number - 3))
         text_scroll.x = cursor.x - (COLS - len_line_number - 3);
 
-    if (config.current_syntax != &default_syntax &&
-        (strchr(config.current_syntax->match[0], lines[cy].data[cx]) || strchr(config.current_syntax->match[1], lines[cy].data[cx]))) {
-        set_syntax_change(0, 0);// just reset syntax highlighting
+    if (config.current_syntax != &default_syntax && (syntax_matched ||
+        (strchr(config.current_syntax->match[0], lines[cy].data[cx - (cx > 0)]) ||
+        strchr(config.current_syntax->match[1], lines[cy].data[cx - (cx > 0)])))) {
+        syntax_matched = 0;
+        set_syntax_change(0, 0);// reset syntax highlighting state
     }
 }
 
-// This should be an inline function
 void change_position(unsigned int x, unsigned int y) {
     cursor.y = y;
     cursor.x = x;
