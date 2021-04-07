@@ -29,16 +29,13 @@ int syntaxHighlight(void) {
             syntax_yield = 0;
             return SYNTAX_TODO;
         }
-        // clear line state and color
-        memset(&lines[at].state, 0, sizeof(lines[at].state));
-        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
-
         // restore multiline state consistent with the previous line
         lines[at].state.multi_line_comment = lines[at - (at > 0)].state.multi_line_comment;
         lines[at].state.string = lines[at - (at > 0)].state.string;
         lines[at].state.backslash = lines[at - (at > 0)].state.backslash;
         lines[at].state.waiting_to_close = lines[at - (at > 0)].state.waiting_to_close;
 
+        memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         bool comment = 0;
         for (unsigned int i = 0; i <= lines[at].length; i++) {
             if (lines[at].data[i] == '\\') {
@@ -214,6 +211,15 @@ int syntaxHighlight(void) {
                 i += stringlen - 1;
                 break;
             }
+        }
+        
+        if (syntax_update_fast && at > config.selected_buf.syntax_at && //highlight at least one line
+            (lines[at].state.backslash == lines[at + (at < num_lines)].state.backslash &&
+            lines[at].state.multi_line_comment == lines[at + (at < num_lines)].state.multi_line_comment &&
+            lines[at].state.string == lines[at + (at < num_lines)].state.string &&
+            lines[at].state.waiting_to_close == lines[at + (at < num_lines)].state.waiting_to_close)) {
+            syntax_update_fast = 0;
+            goto END;
         }
     }
 END:

@@ -30,6 +30,7 @@ struct CFG config = {
 
 sig_atomic_t syntax_yield = 0; // flag set by the SIGALRM handler
 bool syntax_change = 0; // used to update syntax highlighting
+bool syntax_update_fast = 0; // update only as little as possible
 
 void sighandler(int x) {
     signal(SIGALRM, sighandler);

@@ -225,6 +225,7 @@ extern const uchar32_t substitute_char;
 extern const char *substitute_string;
 extern sig_atomic_t syntax_yield;
 extern bool syntax_change;
+extern bool syntax_update_fast;
 
 #endif
 

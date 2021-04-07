@@ -117,6 +117,7 @@ void process_keypress(int c) {
             calculate_len_line_number();
 
             config.selected_buf.syntax_at = cy - (cy > 0); // update from current position
+            syntax_update_fast = 1;
             syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
@@ -132,6 +133,7 @@ void process_keypress(int c) {
         }
         
         config.selected_buf.syntax_at = cy - (cy > 0); // update from current position
+        syntax_update_fast = 1;
         syntax_change = 1; // signal change to syntaxHighlight
         break;
     } case ctrl('o'):
@@ -200,6 +202,7 @@ void process_keypress(int c) {
                 lines[cy].ident++;
             }
             config.selected_buf.syntax_at = cy - (cy > 0); // update from current position
+            syntax_update_fast = 1;
             syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
@@ -235,6 +238,7 @@ void process_keypress(int c) {
                 lines[cy].ident = 0;
 
             config.selected_buf.syntax_at = cy - 1; // update from current position
+            syntax_update_fast = 1;
             syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
@@ -279,6 +283,7 @@ void process_keypress(int c) {
             }
         }
         config.selected_buf.syntax_at = cy; // update from current position
+        syntax_update_fast = 1;
         syntax_change = 1; // signal change to syntaxHighlight
     }
 }
