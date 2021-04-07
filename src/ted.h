@@ -88,7 +88,8 @@ int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
 bool validate_utf8(unsigned char *ucs);
 
 // color.c
-void set_syntax_change(unsigned int at);
+void set_syntax_change(unsigned int at, bool update_fast);
+void reset_brackets(void);
 int syntaxHighlight(void);
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
@@ -132,10 +133,11 @@ struct SHD {
     const char *word_separators;
     unsigned int kwdlen;
     struct KWD *keywords;
+    unsigned int match_color;// color of match
     unsigned char string_color;
     unsigned char stringmatch_color;
     unsigned char comment_color;
-    unsigned char match_color;
+    unsigned char hover_match_color;// color of match when cursor is on them
     unsigned char number_color;
     unsigned char number_prefix_color;
     unsigned char number_suffix_color;
@@ -163,6 +165,8 @@ struct BUFFER {
     bool read_only;
     bool can_write;
     unsigned int syntax_at;
+    unsigned int brackets_len;
+    struct CURSOR *highlighted_brackets;// store the positions of highlighted brackets that need to be resetted
 };
 
 struct CFG {

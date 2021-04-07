@@ -25,7 +25,7 @@ unsigned int last_cursor_x = 0;
 struct CFG config = {
     1, 4, 0, 0, 1, 1, 1, 1,
     &default_syntax, 0, NULL,
-    {0, 0, 1, 0},
+    {0, 0, 1, 0, 0, NULL},
 };
 
 sig_atomic_t syntax_yield = 0; // flag set by the SIGALRM handler

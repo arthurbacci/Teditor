@@ -95,10 +95,6 @@ static struct KWD c_kwd[] = {
     OPERATOR("~", OPERATOR_COLOR), OPERATOR("|", OPERATOR_COLOR), OPERATOR("!", OPERATOR_COLOR),
     OPERATOR("<", OPERATOR_COLOR), OPERATOR(">", OPERATOR_COLOR), OPERATOR("=", OPERATOR_COLOR),
     OPERATOR("?", OPERATOR_COLOR), OPERATOR(":", OPERATOR_COLOR), OPERATOR(".", OPERATOR_COLOR),
-    
-    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
-    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
-    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR),
 };
 
 static const char *c_exts[] = {"c", "h"};
@@ -108,7 +104,7 @@ static struct SHD c_syntax = {
     sizeof c_exts / sizeof *c_exts, c_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof c_kwd / sizeof *c_kwd, c_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PAREN_COLOR, LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
     PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'", sizeof c_cpp_number_strmatch / sizeof *c_cpp_number_strmatch, c_cpp_number_strmatch,// Strings charaters
@@ -226,10 +222,6 @@ static struct KWD cpp_kwd[] = {
     OPERATOR("~", OPERATOR_COLOR), OPERATOR("|", OPERATOR_COLOR), OPERATOR("!", OPERATOR_COLOR),
     OPERATOR("<", OPERATOR_COLOR), OPERATOR(">", OPERATOR_COLOR), OPERATOR("=", OPERATOR_COLOR),
     OPERATOR("?", OPERATOR_COLOR), OPERATOR(":", OPERATOR_COLOR), OPERATOR(".", OPERATOR_COLOR),
-    
-    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
-    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
-    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR),
 };
 
 static const char *cpp_exts[] = {"cpp", "hpp", "cc", "hh"};
@@ -239,7 +231,7 @@ static struct SHD cpp_syntax = {
     sizeof cpp_exts / sizeof *cpp_exts, cpp_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof cpp_kwd / sizeof *cpp_kwd, cpp_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PAREN_COLOR, LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
     PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'", sizeof c_cpp_number_strmatch / sizeof *c_cpp_number_strmatch, c_cpp_number_strmatch,// Strings charaters
@@ -325,10 +317,6 @@ static struct KWD python_kwd[] = {
     OPERATOR("~", OPERATOR_COLOR), OPERATOR("|", OPERATOR_COLOR), OPERATOR("!", OPERATOR_COLOR),
     OPERATOR("<", OPERATOR_COLOR), OPERATOR(">", OPERATOR_COLOR), OPERATOR("=", OPERATOR_COLOR),
     OPERATOR(":", OPERATOR_COLOR), OPERATOR(".", OPERATOR_COLOR), OPERATOR("\\", OPERATOR_COLOR),
-
-    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
-    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
-    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR)
 };
 
 static const char *python_exts[] = {"py", "py3", "pyx", "pyw", "pyd", "pyde"};
@@ -352,7 +340,7 @@ static struct SHD python_syntax = {
     sizeof python_exts / sizeof *python_exts, python_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/", // Characters that separates words
     sizeof python_kwd / sizeof *python_kwd, python_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PAREN_COLOR, LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
     PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"\'`", sizeof python_strmatch / sizeof *python_strmatch, python_strmatch,// Strings charaters
@@ -400,10 +388,6 @@ static struct KWD sh_kwd[] = {
     OPERATOR("<", OPERATOR_COLOR), OPERATOR(">", OPERATOR_COLOR), OPERATOR("2>", OPERATOR_COLOR),
     OPERATOR("!", OPERATOR_COLOR), OPERATOR("+", OPERATOR_COLOR), OPERATOR("@", OPERATOR_COLOR),
     OPERATOR("*", OPERATOR_COLOR), OPERATOR("-", OPERATOR_COLOR), OPERATOR("?", OPERATOR_COLOR),
-
-    OPERATOR("(", PAREN_COLOR), OPERATOR(")", PAREN_COLOR),
-    OPERATOR("{", PAREN_COLOR), OPERATOR("}", PAREN_COLOR),
-    OPERATOR("[", PAREN_COLOR), OPERATOR("]", PAREN_COLOR),
 };
 
 static const char *sh_exts[] = {"sh", "zsh"};
@@ -417,7 +401,7 @@ static struct SHD sh_syntax = {
     sizeof sh_exts / sizeof *sh_exts, sh_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof sh_kwd / sizeof *sh_kwd, sh_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PAREN_COLOR, LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
     PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, 0, 0,
     "\"\'`", sizeof sh_strmatch / sizeof *sh_strmatch, sh_strmatch, // Strings charaters
@@ -518,7 +502,7 @@ static struct SHD rust_syntax = {
     sizeof rust_exts / sizeof *rust_exts, rust_exts,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?", // Characters that separates words
     sizeof rust_kwd / sizeof *rust_kwd, rust_kwd, //Keywords
-    LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
+    PAREN_COLOR, LITERAL_COLOR, PALETTE_COLOR(PALETTE_BRIGHT_RED, PALETTE_OFF),
     PALETTE_COLOR(PALETTE_CYAN, PALETTE_OFF), PALETTE_COLOR(PALETTE_OFF, PALETTE_CYAN),
     LITERAL_COLOR, LITERAL_COLOR, TYPES_COLOR,
     "\"", sizeof rust_strmatch / sizeof *rust_strmatch, rust_strmatch,// Strings charaters
@@ -538,7 +522,7 @@ struct SHD default_syntax = {
     0, NULL,
     " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
     0, NULL,
-    0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
     "", 0, NULL,
     STRMATCH(""), {STRMATCH(""), STRMATCH("")},
     {"", ""},

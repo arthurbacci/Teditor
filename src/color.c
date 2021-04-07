@@ -1,8 +1,25 @@
 #include "ted.h"
 
-void set_syntax_change(unsigned int at) {
+void set_syntax_change(unsigned int at, bool update_fast) {
     config.selected_buf.syntax_at = at; // update from current position
-    syntax_change = 1, syntax_update_fast = 1;// signal change to syntaxHighlight
+    syntax_change = 1, syntax_update_fast = update_fast;// signal change to syntaxHighlight
+}
+
+void reset_brackets(void) {
+    for (unsigned int i = 0; i < config.selected_buf.brackets_len; i++) {
+        struct CURSOR pos = config.selected_buf.highlighted_brackets[i];
+        lines[pos.y].color[pos.x] = config.current_syntax->match_color;
+    }
+
+    config.selected_buf.brackets_len = 0;
+    free(config.selected_buf.highlighted_brackets);
+    config.selected_buf.highlighted_brackets = NULL;
+}
+
+void add_highlighted_bracket(unsigned int at, unsigned int x) {
+    config.selected_buf.highlighted_brackets = realloc(config.selected_buf.highlighted_brackets, ++config.selected_buf.brackets_len * sizeof(struct CURSOR));
+    config.selected_buf.highlighted_brackets[config.selected_buf.brackets_len - 1].y = at;
+    config.selected_buf.highlighted_brackets[config.selected_buf.brackets_len - 1].x = x;
 }
 
 int syntaxHighlight(void) {
@@ -35,7 +52,7 @@ int syntaxHighlight(void) {
             syntax_yield = 0;
             return SYNTAX_TODO;
         }
-        // restore multiline state consistent with the previous line
+        // restore a state consistent with the previous line
         if (at == 0) memset(&lines[at].state, 0, sizeof(lines[at].state));
         else memcpy(&lines[at].state, &lines[at - 1].state, sizeof(lines[at].state));
 
@@ -101,36 +118,41 @@ int syntaxHighlight(void) {
             else if (mlinecommentend != 0 && i >= mlinecommentend
                      && memcmp(&datachar[i - mlinecommentend], config.current_syntax->multiline_comment[1].name, mlinecommentend) == 0)
                 lines[at].state.multi_line_comment = 0;
-                
+
             free(datachar);
             lines[at].color[i] = comment || lines[at].state.multi_line_comment ? config.current_syntax->comment_color : 0;
             if (comment || lines[at].state.multi_line_comment) continue;
-            
-            if (lines[at].data[i] &&
-                (strchr(config.current_syntax->match[0], lines[at].data[i]) || strchr(config.current_syntax->match[1], lines[at].data[i]))
-                ) {
-                bool opening = strchr(config.current_syntax->match[0], lines[at].data[i]);
-                
+
+            bool opening = strchr(config.current_syntax->match[0], lines[at].data[i]);
+            bool closing = strchr(config.current_syntax->match[1], lines[at].data[i]);
+            if (opening || closing) lines[at].color[i] = config.current_syntax->match_color;
+
+            if (lines[at].data[i] && (opening || closing)) {
                 if (lines[at].state.waiting_to_close && !opening) {
-                    if (lines[at].state.waiting_to_close == 1)
-                        lines[at].color[i] = config.current_syntax->match_color;
+                    if (lines[at].state.waiting_to_close == 1) {
+                        lines[at].color[i] = config.current_syntax->hover_match_color;
+                        add_highlighted_bracket(at, i);
+                    }
                     lines[at].state.waiting_to_close--;
                     continue;
                 } else if (lines[at].state.waiting_to_close && opening)
                     lines[at].state.waiting_to_close++;
                 
-                if (at == cursor.y && i + 1 == cursor.x) {
-                    lines[at].color[i] = config.current_syntax->match_color;
+                if (at == cursor.y && (i + 1) == cursor.x) {
+                    lines[at].color[i] = config.current_syntax->hover_match_color;
+                    add_highlighted_bracket(at, i);
+
                     if (opening) {
                         lines[at].state.waiting_to_close = 1;
                     } else {
-                        unsigned int lay = 1;
+                        int lay = 1;
                         for (int _at = at; _at >= 0; _at--) {
                             for (int _i = (int)at == _at ? i : lines[_at].length - 1; _i >= 0; _i--) {
                                 if (strchr(config.current_syntax->match[0], lines[_at].data[_i])) {
                                     lay--;
                                     if (lay == 1) {
-                                        lines[_at].color[_i] = config.current_syntax->match_color;
+                                        add_highlighted_bracket(at, i);
+                                        lines[_at].color[_i] = config.current_syntax->hover_match_color;
                                         _at = -1;
                                         break;
                                     }

@@ -82,7 +82,7 @@ void show_lines(void) {
                 continue;
             }
             uchar32_t el = lines[i].data[text_scroll.x + j];
-            
+
             unsigned char fg, bg;
             readColor(i, text_scroll.x + j, &fg, &bg);
 
