@@ -12,7 +12,7 @@ debug:  src/*.c
 	$(CC) -o ted $^ $(CFLAGS) $(LIBS) -g3
 
 asan: src/*.c
-	$(CC) -o ted $^ $(CFLAGS) $(LIBS) -fsanitize=address
+	$(CC) -o ted $^ $(CFLAGS) $(LIBS) -fsanitize=address -g
 
 clean:
 	rm ted -f

@@ -36,10 +36,8 @@ int syntaxHighlight(void) {
             return SYNTAX_TODO;
         }
         // restore multiline state consistent with the previous line
-        lines[at].state.multi_line_comment = lines[at - (at > 0)].state.multi_line_comment;
-        lines[at].state.string = lines[at - (at > 0)].state.string;
-        lines[at].state.backslash = lines[at - (at > 0)].state.backslash;
-        lines[at].state.waiting_to_close = lines[at - (at > 0)].state.waiting_to_close;
+        if (at == 0) memset(&lines[at].state, 0, sizeof(lines[at].state));
+        else memcpy(&lines[at].state, &lines[at - 1].state, sizeof(lines[at].state));
 
         memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
         bool comment = 0;
@@ -219,11 +217,11 @@ int syntaxHighlight(void) {
             }
         }
         
-        if (syntax_update_fast && at > config.selected_buf.syntax_at && //highlight at least one line
-            (lines[at].state.backslash == lines[at + (at < num_lines)].state.backslash &&
-            lines[at].state.multi_line_comment == lines[at + (at < num_lines)].state.multi_line_comment &&
-            lines[at].state.string == lines[at + (at < num_lines)].state.string &&
-            lines[at].state.waiting_to_close == lines[at + (at < num_lines)].state.waiting_to_close)) {
+        if (syntax_update_fast && (at > config.selected_buf.syntax_at && at > 0) && //highlight at least one line
+            (lines[at].state.backslash == lines[at + ((at + 1) < num_lines)].state.backslash &&
+            lines[at].state.multi_line_comment == lines[at + ((at + 1) < num_lines)].state.multi_line_comment &&
+            lines[at].state.string == lines[at + ((at + 1) < num_lines)].state.string &&
+            lines[at].state.waiting_to_close == lines[at + ((at + 1) < num_lines)].state.waiting_to_close)) {
             syntax_update_fast = 0;
             goto END;
         }
