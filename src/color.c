@@ -13,6 +13,7 @@ int syntaxHighlight(void) {
                 return SYNTAX_TODO;
             }
             memset(lines[at].color, 0, (lines[at].length + 1) * sizeof(*lines[at].color));
+            memset(&lines[at].state, 0, sizeof(lines[at].state));
         }
         goto END;
     }

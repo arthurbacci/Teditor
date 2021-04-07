@@ -109,5 +109,7 @@ struct LINE blank_line(void) {
     ln.ident = 0;
     *ln.data = '\0';
 
+    memset(&ln.state, 0, sizeof(ln.state));
+
     return ln;
 }
