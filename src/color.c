@@ -1,5 +1,10 @@
 #include "ted.h"
 
+void set_syntax_change(unsigned int at) {
+    config.selected_buf.syntax_at = at; // update from current position
+    syntax_change = 1, syntax_update_fast = 1;// signal change to syntaxHighlight
+}
+
 int syntaxHighlight(void) {
     struct itimerval interval = {0}, zeroed = {0};// set preemptive timer
     interval.it_value.tv_usec = SYNTAX_TIMEOUT;

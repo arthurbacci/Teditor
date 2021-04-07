@@ -116,9 +116,7 @@ void process_keypress(int c) {
             cursor_in_valid_position();
             calculate_len_line_number();
 
-            config.selected_buf.syntax_at = cy - (cy > 0); // update from current position
-            syntax_update_fast = 1;
-            syntax_change = 1; // signal change to syntaxHighlight
+            set_syntax_change(cy- (cy > 0));
         }
         break;
     } case ctrl('w'):
@@ -132,9 +130,7 @@ void process_keypress(int c) {
                 passed_spaces = 1;
         }
         
-        config.selected_buf.syntax_at = cy - (cy > 0); // update from current position
-        syntax_update_fast = 1;
-        syntax_change = 1; // signal change to syntaxHighlight
+        set_syntax_change(cy - (cy > 0));
         break;
     } case ctrl('o'):
     {
@@ -201,9 +197,7 @@ void process_keypress(int c) {
                 if (lines[cy].data[i] != ' ') break;
                 lines[cy].ident++;
             }
-            config.selected_buf.syntax_at = cy - (cy > 0); // update from current position
-            syntax_update_fast = 1;
-            syntax_change = 1; // signal change to syntaxHighlight
+            set_syntax_change(cy - (cy > 0));
         }
         break;
     } case '\n': case KEY_ENTER: case '\r':
@@ -237,9 +231,7 @@ void process_keypress(int c) {
             } else
                 lines[cy].ident = 0;
 
-            config.selected_buf.syntax_at = cy - 1; // update from current position
-            syntax_update_fast = 1;
-            syntax_change = 1; // signal change to syntaxHighlight
+            set_syntax_change(cy - 1);
         }
         break;
     }
@@ -282,9 +274,7 @@ void process_keypress(int c) {
                 else break;
             }
         }
-        config.selected_buf.syntax_at = cy; // update from current position
-        syntax_update_fast = 1;
-        syntax_change = 1; // signal change to syntaxHighlight
+        set_syntax_change(cy);
     }
 }
 

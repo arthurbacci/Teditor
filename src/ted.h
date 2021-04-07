@@ -88,6 +88,7 @@ int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
 bool validate_utf8(unsigned char *ucs);
 
 // color.c
+void set_syntax_change(unsigned int at);
 int syntaxHighlight(void);
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
