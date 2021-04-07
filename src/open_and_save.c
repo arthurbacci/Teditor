@@ -134,8 +134,7 @@ void openFile(char *fname, bool needs_to_free) {
     detect_read_only(fname);
 
     memset(&lines[0].state, 0, sizeof(lines[0].state)); // reset first line state
-    config.selected_buf.syntax_at = 0;
-    syntax_change = 1;
+    set_syntax_change(0, 0);
 }
 
 void detect_read_only(char *fname) {

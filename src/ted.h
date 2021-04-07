@@ -89,7 +89,6 @@ bool validate_utf8(unsigned char *ucs);
 
 // color.c
 void set_syntax_change(unsigned int at, bool update_fast);
-void reset_brackets(void);
 int syntaxHighlight(void);
 void readColor(unsigned int at, unsigned int at1, unsigned char *fg, unsigned char *bg);
 
@@ -165,8 +164,6 @@ struct BUFFER {
     bool read_only;
     bool can_write;
     unsigned int syntax_at;
-    unsigned int brackets_len;
-    struct CURSOR *highlighted_brackets;// store the positions of highlighted brackets that need to be resetted
 };
 
 struct CFG {

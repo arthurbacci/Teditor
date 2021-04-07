@@ -5,23 +5,6 @@ void set_syntax_change(unsigned int at, bool update_fast) {
     syntax_change = 1, syntax_update_fast = update_fast;// signal change to syntaxHighlight
 }
 
-void reset_brackets(void) {
-    for (unsigned int i = 0; i < config.selected_buf.brackets_len; i++) {
-        struct CURSOR pos = config.selected_buf.highlighted_brackets[i];
-        lines[pos.y].color[pos.x] = config.current_syntax->match_color;
-    }
-
-    config.selected_buf.brackets_len = 0;
-    free(config.selected_buf.highlighted_brackets);
-    config.selected_buf.highlighted_brackets = NULL;
-}
-
-void add_highlighted_bracket(unsigned int at, unsigned int x) {
-    config.selected_buf.highlighted_brackets = realloc(config.selected_buf.highlighted_brackets, ++config.selected_buf.brackets_len * sizeof(struct CURSOR));
-    config.selected_buf.highlighted_brackets[config.selected_buf.brackets_len - 1].y = at;
-    config.selected_buf.highlighted_brackets[config.selected_buf.brackets_len - 1].x = x;
-}
-
 int syntaxHighlight(void) {
     struct itimerval interval = {0}, zeroed = {0};// set preemptive timer
     interval.it_value.tv_usec = SYNTAX_TIMEOUT;
@@ -129,10 +112,8 @@ int syntaxHighlight(void) {
 
             if (lines[at].data[i] && (opening || closing)) {
                 if (lines[at].state.waiting_to_close && !opening) {
-                    if (lines[at].state.waiting_to_close == 1) {
+                    if (lines[at].state.waiting_to_close == 1)
                         lines[at].color[i] = config.current_syntax->hover_match_color;
-                        add_highlighted_bracket(at, i);
-                    }
                     lines[at].state.waiting_to_close--;
                     continue;
                 } else if (lines[at].state.waiting_to_close && opening)
@@ -140,7 +121,6 @@ int syntaxHighlight(void) {
                 
                 if (at == cursor.y && (i + 1) == cursor.x) {
                     lines[at].color[i] = config.current_syntax->hover_match_color;
-                    add_highlighted_bracket(at, i);
 
                     if (opening) {
                         lines[at].state.waiting_to_close = 1;
@@ -151,7 +131,6 @@ int syntaxHighlight(void) {
                                 if (strchr(config.current_syntax->match[0], lines[_at].data[_i])) {
                                     lay--;
                                     if (lay == 1) {
-                                        add_highlighted_bracket(at, i);
                                         lines[_at].color[_i] = config.current_syntax->hover_match_color;
                                         _at = -1;
                                         break;
