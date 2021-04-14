@@ -9,6 +9,10 @@ void init_syntax_state(struct SHSTATE *state) {
 }
 
 int syntaxHighlight(void) {
+    struct itimerval interval = {0}, zeroed = {0};// set preemptive timer
+    interval.it_value.tv_usec = SYNTAX_TIMEOUT;
+    setitimer(ITIMER_REAL, &interval, NULL);
+
     if (config.current_syntax == &default_syntax) {// just reset color to all lines
         for (unsigned int at = config.selected_buf.syntax_state.at_line; at < num_lines; at++) {
             if (syntax_yield) {
@@ -20,22 +24,17 @@ int syntaxHighlight(void) {
         }
         goto END;
     }
-    // restore saved state
+    //todo: these are superfluous
     bool multi_line_comment = config.selected_buf.syntax_state.multi_line_comment;
     bool backslash = config.selected_buf.syntax_state.backslash;
     char string = config.selected_buf.syntax_state.string;
     unsigned int waiting_to_close = config.selected_buf.syntax_state.waiting_to_close;
-
-    unsigned int slinecommentlen = config.current_syntax->singleline_comment.length; //todo: these are superfluous
+    unsigned int slinecommentlen = config.current_syntax->singleline_comment.length; 
     unsigned int mlinecommentstart = config.current_syntax->multiline_comment[0].length;
     unsigned int mlinecommentend = config.current_syntax->multiline_comment[1].length;
     unsigned int hexprefixlen = config.current_syntax->number_prefix[0].length;
     unsigned int octprefixlen = config.current_syntax->number_prefix[1].length;
     unsigned int binprefixlen = config.current_syntax->number_prefix[2].length;
-
-    struct itimerval interval = {0}, zeroed = {0};// set preemptive timer
-    interval.it_value.tv_usec = SYNTAX_TIMEOUT;
-    setitimer(ITIMER_REAL, &interval, NULL);
 
     for (unsigned int at = config.selected_buf.syntax_state.at_line; at < num_lines; at++) {
         if (syntax_yield) {//save state
