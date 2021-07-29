@@ -85,22 +85,6 @@ static void manual(char **words, unsigned int words_len) {
     }
 }
 
-static void syntax(char **words, unsigned int words_len) {
-    if (words_len == 1) {
-        char *str = malloc(strlen(words[0]) + 2);
-        *str = '.';
-        strcpy(str + 1, words[0]);
-
-        if (!detect_extension(str))
-            config.current_syntax = &default_syntax;
-            
-        free(str);
-    } else
-        config.current_syntax = &default_syntax;
-    
-    syntax_change = 1; // signal change to syntaxHighlight
-}
-
 static void read_only(char **words, unsigned int words_len) {
     if (words_len == 1) {
         if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
@@ -150,7 +134,6 @@ struct {
     {"automatch"        , automatch         },
     {"save-as"          , save_as           },
     {"manual"           , manual            },
-    {"syntax"           , syntax            },
     {"read-only"        , read_only         },
     {"find"             , find              },
     {"eof"              , eof               },
@@ -166,7 +149,6 @@ struct HINTS hints[] = {
     {"automatch"        , " {0/FALSE, 1/TRUE}"                  },
     {"save-as"          , " <filename>"                         },
     {"manual"           , " <page (nothing for index)>"         },
-    {"syntax"           , " <language (nothing for disabling)>" },
     {"read-only"        , " {0/FALSE, 1/TRUE}"                  },
     {"find"             , " {start, cursor} <substring>"        },
     {NULL, NULL}
@@ -188,7 +170,6 @@ void config_dialog(void) {
 void parse_command(char *command) {
     if (!command)
         return;
-
 
     int words_len;
     char **words = split_str(command, &words_len);

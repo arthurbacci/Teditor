@@ -1,5 +1,10 @@
 #include "ted.h"
 
+void die(const char *s) {
+    fprintf(stderr, "Error: %s\n", s);
+    longjmp(end, 0);
+}
+
 char *home_path(const char *path) {
     char *ret = malloc(1000 * sizeof *ret);
     snprintf(ret, 1000, "%s/%s", getenv("HOME"), path);
@@ -104,10 +109,8 @@ struct LINE blank_line(void) {
 
     ln.len = READ_BLOCKSIZE;
     ln.data = malloc(ln.len * sizeof(*ln.data));
-    ln.color = calloc(ln.len, sizeof(*ln.color));
     ln.length = 0;
     ln.ident = 0;
-    ln.multiline_comment = 0;
 
     *ln.data = '\0';
     return ln;

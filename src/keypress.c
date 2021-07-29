@@ -4,14 +4,12 @@ void expandLine(unsigned int at, int x) {
     while (lines[at].len <= lines[at].length + x) {
         lines[at].len += READ_BLOCKSIZE;
         lines[at].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
-        lines[at].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
     }
 }
 
 void new_line(unsigned int at, int x) {
     lines[at].len = READ_BLOCKSIZE;
     lines[at].data = malloc(lines[at].len * sizeof(uchar32_t));
-    lines[at].color = malloc(lines[at].len * sizeof(unsigned char));
     lines[at].length = 0;
 
     expandLine(at, lines[at - 1].length - x + 1);
@@ -106,7 +104,6 @@ void process_keypress(int c) {
         if (modify()) {
             if (num_lines > 1) {
                 free(lines[cy].data);
-                free(lines[cy].color);
                 memmove(&lines[cy], &lines[cy + 1], (num_lines - cy - 1) * sizeof(struct LINE));
                 lines = realloc(lines, --num_lines * sizeof(struct LINE));
             } else {
@@ -115,22 +112,18 @@ void process_keypress(int c) {
             }
             cursor_in_valid_position();
             calculate_len_line_number();
-
-            syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
     } case ctrl('w'):
     {
         bool passed_spaces = 0;
-        while (cx > 0 && (!strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1]) || !passed_spaces)) {
+        while (cx > 0 && (!strchr(config.word_separators, lines[cy].data[cx - 1]) || !passed_spaces)) {
             if (!remove_char(cx - 1, cy))
                 break;
             process_keypress(KEY_LEFT);
-            if (cx > 0 && !strchr(config.current_syntax->word_separators, lines[cy].data[cx - 1]))
+            if (cx > 0 && !strchr(config.word_separators, lines[cy].data[cx - 1]))
                 passed_spaces = 1;
         }
-        
-        syntax_change = 1; // signal change to syntaxHighlight
         break;
     } case ctrl('o'):
     {
@@ -143,9 +136,9 @@ void process_keypress(int c) {
         char passed_spaces = 0;
         while (cx > 0) {
             process_keypress(KEY_LEFT);
-            if (!strchr(config.current_syntax->word_separators, lines[cy].data[cx]))
+            if (!strchr(config.word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
-            if (strchr(config.current_syntax->word_separators, lines[cy].data[cx]) && passed_spaces) {
+            if (strchr(config.word_separators, lines[cy].data[cx]) && passed_spaces) {
                 process_keypress(KEY_RIGHT);
                 break;
             }
@@ -155,8 +148,8 @@ void process_keypress(int c) {
     case CTRL_KEY_RIGHT:
     {
         char passed_spaces = 0;
-        while (lines[cy].data[cx] != '\0' && !(strchr(config.current_syntax->word_separators, lines[cy].data[cx]) && passed_spaces)) {
-            if (!strchr(config.current_syntax->word_separators, lines[cy].data[cx]))
+        while (lines[cy].data[cx] != '\0' && !(strchr(config.word_separators, lines[cy].data[cx]) && passed_spaces)) {
+            if (!strchr(config.word_separators, lines[cy].data[cx]))
                 passed_spaces = 1;
             process_keypress(KEY_RIGHT);
         }
@@ -187,7 +180,6 @@ void process_keypress(int c) {
                 lines[cy].data[lines[cy].length] = '\0';
 
                 free(del_line.data);
-                free(del_line.color);
 
                 calculate_len_line_number();
             }
@@ -197,7 +189,6 @@ void process_keypress(int c) {
                 if (lines[cy].data[i] != ' ') break;
                 lines[cy].ident++;
             }
-            syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
     } case '\n': case KEY_ENTER: case '\r':
@@ -219,7 +210,6 @@ void process_keypress(int c) {
                 lines[cy].ident = ident;
                 lines[cy].len += ident + 1;
                 lines[cy].data = realloc(lines[cy].data, lines[cy].len * sizeof(uchar32_t));
-                lines[cy].color = realloc(lines[cy].color, lines[cy].len * sizeof(unsigned char));
                 memmove(&lines[cy].data[ident], lines[cy].data, (lines[cy].length + 1) * sizeof(uchar32_t));
 
                 for (unsigned int i = 0; i < ident; i++)
@@ -230,8 +220,6 @@ void process_keypress(int c) {
                     process_keypress(KEY_RIGHT);
             } else
                 lines[cy].ident = 0;
-
-            syntax_change = 1; // signal change to syntaxHighlight
         }
         break;
     }
@@ -241,12 +229,6 @@ void process_keypress(int c) {
 
         if (c == ' ' && cx <= lines[cy].ident)
             lines[cy].ident++;
-
-        if (config.automatch && cx == lines[cy].length) {
-            char *match = strchr(config.current_syntax->match[0], c);
-            if (match != NULL)
-                add_char(cx, cy, config.current_syntax->match[1][match - config.current_syntax->match[0]]);
-        }
 
         unsigned char ucs[4] = {c, 0, 0, 0};
         int len = 1;
@@ -275,7 +257,6 @@ void process_keypress(int c) {
                 else break;
             }
         }
-        syntax_change = 1; // signal change to syntaxHighlight
     }
 }
 

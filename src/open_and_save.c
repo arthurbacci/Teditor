@@ -68,7 +68,6 @@ void read_lines(void) {
             if (lines[i].length + 1 >= lines[i].len) {
                 lines[i].len += READ_BLOCKSIZE;
                 lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(*lines[i].data));
-                lines[i].color = realloc(lines[i].color, lines[i].len * sizeof(*lines[i].color));
             }
 
             if (passed_spaces == 0 && c != ' ')
@@ -86,7 +85,6 @@ void read_lines(void) {
         if (config.line_break_type == 1)
             fgetc(fp);
     }
-    detect_extension(filename);
 }
 
 void detect_linebreak(void) {
@@ -132,7 +130,6 @@ void openFile(char *fname, bool needs_to_free) {
 
     calculate_len_line_number();
     detect_read_only(fname);
-    syntax_change = 1; // signal change to syntaxHighlight
 }
 
 void detect_read_only(char *fname) {

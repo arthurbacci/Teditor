@@ -1,0 +1,6 @@
+1. Removed syntax highlighting and colors in general
+   Why?
+        - Source of most bugs
+        - We are not in pride month anymore
+   The old syntax highlighting keywords can be taken from the old commits, it
+       can be useful for implementing a new one.
