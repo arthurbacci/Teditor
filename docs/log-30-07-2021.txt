@@ -1,0 +1,13 @@
+1. Converted Unicode box drawing characters to ASCII
+   Why?
+        - Compatibility with terminals that don't support it
+        - Unnecessary Unicode is cringe and bloat
+
+2. Config dialog /base-hint/ converted to a cleaner notation
+   Why?
+        - Less width
+        - Easier to read
+   TODO: Generate it automatically from hints
+         Why?
+           - We exceeded the rule of three
+

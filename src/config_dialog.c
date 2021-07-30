@@ -154,7 +154,8 @@ struct HINTS hints[] = {
     {NULL, NULL}
 };
 
-char *base_hint = "{repeat, tablen, linebreak, insert-newline, use-spaces, autotab, automatch, save-as, manual, syntax, read-only, find, eof}";
+char *base_hint = "repeat tablen linebreak insert-newline use-spaces autotab"
+                  "automatch save-as manual syntax read-only find eof";
 
 char last_command[1000] = "";
 

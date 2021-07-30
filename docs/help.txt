@@ -1,10 +1,10 @@
 Welcome to The Teditor Manual
-┃
-┠───┬─ Keybindings
-┃   ├── Teditor's default keybindings
-┃   └── C-g RET manual RET keybindings
-┃
-┖───┬─ Commands
-    ├── Teditor's commands that can be used with C-g
-    └── C-g RET manual RET commands
+|
+|---.- Keybindings
+|   |-- Teditor's default keybindings
+|   '-- C-g RET manual RET keybindings
+|
+'---.- Commands
+    |-- Teditor's commands that can be used with C-g
+    '-- C-g RET manual RET commands
 
