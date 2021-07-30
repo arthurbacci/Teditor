@@ -3,7 +3,7 @@
 
 <image src="teditor.gif">
 
-A simple text and code editor made in ncurses with UTF-8 support
+A simple text and code editor made using ncurses with UTF-8 support
 
 ## Installing
 
