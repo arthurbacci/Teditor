@@ -71,13 +71,16 @@ char **split_str(const char *str, int *num_str) {
     return strs;
 }
 
-void calculate_len_line_number(void) {
-    int num = num_lines + 1, i = 1;
+int calculate_len_line_number(Buffer buf) {
+    // + 1 because lines numbers start with 1, not 0
+    int num = buf.num_lines + 1;
+    int i = 1;
+
     do {
         num /= 10;// base 10
         ++i;
     } while (num);
-    len_line_number = i;
+    return i;
 }
 
 int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen) {
@@ -104,8 +107,8 @@ int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsign
     return -1; //No substring found
 }
 
-struct LINE blank_line(void) {
-    struct LINE ln;
+Line blank_line(void) {
+    Line ln;
 
     ln.len = READ_BLOCKSIZE;
     ln.data = malloc(ln.len * sizeof(*ln.data));

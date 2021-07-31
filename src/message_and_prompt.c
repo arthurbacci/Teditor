@@ -4,13 +4,13 @@ char *prompt(const char *msgtmp, char *def) {
     return prompt_hints(msgtmp, def, NULL, NULL);
 }
 
-static char *show_hint(struct HINTS *hints, unsigned int len, int i, char *msg) {
+static char *show_hint(Hints *hints, unsigned int len, int i, char *msg) {
     if (hints) {
-        struct HINTS *hint = hints;
-        while (hint->word != NULL) {
-            unsigned int word_len = (unsigned int)strlen(hint->word);
+        Hints *hint = hints;
+        while (hint->command) {
+            unsigned int word_len = (unsigned int)strlen(hint->command);
             if (len + i >= word_len &&
-                !strncmp(msg + (len + i - word_len) + 1, hint->word, word_len))
+                !strncmp(msg + (len + i - word_len) + 1, hint->command, word_len))
                 return (char *)hint->hint;
             ++hint;
         }
@@ -18,7 +18,7 @@ static char *show_hint(struct HINTS *hints, unsigned int len, int i, char *msg) 
     return NULL;
 }
 
-char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hints) {
+char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
     char msg[1000];
     strcpy(msg, msgtmp);
     unsigned int len = strlen(msg);
@@ -31,7 +31,7 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hint
     char *shadow = base;
 
     message(msg);
-    show_menu(menu_message, shadow);
+    display_menu(menu_message, shadow, NULL);
 
     refresh();
     for (i = deflen; (c = getch()) != '\n' && i < 999 - (int)len; i++) {
@@ -59,7 +59,7 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, struct HINTS *hint
             i--;
             
         shadow = i + 1 == 0 ? base : shadow;
-        show_menu(menu_message, shadow);
+        display_menu(menu_message, shadow, NULL);
         refresh();
         
     }

@@ -1,6 +1,6 @@
 #include "ted.h"
 
-void savefile(void) {
+void savefile(Buffer buf) {
     FILE *fpw = fopen(filename, "w");
 
     if (fpw == NULL) {
@@ -11,53 +11,63 @@ void savefile(void) {
         return;
     }
 
-    if (config.insert_newline && lines[num_lines - 1].length > 0) {
-        lines = realloc(lines, ++num_lines * sizeof(*lines));
-        lines[num_lines - 1] = blank_line();
+    if (config.insert_newline && buf.lines[buf.num_lines - 1].length > 0) {
+        buf.lines = realloc(buf.lines, ++buf.num_lines * sizeof(*buf.lines));
+        buf.lines[buf.num_lines - 1] = blank_line();
     }
 
-    for (unsigned int i = 0; i < num_lines; i++) {
-        for (unsigned int j = 0; j < lines[i].length; j++) {
+    for (unsigned int i = 0; i < buf.num_lines; i++) {
+        for (unsigned int j = 0; j < buf.lines[i].length; j++) {
             unsigned char b[4];
-            int len = utf8ToMultibyte(lines[i].data[j], b, 0);
+            int len = utf8ToMultibyte(buf.lines[i].data[j], b, 0);
             fwrite(b, sizeof(unsigned char), len, fpw);
         }
-        if (num_lines > 1) {
-            if (config.line_break_type == 0)
+        if (buf.num_lines > 1) {
+            if (buf.line_break_type == 0)
                 fputc('\n', fpw);
-            else if (config.line_break_type == 1)
+            else if (buf.line_break_type == 1)
                 fputs("\r\n", fpw);
-            else if (config.line_break_type == 2)
+            else if (buf.line_break_type == 2)
                 fputc('\r', fpw);
         }
     }
     fclose(fpw);
 
-    config.selected_buf.modified = 0;
+    buf.modified = 0;
 }
 
-void read_lines(void) {
-    if (fp == NULL) {
-        num_lines = 1;
-        lines = malloc(num_lines * sizeof(*lines));
-        lines[0] = blank_line();
-        return;
+Buffer read_lines(FILE *fp, bool can_write) {
+    Buffer b = {
+        0,               // Modified
+        !can_write,     // read-only
+        can_write,     // data can be written to the buffer
+        0,            // line break type: defaults to LF
+        NULL,        // lines
+        0,          // number of lines
+        {0, 0, 0}, // Cursor (x, last_x, y)
+        {0, 0},   // Scroll (x, y)
+    };
+    if (!fp) {
+        b.num_lines = 1;
+        b.lines = malloc(b.num_lines * sizeof(*(b.lines)));
+        b.lines[0] = blank_line();
+        return b;
     }
 
-    detect_linebreak();
-    char lineend = config.line_break_type == 0 ? '\n' : '\r';
+    b.line_break_type = detect_linebreak(fp);
+    char lineend = b.line_break_type == 0 ? '\n' : '\r';
 
-    num_lines = 0;
+    b.num_lines = 0;
     for (unsigned int i = 0; !feof(fp); i++) {
 
-        if (fgetc(fp) == EOF && num_lines > 0)
+        if (fgetc(fp) == EOF && b.num_lines > 0)
             break;
         else
             fseek(fp, -1, SEEK_CUR);
 
-        lines = realloc(lines, ++num_lines * sizeof(*lines));
+        b.lines = realloc(b.lines, ++b.num_lines * sizeof(*(b.lines)));
 
-        lines[i] = blank_line();
+        b.lines[i] = blank_line();
 
         char c;
         unsigned int j;
@@ -65,80 +75,74 @@ void read_lines(void) {
 
         for (j = 0; (c = fgetc(fp)) != lineend && c != EOF; j++) {
 
-            if (lines[i].length + 1 >= lines[i].len) {
-                lines[i].len += READ_BLOCKSIZE;
-                lines[i].data = realloc(lines[i].data, lines[i].len * sizeof(*lines[i].data));
+            if (b.lines[i].length + 1 >= b.lines[i].len) {
+                b.lines[i].len += READ_BLOCKSIZE;
+                b.lines[i].data = realloc(b.lines[i].data, b.lines[i].len * sizeof(*b.lines[i].data));
             }
 
             if (passed_spaces == 0 && c != ' ')
                 passed_spaces = 1;
             else if (passed_spaces == 0)
-                lines[i].ident++;
+                b.lines[i].ident++;
 
             unsigned char uc = c;
-            utf8ReadFile(uc, &lines[i].data[j], fp);
-            lines[i].length++;
+            utf8ReadFile(uc, &b.lines[i].data[j], fp);
+            b.lines[i].length++;
         }
         
-        lines[i].data[j] = '\0';
+        b.lines[i].data[j] = '\0';
         
-        if (config.line_break_type == 1)
+        if (b.line_break_type == 1)
             fgetc(fp);
     }
+    return b;
 }
 
-void detect_linebreak(void) {
+unsigned char detect_linebreak(FILE *fp) {
+    unsigned char line_break_type = 0;
     char c;
     while (!feof(fp)) {
         c = fgetc(fp);
 
         if (c == '\r') {
             if (fgetc(fp) == '\n')
-                config.line_break_type = 1;
+                line_break_type = 1;
             else
-                config.line_break_type = 2;
+                line_break_type = 2;
 
             break;
         } else if (c == '\n') {
-            config.line_break_type = 0;
+            line_break_type = 0;
             break;
         }
     }
     rewind(fp);
+    return line_break_type;
 }
 
-void openFile(char *fname, bool needs_to_free) {
+void open_file(char *fname, bool needs_to_free_new_filename, Buffer *buf) {
     if (needs_to_free_filename)
         free(filename);
     
     filename = fname;
-    needs_to_free_filename = needs_to_free;
+    needs_to_free_filename = needs_to_free_new_filename;
     
-    cursor.x = 0;
-    cursor.y = 0;
-    last_cursor_x = 0;
-    text_scroll.x = 0;
-    text_scroll.y = 0;
-    free_lines();
-    num_lines = 0;
-    lines = NULL;
+    buf->scroll.x = 0;
+    buf->scroll.y = 0;
+    free_buffer(buf);
     
-    fp = fopen(filename, "r");
-    read_lines();
+    FILE *fp = fopen(filename, "r");
+    *buf = read_lines(fp, can_write(filename));
     if (fp != NULL)
         fclose(fp);
-
-    calculate_len_line_number();
-    detect_read_only(fname);
 }
 
-void detect_read_only(char *fname) {
+bool can_write(char *fname) {
     struct stat st;
     if (stat(fname, &st) == 0) {
-        config.selected_buf.can_write = (st.st_mode & S_IWOTH) || // all user write permission
+        return (st.st_mode & S_IWOTH) || // all user write permission
             (getuid() == st.st_uid && (st.st_mode & S_IWUSR)) || // owner write permission
             (getgid() == st.st_gid && (st.st_mode & S_IWGRP));  // group write permission
     } else // if stat fails and errno is not EACCES, can_write will be true
-        config.selected_buf.can_write = errno != EACCES;
-    config.selected_buf.read_only = !config.selected_buf.can_write;
+        return errno != EACCES;
 }

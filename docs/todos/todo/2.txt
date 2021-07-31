@@ -1,0 +1,3 @@
+src/keypress.c is a mess, create a new src/buffer.c file which will provide
+abstractions for working with the buffer instead of using mallocs and frees
+directly

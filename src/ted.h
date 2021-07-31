@@ -19,8 +19,6 @@
 
 #define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
-#define cx cursor.x
-#define cy cursor.y
 
 #define CTRL_KEY_RIGHT 0x232
 #define CTRL_KEY_LEFT  0x223
@@ -32,50 +30,103 @@
 
 #define INPUT_TIMEOUT  5     //timeout for input in ncurses (in milliseconds)
 
+#define USE(x) (void)(x)
+
+// Types
+
 typedef uint32_t uchar32_t;
 
-// message_and_prompt.c
-struct HINTS {
-    const char *word;
+
+typedef struct {
+    unsigned int len;
+    uchar32_t *data;
+    unsigned int length;
+    unsigned int ident;
+} Line;
+
+typedef struct {
+    size_t x;
+    size_t last_x;
+    size_t y;
+} Cursor;
+
+typedef struct {
+    unsigned int x;
+    unsigned int y;
+} TextScroll;
+
+typedef struct {
+    bool modified;
+    bool read_only;
+    bool can_write;
+    unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
+    Line *lines;
+    size_t num_lines;
+    Cursor cursor;
+    TextScroll scroll;
+} Buffer;
+
+typedef struct {
+    bool strict_utf8; // high/low surrogates will be replaced (for now leave it always set)
+    unsigned int tablen;
+    int lines;
+    bool use_spaces;
+    bool autotab;
+    bool automatch;
+    bool insert_newline;
+    char *word_separators;
+} GlobalCfg;
+
+
+typedef struct {
+    const char *command;
     const char *hint;
-};
+} Hints;
+
+typedef struct Node {
+    Buffer data;
+    struct Node *next;
+} Node;
+
+
+// message_and_prompt.c
 char *prompt(const char *msgtmp, char *def);
-char *prompt_hints(const char *msgtmp, char *def, char *shadow, struct HINTS *hints);
+char *prompt_hints(const char *msgtmp, char *def, char *shadow, Hints *hints);
 void message(char *msg);
 
 // ted.c
 void setcolor(int c);
 
 // config_dialog.c
-void config_dialog(void);
-bool run_command(char **words, int words_len);
-void parse_command(char *command);
+void config_dialog(Buffer *buf);
+bool run_command(char **words, int words_len, Buffer *buf);
+void parse_command(char *command, Buffer *buf);
 
 // open_and_save.c
-void savefile(void);
-void read_lines(void);
-void detect_linebreak(void);
-void openFile(char *fname, bool needs_to_free);
-void detect_read_only(char *fname);
+void savefile(Buffer buf);
+Buffer read_lines(FILE *fp, bool read_only);
+unsigned char detect_linebreak(FILE *fp);
+void open_file(char *fname, bool needs_to_free_new_filename, Buffer *b);
+bool can_write(char *fname);
 
-// show.c
-void show_menu(char *message, char *shadow);
-void show_lines(void);
+// display.c
+void display_menu(char *message, char *shadow, Buffer *buf);
+void display_buffer(Buffer buf, int len_line_number);
 
 // free.c
-void free_lines(void);
+void free_buffer(Buffer *buf);
 
 // keypress.c
-void expandLine(unsigned int at, int x);
-void new_line(unsigned int at, int x);
-void process_keypress(int c);
+void expand_line(unsigned int at, int x, Buffer *buf);
+void new_line(unsigned int at, int x, Buffer *buf);
+void process_keypress(int c, Buffer *buf);
 
 // cursor_in_valid_position.c
-void cursor_in_valid_position(void);
-void change_position(unsigned int x, unsigned int y);
+void cursor_in_valid_position(Buffer *buf);
+void change_position(unsigned int x, unsigned int y, Buffer *buf);
 
 // mouse.c
-void processMouseEvent(MEVENT ev);
+void process_mouse_event(MEVENT ev, Buffer *buf);
 
 // utf8.c
 void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_);
@@ -87,72 +138,29 @@ void die(const char *s);
 char *home_path(const char *path);
 char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
-void calculate_len_line_number(void);
+int calculate_len_line_number(Buffer buf);
 int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
-struct LINE blank_line(void);
-
+Line blank_line(void);
 
 // modify.c
-bool modify(void);
-bool add_char(int x, int y, uchar32_t c);
-bool remove_char(int x, int y);
+bool modify(Buffer *buf);
+bool add_char(int x, int y, uchar32_t c, Buffer *buf);
+bool remove_char(int x, int y, Buffer *buf);
+
+// scroll.c
+void calculate_scroll(Buffer buf, int len_line_number);
+
+// linked_list.c
+Node *allocate_node(Node n);
+void deallocate_node(Node *n);
 
 
-// Types
-
-struct BUFFER {
-    bool modified;
-    bool read_only;
-    bool can_write;
-};
-
-struct CFG {
-    bool strict_utf8; // high/low surrogates will be replaced (for now leave it always set)
-    unsigned int tablen;
-    int lines;
-    unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
-    bool use_spaces;
-    bool autotab;
-    bool automatch;
-    bool insert_newline;
-    struct BUFFER selected_buf;
-    char *word_separators;
-};
-
-
-struct LINE {
-    unsigned int len;
-    uchar32_t *data;
-    unsigned int length;
-    unsigned int ident;
-};
-
-
-struct CURSOR {
-    unsigned int x;
-    unsigned int y;
-};
-
-struct TEXT_SCROLL {
-    unsigned int x;
-    unsigned int y;
-};
-
-extern struct CFG config;
+extern GlobalCfg config;
 extern char *filename;
-extern unsigned int num_lines;
-extern unsigned int len_line_number;
-extern struct LINE *lines;
-extern FILE *fp;
-extern struct CURSOR cursor;
-extern struct TEXT_SCROLL text_scroll;
-extern unsigned int last_cursor_x;
-extern bool colors_on;
 extern bool needs_to_free_filename;
 extern char *menu_message;
-extern struct SHD default_syntax;
 extern const uchar32_t substitute_char;
 extern const char *substitute_string;
 extern jmp_buf end;

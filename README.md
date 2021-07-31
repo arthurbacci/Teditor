@@ -12,19 +12,6 @@ All this with less than 3000 lines of C code
 
 ## Installing
 
-### Arch Linux
-
-Go to your programs directory and do:
-
-```sh
-git clone https://github.com/ArthurBacci64/Teditor.git
-cd Teditor
-git checkout stable
-makepkg -si
-```
-
-Installed.
-
 ### Manual installation
 
 Go to your programs directory and do: 

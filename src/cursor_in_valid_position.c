@@ -1,32 +1,19 @@
 #include "ted.h"
 
 // Should be called after changing cursor position
-void cursor_in_valid_position(void) {
+void cursor_in_valid_position(Buffer *buf) {
     /* Check if cursor is inside the borders */
     // y
-    if (cursor.y >= num_lines)
-        cursor.y = num_lines - 1;
+    if (buf->cursor.y >= buf->num_lines)
+        buf->cursor.y = buf->num_lines - 1;
     // x
-    if (cursor.x > lines[cursor.y].length)
-        cursor.x = lines[cursor.y].length;
-
-    /* Scroll related */
-    // y
-    if (cursor.y < text_scroll.y)
-        text_scroll.y = cursor.y;
-    if (cursor.y > text_scroll.y + config.lines - 1)
-        text_scroll.y = cursor.y + 1 - config.lines;
-    // x
-    if (cursor.x < text_scroll.x)
-        text_scroll.x = cursor.x;
-    else if (cursor.x > text_scroll.x + (COLS - len_line_number - 3))
-        text_scroll.x = cursor.x - (COLS - len_line_number - 3);
+    if (buf->cursor.x > buf->lines[buf->cursor.y].length)
+        buf->cursor.x = buf->lines[buf->cursor.y].length;
 }
 
-// This should be an inline function
-void change_position(unsigned int x, unsigned int y) {
-    cursor.y = y;
-    cursor.x = x;
-    cursor_in_valid_position();
+void change_position(unsigned int x, unsigned int y, Buffer *buf) {
+    buf->cursor.y = y;
+    buf->cursor.x = x;
+    cursor_in_valid_position(buf);
 }
 

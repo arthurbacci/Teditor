@@ -1,0 +1,52 @@
+Most relevant change: 15
+
+1. Removed PKGBUILD and Arch-specific instructions
+   Why?
+        - I don't know how this works
+
+2. Changed struct names to PascalCase
+   Why?
+        - CAPITAL_SNAKE_CASE should be only for macros
+
+3. Typedef structs
+   Why?
+        - Too many `struct`s is ugly and makes the code use more horizontal
+          space
+
+4. Hints now have a cleaner notation
+
+5. TRUE/1 and FALSE/0 had been changed to t and f, respectively
+
+6. Created BOOL_COMMAND and BOOL_SET macros
+   Why?
+        - Don't repeat yourself
+
+7. `manual` command now can receive multiple arguments
+   Examples: `manual logs 29-07-2021` will open docs/logs/29-07-2021.txt
+             `manual a b c d` will open docs/a/b/c/d.txt
+
+8. All logs in docs/ had been moved to docs/logs/ and `log-` have been stripped
+   from their names
+   Example: docs/log-29-07-2021.txt had been moved to docs/logs/29-07-2021.txt
+
+9. docs/todos/ had been created, it is separated in docs/todos/todo/ and
+   docs/todos/done/
+
+10. Done todo 1
+
+11. Removed old help pages
+    Why?
+         - Outdated
+    -> Created todo 4
+
+12. Renamed src/show.c to src/display.c
+
+13. Created DEF_COMMAND macro in src/config_dialog.c for removing boilerplate
+
+14. Removed cx and cy macros
+
+15. Lines, number of lines, scroll, cursor... moved from the global scope to a
+    the type Buffer, this will make it really easier to implement multiple
+    buffers
+
+16. Created the base of a linked list

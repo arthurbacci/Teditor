@@ -1,29 +1,12 @@
 #include "ted.h"
 
-struct LINE *lines = NULL;
-unsigned int num_lines;
-unsigned int len_line_number; // The length of the number of the last line
-
-FILE *fp = NULL;
-struct CURSOR cursor = {0, 0};
-struct TEXT_SCROLL text_scroll = {0, 0};
-
 char *filename = NULL;
 char *menu_message = "";
 
-bool colors_on = 0;
 bool needs_to_free_filename = 0;
 
-void setcolor(int c) {
-    if (colors_on)
-        attrset(c);
-}
-
-unsigned int last_cursor_x = 0;
-
-struct CFG config = {
-    1, 4, 0, 0, 1, 1, 1, 1,
-    {0, 0, 1}, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
+GlobalCfg config = {
+    1, 4, 0, 0, 1, 1, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
 };
 
 jmp_buf end;
@@ -85,17 +68,18 @@ int main(int argc, char **argv) {
     curs_set(0);
     timeout(INPUT_TIMEOUT);
 
-    calculate_len_line_number();
 
 
     config.lines = LINES - 1;
     int last_LINES = LINES;
     int last_COLS = COLS;
 
-    fp = fopen(filename, "r");
-    read_lines();
-    if (fp) fclose(fp);
-    detect_read_only(filename);
+    FILE *fp = fopen(filename, "r");
+    Buffer buf = read_lines(fp, can_write(filename));
+
+    if (fp)
+        fclose(fp);
+
 
     int val = setjmp(end);
 
@@ -105,16 +89,20 @@ int main(int argc, char **argv) {
                 last_LINES = LINES;
                 last_COLS = COLS;
                 config.lines = LINES - 1;
-                cursor_in_valid_position();
+                cursor_in_valid_position(&buf);
             }
+
+            int len_line_number = calculate_len_line_number(buf);
+
+            calculate_scroll(buf, len_line_number);
             
-            show_lines();
-            show_menu(menu_message, NULL);
+            display_buffer(buf, len_line_number);
+            display_menu(menu_message, NULL, &buf);
             refresh();
 
             int c = getch();
             if (c == ctrl('c')) {
-                if (config.selected_buf.modified) {
+                if (buf.modified) {
                     char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
                     if (prt && !strcmp("exit", prt)) {
                         free(prt);
@@ -124,11 +112,11 @@ int main(int argc, char **argv) {
                 } else
                     break;
             }
-            process_keypress(c);
+            process_keypress(c, &buf);
         }
     }
 
-    free_lines();
+    free_buffer(&buf);
     if (needs_to_free_filename == 1)
         free(filename);
 
