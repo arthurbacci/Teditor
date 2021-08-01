@@ -1,7 +1,7 @@
 #include "ted.h"
 
 void savefile(Buffer buf) {
-    FILE *fpw = fopen(filename, "w");
+    FILE *fpw = fopen(buf.filename, "w");
 
     if (fpw == NULL) {
         char buf[1000];
@@ -36,16 +36,20 @@ void savefile(Buffer buf) {
     buf.modified = 0;
 }
 
-Buffer read_lines(FILE *fp, bool can_write) {
+Buffer read_lines(FILE *fp, char *filename, bool can_write) {
+    static int buffer_count = -1;
+    buffer_count++;
     Buffer b = {
-        0,               // Modified
-        !can_write,     // read-only
-        can_write,     // data can be written to the buffer
-        0,            // line break type: defaults to LF
-        NULL,        // lines
+        0,          // Modified
+        !can_write, // read-only
+        can_write,  // data can be written to the buffer
+        0,          // line break type: defaults to LF
+        NULL,       // lines
         0,          // number of lines
-        {0, 0, 0}, // Cursor (x, last_x, y)
-        {0, 0},   // Scroll (x, y)
+        {0, 0, 0},  // Cursor (x, last_x, y)
+        {0, 0},     // Scroll (x, y)
+        bufn(buffer_count), // Buffer Name
+        filename,
     };
     if (!fp) {
         b.num_lines = 1;
@@ -120,19 +124,10 @@ unsigned char detect_linebreak(FILE *fp) {
     return line_break_type;
 }
 
-void open_file(char *fname, bool needs_to_free_new_filename, Buffer *buf) {
-    if (needs_to_free_filename)
-        free(filename);
-    
-    filename = fname;
-    needs_to_free_filename = needs_to_free_new_filename;
-    
-    buf->scroll.x = 0;
-    buf->scroll.y = 0;
-    free_buffer(buf);
-    
-    FILE *fp = fopen(filename, "r");
-    *buf = read_lines(fp, can_write(filename));
+void open_file(char *fname, Node **n) {
+    FILE *fp = fopen(fname, "r");
+    buffer_add_next(*n, read_lines(fp, fname, can_write(fname)));
+    parse_command("next", n);
     if (fp != NULL)
         fclose(fp);
 }

@@ -118,3 +118,17 @@ Line blank_line(void) {
     *ln.data = '\0';
     return ln;
 }
+
+char *bufn(int a) {
+    const char letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char *s = malloc(100);
+    char *p = s;
+
+    do {
+        *(p++) = letters[a % sizeof(letters)];
+        a = a / sizeof(letters);
+    } while (a >= sizeof(letters));
+    *p = '\0';
+
+    return s;
+}

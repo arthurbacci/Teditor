@@ -6,5 +6,7 @@ void free_buffer(Buffer *buf) {
         buf->lines[i].len = 0;
     }
     free(buf->lines);
+    free(buf->filename);
+    free(buf->name);
 }
 

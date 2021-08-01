@@ -1,9 +1,6 @@
 #include "ted.h"
 
-char *filename = NULL;
 char *menu_message = "";
-
-bool needs_to_free_filename = 0;
 
 GlobalCfg config = {
     1, 4, 0, 0, 1, 1, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
@@ -13,6 +10,8 @@ jmp_buf end;
 
 
 int main(int argc, char **argv) {
+    char *filename;
+    Node *buf = NULL;
     if (argc < 2) {
         // FIXME: Lots of calls to home_path
 
@@ -27,35 +26,49 @@ int main(int argc, char **argv) {
             mkdir(config_ted, 0777);
             
         filename = home_path(".config/ted/buffer");
-        needs_to_free_filename = 1;
         free(config);
         free(config_ted);
+
+        FILE *fp = fopen(filename, "r");
+        buf = single_buffer(read_lines(fp, filename, can_write(filename)));
+        if (fp)
+            fclose(fp);
     } else {
-        if (*argv[1] == '/')
-            // Absolute file path
-            filename = argv[1];
-        else {
-            // Relative file path
+        for (int i = 1; i < argc; i++) {
+            filename = malloc(1000);
+            if (*argv[i] == '/') {
+                // Absolute file path
+                strcpy(filename, argv[i]);
+            }
+            else {
+                // Relative file path
 
-            // First create or buffer
-            filename = malloc(1000 * sizeof *filename);
-            *filename = '\0';
+                *filename = '\0';
 
-            // Write the directory path into filename
-            if (getcwd(filename, 1000) != NULL)
-                // Add / to the end of the path
-                strncat(filename, "/", 1000);
+                // Write the directory path into filename
+                if (getcwd(filename, 1000) != NULL)
+                    // Add / to the end of the path
+                    strncat(filename, "/", 1000);
+                else
+                    die("Could not get cwd, try an absolute file path");
+
+                // Add the relative file path to the cwd
+                strncat(filename, argv[i], 999);
+
+                // Now we have a absolute filename
+            }
+            FILE *fp = fopen(filename, "r");
+            Buffer b = read_lines(fp, filename, can_write(filename));
+            if (i == 1)
+                buf = single_buffer(b);
             else
-                die("Could not get cwd, try an absolute file path");
+                buffer_add_prev(buf, b);
 
-            // Add the relative file path to the cwd
-            strncat(filename, argv[1], 1000);
-            needs_to_free_filename = 1;
-
-            // Now we have a absolute filename
+            if (fp)
+                fclose(fp);
         }
     }
-    
+
     setlocale(LC_ALL, "");
 
     initscr();
@@ -69,17 +82,9 @@ int main(int argc, char **argv) {
     timeout(INPUT_TIMEOUT);
 
 
-
     config.lines = LINES - 1;
     int last_LINES = LINES;
     int last_COLS = COLS;
-
-    FILE *fp = fopen(filename, "r");
-    Buffer buf = read_lines(fp, can_write(filename));
-
-    if (fp)
-        fclose(fp);
-
 
     int val = setjmp(end);
 
@@ -89,36 +94,24 @@ int main(int argc, char **argv) {
                 last_LINES = LINES;
                 last_COLS = COLS;
                 config.lines = LINES - 1;
-                cursor_in_valid_position(&buf);
+                cursor_in_valid_position(&buf->data);
             }
 
-            int len_line_number = calculate_len_line_number(buf);
+            int len_line_number = calculate_len_line_number(buf->data);
 
-            calculate_scroll(buf, len_line_number);
+            calculate_scroll(&buf->data, len_line_number);
             
-            display_buffer(buf, len_line_number);
-            display_menu(menu_message, NULL, &buf);
+            display_buffer(buf->data, len_line_number);
+            display_menu(menu_message, NULL, buf);
             refresh();
 
             int c = getch();
-            if (c == ctrl('c')) {
-                if (buf.modified) {
-                    char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
-                    if (prt && !strcmp("exit", prt)) {
-                        free(prt);
-                        break;
-                    }
-                    free(prt);
-                } else
-                    break;
-            }
-            process_keypress(c, &buf);
+            if (process_keypress(c, &buf))
+                break;
         }
     }
 
-    free_buffer(&buf);
-    if (needs_to_free_filename == 1)
-        free(filename);
+    free_buffer_list(buf);
 
     endwin();
     return 0;

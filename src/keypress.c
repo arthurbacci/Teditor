@@ -29,11 +29,18 @@ void new_line(unsigned int at, int x, Buffer *buf) {
     buf->lines[at - 1].data[buf->lines[at - 1].length] = '\0';
 }
 
-void process_keypress(int c, Buffer *buf) {
+bool process_keypress(int c, Node **n) {
+    Buffer *buf = &(*n)->data;
     if (c != ERR)
         message("");
 
     switch (c) {
+    case ctrl('c'):
+        return parse_command("close", n);
+    case ctrl('z'):
+        return parse_command("prev", n);
+    case ctrl('x'):
+        return parse_command("next", n);
     case KEY_UP:
     case ctrl('p'):
         change_position(buf->cursor.last_x, buf->cursor.y - (buf->cursor.y > 0), buf);
@@ -73,18 +80,20 @@ void process_keypress(int c, Buffer *buf) {
     case '\t':
         if (config.use_spaces == 1) {
             for (unsigned int i = 0; i < config.tablen; i++)
-                process_keypress(' ', buf);
-            return;
+                process_keypress(' ', n);
+            return false;
         } // else, it will pass though and be added to the buffer
         break;
     case ctrl('g'):
-        config_dialog(buf);
+        if (config_dialog(n))
+            return true;
         break;
     case ctrl('q'):
-        parse_command(
+        if (parse_command(
             buf->read_only ? "read-only 0" : "read-only 1",
-            buf
-        );
+            n
+        ))
+            return true;
         break;
     case KEY_PPAGE:
     {
@@ -104,7 +113,7 @@ void process_keypress(int c, Buffer *buf) {
     {
         MEVENT event;
         if (getmouse(&event) == OK)
-            process_mouse_event(event, buf);
+            process_mouse_event(event, n);
 
         break;
     } case 0x209:
@@ -131,26 +140,26 @@ void process_keypress(int c, Buffer *buf) {
         while (buf->cursor.x > 0 && (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x - 1]) || !passed_spaces)) {
             if (!remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
                 break;
-            process_keypress(KEY_LEFT, buf);
+            process_keypress(KEY_LEFT, n);
             if (buf->cursor.x > 0 && !strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x - 1]))
                 passed_spaces = 1;
         }
         break;
     } case ctrl('o'):
     {
-        char *d = prompt("open: ", filename);
+        char *d = prompt("open: ", buf->filename);
         if (d)
-            open_file(d, 1, buf);
+            open_file(d, n);
         break;
     } case CTRL_KEY_LEFT:
     {
         char passed_spaces = 0;
         while (buf->cursor.x > 0) {
-            process_keypress(KEY_LEFT, buf);
+            process_keypress(KEY_LEFT, n);
             if (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]))
                 passed_spaces = 1;
             if (strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]) && passed_spaces) {
-                process_keypress(KEY_RIGHT, buf);
+                process_keypress(KEY_RIGHT, n);
                 break;
             }
         }
@@ -162,7 +171,7 @@ void process_keypress(int c, Buffer *buf) {
         while (buf->lines[buf->cursor.y].data[buf->cursor.x] != '\0' && !(strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]) && passed_spaces)) {
             if (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]))
                 passed_spaces = 1;
-            process_keypress(KEY_RIGHT, buf);
+            process_keypress(KEY_RIGHT, n);
         }
         break;
     } case KEY_BACKSPACE: case KEY_DC: case 127:
@@ -172,7 +181,7 @@ void process_keypress(int c, Buffer *buf) {
 
             if (buf->cursor.x >= 1) {
                 if (remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
-                    process_keypress(KEY_LEFT, buf);
+                    process_keypress(KEY_LEFT, n);
             } else if (buf->cursor.y > 0) {
                 Line del_line = buf->lines[buf->cursor.y];
                 memmove(
@@ -186,7 +195,7 @@ void process_keypress(int c, Buffer *buf) {
                 buf->cursor.x = buf->lines[buf->cursor.y].length;
                 cursor_in_valid_position(buf);
 
-                process_keypress(KEY_RIGHT, buf);
+                process_keypress(KEY_RIGHT, n);
                 expand_line(buf->cursor.y, del_line.length, buf);
 
                 memmove(
@@ -239,7 +248,7 @@ void process_keypress(int c, Buffer *buf) {
                 buf->lines[buf->cursor.y].length += ident;
 
                 for (unsigned int i = 0; i < ident; i++)
-                    process_keypress(KEY_RIGHT, buf);
+                    process_keypress(KEY_RIGHT, n);
             } else
                 buf->lines[buf->cursor.y].ident = 0;
         }
@@ -272,16 +281,17 @@ void process_keypress(int c, Buffer *buf) {
                     ec += ucs[i] << off;
 
                 if (add_char(buf->cursor.x, buf->cursor.y, ec, buf))
-                    process_keypress(KEY_RIGHT, buf);
+                    process_keypress(KEY_RIGHT, n);
             } else {
                 for (int i = 0; i < len; i++) {
                     if (add_char(buf->cursor.x, buf->cursor.y, substitute_char, buf))
-                        process_keypress(KEY_RIGHT, buf);
+                        process_keypress(KEY_RIGHT, n);
                     else
                         break;
                 }
             }
         }
     }
+    return false;
 }
 

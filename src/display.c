@@ -1,7 +1,8 @@
 #include "ted.h"
 
 // Buffer* is used instead of Buffer for being able to pass NULL
-void display_menu(char *message, char *shadow, Buffer *buf) {
+void display_menu(char *message, char *shadow, Node *n) {
+    const Buffer *buf = &n->data;
     int x, y;
     getyx(stdscr, y, x);
 
@@ -13,14 +14,19 @@ void display_menu(char *message, char *shadow, Buffer *buf) {
     if (!*message) {
         unsigned int scrolled = ((double)buf->cursor.y / ((double)buf->num_lines - 1)) * 100;
 
-        printw("I:%u %u%% %s", buf->lines[buf->cursor.x].ident, scrolled, filename);
+        printw("I:%u %u%% %s", buf->lines[buf->cursor.x].ident, scrolled, buf->filename);
 
         char b[500];
-        int len = snprintf(b, 500, "%s%s%s %s",
-                           buf->modified ? "!" : ".",
-                           buf->read_only ? "o" : "c",
-                           buf->can_write ? "W" : "R",
-                           buf->line_break_type == 0 ? "LF" : (buf->line_break_type == 1 ? "CRLF" : "CR"));
+        int len = snprintf(
+            b, 500, "%s%s%s %s | %s<-%s->%s",
+            buf->modified ? "!" : ".",
+            buf->read_only ? "o" : "c",
+            buf->can_write ? "W" : "R",
+            buf->line_break_type == 0 ? "LF" : (buf->line_break_type == 1 ? "CRLF" : "CR"),
+            n->prev->data.name,
+            buf->name,
+            n->next->data.name
+        );
 
         mvprintw(config.lines, COLS - len, "%s", b);
 

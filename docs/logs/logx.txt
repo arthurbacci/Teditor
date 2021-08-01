@@ -1,0 +1,26 @@
+Most relevant change: 3
+
+1. Renamed linked_list.c to buffer_list.c
+
+2. Moved filename from global scope to the buffer type
+
+3. Added multibuffer support
+
+4. Fixed calculate_scroll function, scroll is working again
+   Reason:
+           It was modifying only the copied data inside the function
+   Fix:
+        Pass-by-reference, also know as pointer :)
+
+5. Added command 'close'
+
+6. Now process_keypress and most functions that it calls return a bool, if it
+   returns true, then ted closes
+
+7. Multibuffer keybindings:
+                            C-c: Close buffer
+                            C-z: Previous buffer
+                            C-x: Next buffer
+                            C-o: Open file in new buffer
+
+8. Manual opens in new buffer

@@ -11,13 +11,16 @@
 #define BOOL_SET(a) BOOL_COMMAND((a) = 1;, (a) = 0;);
 
 #define DEF_COMMAND(a, b) \
-    static void (a)(char **words, unsigned int words_len, Buffer *buf) { \
+    static bool (a)(char **words, unsigned int words_len, Node **n) { \
+        Buffer *buf = &(*n)->data; \
         /* Only for suppressing warnings */ \
         USE(words); \
         USE(words_len); \
+        USE(n); \
         USE(buf); \
         \
         b \
+        return false; \
     }
 
 DEF_COMMAND(tablen, {
@@ -47,16 +50,14 @@ DEF_COMMAND(automatch, BOOL_SET(config.automatch))
 
 DEF_COMMAND(save_as, {
     if (words_len == 1) {
-        if (needs_to_free_filename)
-            free(filename);
+        free(buf->filename);
 
         unsigned int size = (strlen(words[0]) + 1) * sizeof(char);
-        filename = malloc(size);
-        memcpy(filename, words[0], size);
-        needs_to_free_filename = 1;
+        buf->filename = malloc(size);
+        memcpy(buf->filename, words[0], size);
 
         // Permissions may change since the last time it was detected
-        buf->can_write = can_write(filename);
+        buf->can_write = can_write(buf->filename);
 
         if (buf->can_write)
             savefile(*buf);
@@ -67,16 +68,16 @@ DEF_COMMAND(save_as, {
 
 DEF_COMMAND(manual, {
     if (words_len == 0) {
-        open_file(home_path(".config/ted/docs/help.txt"), 1, buf);
+        open_file(home_path(".config/ted/docs/help.txt"), n);
         buf->read_only = 1;
     } else if (words_len > 0) {
         char fname[1000];
-        char *n = fname;
-        n += sprintf(n, ".config/ted/docs");
+        char *p = fname;
+        p += sprintf(p, ".config/ted/docs");
         for (size_t i = 0; i < words_len; i++)
-            n += sprintf(n, "/%s", words[i]);
-        n += sprintf(n, ".txt");
-        open_file(home_path(fname), 1, buf);
+            p += sprintf(p, "/%s", words[i]);
+        p += sprintf(p, ".txt");
+        open_file(home_path(fname), n);
         buf->read_only = 1;
     }
 })
@@ -111,7 +112,7 @@ DEF_COMMAND(find, {
                 )) >= 0
             ) {
                 change_position(index + len + (from_cur && at == buf->cursor.y) * buf->cursor.x, at, buf);
-                return;
+                return false;
             }
         }
         message("Substring not found");
@@ -123,9 +124,30 @@ DEF_COMMAND(eof, {
         change_position(buf->lines[buf->num_lines - 1].length, buf->num_lines, buf);
 })
 
+DEF_COMMAND(next, *n = (*n)->next;)
+DEF_COMMAND(prev, *n = (*n)->prev;)
+DEF_COMMAND(close_buffer, {
+    if (buf->modified) {
+        char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
+        if (prt && !strcmp("exit", prt)) {
+            free(prt);
+            goto GOODBYE_BUFFER;
+        }
+        free(prt);
+        return false;
+    } else
+        goto GOODBYE_BUFFER;
+
+    GOODBYE_BUFFER:
+    if ((*n)->next == *n)
+        return true;
+    *n = (*n)->prev;
+    buffer_close((*n)->next);
+})
+
 struct {
     const char *name;
-    void (*function)(char **words, unsigned int words_len, Buffer *buf);
+    bool (*function)(char **words, unsigned int words_len, Node **n);
 } fns[] = {
     {"tablen"           , tablen            },
     {"linebreak"        , linebreak         },
@@ -138,6 +160,9 @@ struct {
     {"read-only"        , read_only         },
     {"find"             , find              },
     {"eof"              , eof               },
+    {"next"             , next              },
+    {"prev"             , prev              },
+    {"close"            , close_buffer      },
     {NULL, NULL}
 };
 
@@ -157,51 +182,66 @@ Hints hints[] = {
 
 char last_command[1000] = "";
 
-void calculate_base_hint(Hints *hints, char *base_hint) {
+void calculate_base_hint(char *base_hint) {
     char *p = base_hint;
-    for (size_t i = 0; hints[i].command; i++)
-        p += sprintf(p, "%s ", hints[i].command);
+    for (size_t i = 0; fns[i].name; i++)
+        p += sprintf(p, "%s ", fns[i].name);
     if (p != base_hint)
         p[-1] = '\0';
 }
 
-void config_dialog(Buffer *buf) {
+bool config_dialog(Node **n) {
     char base_hint[1000];
-    calculate_base_hint(hints, base_hint);
+    calculate_base_hint(base_hint);
     char *command = prompt_hints("Enter command: ", "", base_hint, hints);
 
-    parse_command(command, buf);
+    bool r = parse_command(command, n);
 
     free(command);
+    return r;
 }
 
 
-void parse_command(char *command, Buffer *buf) {
+bool parse_command(char *command, Node **n) {
     if (!command)
-        return;
+        return false;
 
     int words_len;
     char **words = split_str(command, &words_len);
 
-    if (run_command(words, words_len, buf))
-        parse_command(last_command, buf);
-    else if (command != last_command)
-        strcpy(last_command, command);
+    bool r = false;
+
+    switch (run_command(words, words_len, n)) {
+        // repeat command
+        case 0:
+            parse_command(last_command, n);
+            break;
+
+        // normal command
+        case 1:
+            if (command != last_command)
+                strcpy(last_command, command);
+            break;
+
+        // stop!
+        case 2:
+            r = true;
+    }
 
     for (int i = 0; i < words_len; i++)
         free(words[i]);
     free(words);
+
+    return r;
 }
 
 
-bool run_command(char **words, int words_len, Buffer *buf) {
+int run_command(char **words, int words_len, Node **n) {
     if (words_len == 1 && !strcmp(words[0], "repeat"))
-        return 1;
-    for (unsigned int i = 0; fns[i].name; i++) {
-        if (!strcmp(words[0], fns[i].name)) {
-            fns[i].function(words + 1, words_len - 1, buf);
-                return 0;
-        }
-    }
-    return 0;
+        return 0;
+    for (unsigned int i = 0; fns[i].name; i++)
+        if (!strcmp(words[0], fns[i].name))
+            return 1 + fns[i].function(words + 1, words_len - 1, n);
+
+    return 1;
 }

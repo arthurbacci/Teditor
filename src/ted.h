@@ -64,6 +64,8 @@ typedef struct {
     size_t num_lines;
     Cursor cursor;
     TextScroll scroll;
+    char *name;
+    char *filename;
 } Buffer;
 
 typedef struct {
@@ -77,7 +79,6 @@ typedef struct {
     char *word_separators;
 } GlobalCfg;
 
-
 typedef struct {
     const char *command;
     const char *hint;
@@ -86,6 +87,7 @@ typedef struct {
 typedef struct Node {
     Buffer data;
     struct Node *next;
+    struct Node *prev;
 } Node;
 
 
@@ -98,19 +100,19 @@ void message(char *msg);
 void setcolor(int c);
 
 // config_dialog.c
-void config_dialog(Buffer *buf);
-bool run_command(char **words, int words_len, Buffer *buf);
-void parse_command(char *command, Buffer *buf);
+bool config_dialog(Node **n);
+int run_command(char **words, int words_len, Node **n);
+bool parse_command(char *command, Node **n);
 
 // open_and_save.c
 void savefile(Buffer buf);
-Buffer read_lines(FILE *fp, bool read_only);
+Buffer read_lines(FILE *fp, char *filename, bool read_only);
 unsigned char detect_linebreak(FILE *fp);
-void open_file(char *fname, bool needs_to_free_new_filename, Buffer *b);
+void open_file(char *fname, Node **n);
 bool can_write(char *fname);
 
 // display.c
-void display_menu(char *message, char *shadow, Buffer *buf);
+void display_menu(char *message, char *shadow, Node *n);
 void display_buffer(Buffer buf, int len_line_number);
 
 // free.c
@@ -119,14 +121,14 @@ void free_buffer(Buffer *buf);
 // keypress.c
 void expand_line(unsigned int at, int x, Buffer *buf);
 void new_line(unsigned int at, int x, Buffer *buf);
-void process_keypress(int c, Buffer *buf);
+bool process_keypress(int c, Node **n);
 
 // cursor_in_valid_position.c
 void cursor_in_valid_position(Buffer *buf);
 void change_position(unsigned int x, unsigned int y, Buffer *buf);
 
 // mouse.c
-void process_mouse_event(MEVENT ev, Buffer *buf);
+bool process_mouse_event(MEVENT ev, Node **n);
 
 // utf8.c
 void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_);
@@ -143,6 +145,7 @@ int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
 int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
 Line blank_line(void);
+char *bufn(int a);
 
 // modify.c
 bool modify(Buffer *buf);
@@ -150,16 +153,19 @@ bool add_char(int x, int y, uchar32_t c, Buffer *buf);
 bool remove_char(int x, int y, Buffer *buf);
 
 // scroll.c
-void calculate_scroll(Buffer buf, int len_line_number);
+void calculate_scroll(Buffer *buf, int len_line_number);
 
-// linked_list.c
+// buffer_list.c
 Node *allocate_node(Node n);
 void deallocate_node(Node *n);
+Node *single_buffer(Buffer b);
+void buffer_add_next(Node *n, Buffer b);
+void buffer_add_prev(Node *n, Buffer b);
+void buffer_close(Node *n);
+void free_buffer_list(Node *n);
 
 
 extern GlobalCfg config;
-extern char *filename;
-extern bool needs_to_free_filename;
 extern char *menu_message;
 extern const uchar32_t substitute_char;
 extern const char *substitute_string;

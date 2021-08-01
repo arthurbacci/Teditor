@@ -1,6 +1,6 @@
 #include "ted.h"
 
-void process_mouse_event(MEVENT ev, Buffer *buf) {
+bool process_mouse_event(MEVENT ev, Node **n) {
     if (ev.bstate & BUTTON1_CLICKED || ev.bstate & BUTTON1_PRESSED) {
         // FIXME: It is not working
         /*
@@ -13,11 +13,12 @@ void process_mouse_event(MEVENT ev, Buffer *buf) {
         last_cursor_x = cx;
         */
     } else if (ev.bstate == BUTTON4_PRESSED)
-        process_keypress(KEY_UP, buf);
+        return process_keypress(KEY_UP, n);
     else if (ev.bstate == 0x200000)
-        process_keypress(KEY_DOWN, buf);
+        return process_keypress(KEY_DOWN, n);
     else if (ev.bstate == 0x4200000)
-        process_keypress(KEY_RIGHT, buf);
+        return process_keypress(KEY_RIGHT, n);
     else if (ev.bstate == 0x4010000)
-        process_keypress(KEY_LEFT, buf);
+        return process_keypress(KEY_LEFT, n);
+    return false;
 }
