@@ -67,7 +67,7 @@ typedef struct {
     bool modified;
     bool read_only;
     bool can_write;
-    unsigned char line_break_type; // 0: LF  1: CRLF  2: CR
+    unsigned char line_break_type; // 0: LF  1: CRLF
     Line *lines;
     size_t num_lines;
     Cursor cursor;

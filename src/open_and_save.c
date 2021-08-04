@@ -25,10 +25,8 @@ void savefile(Buffer *buf) {
         if (buf->num_lines > 1) {
             if (buf->line_break_type == 0)
                 fputc('\n', fpw);
-            else if (buf->line_break_type == 1)
+            else
                 fputs("\r\n", fpw);
-            else if (buf->line_break_type == 2)
-                fputc('\r', fpw);
         }
     }
     fclose(fpw);
@@ -60,7 +58,6 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
     }
 
     b.line_break_type = detect_linebreak(fp);
-    char lineend = b.line_break_type == 0 ? '\n' : '\r';
 
     b.num_lines = 0;
     for (unsigned int i = 0; !feof(fp); i++) {
@@ -78,7 +75,9 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
         unsigned int j;
         char passed_spaces = 0;
 
-        for (j = 0; (c = fgetc(fp)) != lineend && c != EOF; j++) {
+        for (j = 0; (c = fgetc(fp)) != '\n' && c != EOF; j++) {
+            if (c == '\r')
+                continue;
 
             if (b.lines[i].length + 1 >= b.lines[i].len) {
                 b.lines[i].len += READ_BLOCKSIZE;
@@ -110,11 +109,7 @@ unsigned char detect_linebreak(FILE *fp) {
         c = fgetc(fp);
 
         if (c == '\r') {
-            if (fgetc(fp) == '\n')
-                line_break_type = 1;
-            else
-                line_break_type = 2;
-
+            line_break_type = 1;
             break;
         } else if (c == '\n') {
             line_break_type = 0;
@@ -136,9 +131,13 @@ void open_file(char *fname, Node **n) {
 bool can_write(char *fname) {
     struct stat st;
     if (stat(fname, &st) == 0) {
-        return (st.st_mode & S_IWOTH) || // all user write permission
-            (getuid() == st.st_uid && (st.st_mode & S_IWUSR)) || // owner write permission
-            (getgid() == st.st_gid && (st.st_mode & S_IWGRP));  // group write permission
-    } else // if stat fails and errno is not EACCES, can_write will be true
+        // all user write permission
+        return (st.st_mode & S_IWOTH)
+            // owner write permission
+            || (getuid() == st.st_uid && (st.st_mode & S_IWUSR))
+            // group write permission
+            || (getgid() == st.st_gid && (st.st_mode & S_IWGRP));
+    } else
+        // if stat fails and errno is not EACCES, can_write will be true
         return errno != EACCES;
 }
