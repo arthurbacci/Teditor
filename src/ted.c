@@ -57,19 +57,19 @@ int main(int argc, char **argv) {
                 // Absolute file path
                 len = strlen(argv[i]);
                 memcpy(filename, argv[i], len + 1);
-            }
-            else {
+            } else {
                 // Relative file path
 
                 // Write the directory path into filename
-                if (getcwd(filename, PATH_MAX) != NULL)
+                if (getcwd(filename, PATH_MAX) != NULL) {
+                    len = strlen(filename);
                     len += snprintf(
-                        filename,
-                        PATH_MAX - strlen(filename),
+                        filename + len,
+                        PATH_MAX - len,
                         "/%s",
                         argv[i]
                     );
-                else
+                } else
                     die("Could not get cwd, try an absolute file path");
 
                 // Now we have a absolute filename
