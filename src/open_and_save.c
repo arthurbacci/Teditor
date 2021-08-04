@@ -40,14 +40,14 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
     static int buffer_count = -1;
     buffer_count++;
     Buffer b = {
-        0,          // Modified
-        !can_write, // read-only
-        can_write,  // data can be written to the buffer
-        0,          // line break type: defaults to LF
-        NULL,       // lines
-        0,          // number of lines
-        {0, 0, 0},  // Cursor (x, last_x, y)
-        {0, 0},     // Scroll (x, y)
+        0,                  // Modified
+        !can_write,         // read-only
+        can_write,          // data can be written to the buffer
+        0,                  // line break type: defaults to LF
+        NULL,               // lines
+        0,                  // number of lines
+        {0, 0, 0},          // Cursor (x, last_x, y)
+        {0, 0},             // Scroll (x, y)
         bufn(buffer_count), // Buffer Name
         filename,
     };
@@ -55,6 +55,7 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
         b.num_lines = 1;
         b.lines = malloc(b.num_lines * sizeof(*(b.lines)));
         b.lines[0] = blank_line();
+        b.modified = 1;
         return b;
     }
 
