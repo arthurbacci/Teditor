@@ -75,7 +75,7 @@ bool process_keypress(int c, Node **n) {
         break;
     case ctrl('s'):
         if (!buf->read_only)
-            savefile(*buf);
+            savefile(buf);
         break;
     case '\t':
         if (config.use_spaces == 1) {

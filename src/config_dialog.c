@@ -60,7 +60,7 @@ DEF_COMMAND(save_as, {
         buf->can_write = can_write(buf->filename);
 
         if (buf->can_write)
-            savefile(*buf);
+            savefile(buf);
         else
             message("Can't save, no permission to write");
     }
@@ -167,16 +167,20 @@ struct {
 };
 
 Hints hints[] = {
-    {"tablen"           , " <tablen>"                     },
-    {"linebreak"        , " LF | CR | CRLF"               },
-    {"insert-newline"   , " f | t"                        },
-    {"use-spaces"       , " f | t"                        },
-    {"autotab"          , " f | t"                        },
-    {"automatch"        , " f | t"                        },
-    {"save-as"          , " <filename>"                   },
-    {"manual"           , " <page (nothing for index)>"   },
-    {"read-only"        , " f | t"                        },
-    {"find"             , " (start | cursor) <substring>" },
+    {"tablen"           , "<tablen>"                     },
+    {"linebreak"        , "LF | CR | CRLF"               },
+    {"insert-newline"   , "f | t"                        },
+    {"use-spaces"       , "f | t"                        },
+    {"autotab"          , "f | t"                        },
+    {"automatch"        , "f | t"                        },
+    {"save-as"          , "<filename>"                   },
+    {"manual"           , "<page (nothing for index)>"   },
+    {"read-only"        , "f | t"                        },
+    {"find"             , "(start | cursor) <substring>" },
+    {"eof"              , ""                              },
+    {"next"             , ""                              },
+    {"prev"             , ""                              },
+    {"close"            , ""                              },
     {NULL, NULL}
 };
 
@@ -184,8 +188,8 @@ char last_command[1000] = "";
 
 void calculate_base_hint(char *base_hint) {
     char *p = base_hint;
-    for (size_t i = 0; fns[i].name; i++)
-        p += sprintf(p, "%s ", fns[i].name);
+    for (size_t i = 0; hints[i].command; i++)
+        p += sprintf(p, "%s ", hints[i].command);
     if (p != base_hint)
         p[-1] = '\0';
 }

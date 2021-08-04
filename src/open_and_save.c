@@ -1,39 +1,39 @@
 #include "ted.h"
 
-void savefile(Buffer buf) {
-    FILE *fpw = fopen(buf.filename, "w");
+void savefile(Buffer *buf) {
+    FILE *fpw = fopen(buf->filename, "w");
 
     if (fpw == NULL) {
         char buf[1000];
-        snprintf(buf, 1000, "Could not open the file\nErrno: %d\nPress any key", errno);
+        snprintf(buf, 1000, "Could not open the file; Errno: %d", errno);
 
         message(buf);
         return;
     }
 
-    if (config.insert_newline && buf.lines[buf.num_lines - 1].length > 0) {
-        buf.lines = realloc(buf.lines, ++buf.num_lines * sizeof(*buf.lines));
-        buf.lines[buf.num_lines - 1] = blank_line();
+    if (config.insert_newline && buf->lines[buf->num_lines - 1].length > 0) {
+        buf->lines = realloc(buf->lines, ++buf->num_lines * sizeof(*buf->lines));
+        buf->lines[buf->num_lines - 1] = blank_line();
     }
 
-    for (unsigned int i = 0; i < buf.num_lines; i++) {
-        for (unsigned int j = 0; j < buf.lines[i].length; j++) {
+    for (unsigned int i = 0; i < buf->num_lines; i++) {
+        for (unsigned int j = 0; j < buf->lines[i].length; j++) {
             unsigned char b[4];
-            int len = utf8ToMultibyte(buf.lines[i].data[j], b, 0);
+            int len = utf8ToMultibyte(buf->lines[i].data[j], b, 0);
             fwrite(b, sizeof(unsigned char), len, fpw);
         }
-        if (buf.num_lines > 1) {
-            if (buf.line_break_type == 0)
+        if (buf->num_lines > 1) {
+            if (buf->line_break_type == 0)
                 fputc('\n', fpw);
-            else if (buf.line_break_type == 1)
+            else if (buf->line_break_type == 1)
                 fputs("\r\n", fpw);
-            else if (buf.line_break_type == 2)
+            else if (buf->line_break_type == 2)
                 fputc('\r', fpw);
         }
     }
     fclose(fpw);
 
-    buf.modified = 0;
+    buf->modified = 0;
 }
 
 Buffer read_lines(FILE *fp, char *filename, bool can_write) {

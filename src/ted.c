@@ -1,4 +1,6 @@
 #include "ted.h"
+#include <curses.h>
+#include <unistd.h>
 
 char *menu_message = "";
 
@@ -10,7 +12,20 @@ jmp_buf end;
 
 
 int main(int argc, char **argv) {
-    char *filename;
+    // piping stderr is ok
+    int susin = !isatty(STDIN_FILENO);
+    int susout = !isatty(STDOUT_FILENO);
+    int num_imposters = susin + susout;
+
+    if (num_imposters) {
+        if (susout)
+            printf("Impostor\n");
+        else
+            printf("Crewmate, there is 1 impostor amogus\n");
+    }
+    // amogus jokes rest here
+
+
     Node *buf = NULL;
     if (argc < 2) {
         // FIXME: Lots of calls to home_path
@@ -25,7 +40,7 @@ int main(int argc, char **argv) {
         if (stat(config_ted, &st) == -1)
             mkdir(config_ted, 0777);
             
-        filename = home_path(".config/ted/buffer");
+        char *filename = home_path(".config/ted/buffer");
         free(config);
         free(config_ted);
 
@@ -35,28 +50,36 @@ int main(int argc, char **argv) {
             fclose(fp);
     } else {
         for (int i = 1; i < argc; i++) {
-            filename = malloc(1000);
+            char *filename = malloc(PATH_MAX + 1);
+            size_t len = 0;
+
             if (*argv[i] == '/') {
                 // Absolute file path
-                strcpy(filename, argv[i]);
+                len = strlen(argv[i]);
+                memcpy(filename, argv[i], len + 1);
             }
             else {
                 // Relative file path
 
-                *filename = '\0';
-
                 // Write the directory path into filename
-                if (getcwd(filename, 1000) != NULL)
-                    // Add / to the end of the path
-                    strncat(filename, "/", 1000);
+                if (getcwd(filename, PATH_MAX) != NULL)
+                    len += snprintf(
+                        filename,
+                        PATH_MAX - strlen(filename),
+                        "/%s",
+                        argv[i]
+                    );
                 else
                     die("Could not get cwd, try an absolute file path");
 
-                // Add the relative file path to the cwd
-                strncat(filename, argv[i], 999);
-
                 // Now we have a absolute filename
             }
+
+            char *smaller_filename = malloc(len + 1);
+            memcpy(smaller_filename, filename, len + 1);
+            free(filename);
+            filename = smaller_filename;
+
             FILE *fp = fopen(filename, "r");
             Buffer b = read_lines(fp, filename, can_write(filename));
             if (i == 1)

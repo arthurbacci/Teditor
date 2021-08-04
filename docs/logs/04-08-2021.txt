@@ -1,0 +1,11 @@
+1. Changed hardcoded 1000 to PATH_MAX and made the code in the surroundings
+   safer
+
+2. filename now uses less memory
+
+3. Sus
+
+4. New hints system in minibuffer
+
+5. Fixed problems in savefile
+

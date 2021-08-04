@@ -1,6 +1,8 @@
 #ifndef TED_HEADER
 #define TED_HEADER
 
+#define _POSIX_C_SOURCE 1
+
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +18,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <setjmp.h>
+#include <limits.h>
 
 #define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
@@ -36,6 +39,11 @@
 
 typedef uint32_t uchar32_t;
 
+typedef struct {
+    char *start;
+    size_t len;
+    size_t cap;
+} String;
 
 typedef struct {
     unsigned int len;
@@ -93,7 +101,7 @@ typedef struct Node {
 
 // message_and_prompt.c
 char *prompt(const char *msgtmp, char *def);
-char *prompt_hints(const char *msgtmp, char *def, char *shadow, Hints *hints);
+char *prompt_hints(const char *msg, char *def, char *base, Hints *hints);
 void message(char *msg);
 
 // ted.c
@@ -105,14 +113,14 @@ int run_command(char **words, int words_len, Node **n);
 bool parse_command(char *command, Node **n);
 
 // open_and_save.c
-void savefile(Buffer buf);
+void savefile(Buffer *buf);
 Buffer read_lines(FILE *fp, char *filename, bool read_only);
 unsigned char detect_linebreak(FILE *fp);
 void open_file(char *fname, Node **n);
 bool can_write(char *fname);
 
 // display.c
-void display_menu(char *message, char *shadow, Node *n);
+void display_menu(const char *message, char *shadow, Node *n);
 void display_buffer(Buffer buf, int len_line_number);
 
 // free.c
@@ -163,6 +171,18 @@ void buffer_add_next(Node *n, Buffer b);
 void buffer_add_prev(Node *n, Buffer b);
 void buffer_close(Node *n);
 void free_buffer_list(Node *n);
+
+// dynamic_string.c
+String dynamic_string(const char *x, size_t length);
+void dynamic_string_check_available(String *s, size_t length);
+void dynamic_string_push(String *s, char x);
+void dynamic_string_push_str(String *s, const char *x, size_t length);
+bool dynamic_string_pop(String *s);
+void dynamic_string_free(String *s);
+char *dynamic_string_to_str(String s);
+String dynamic_string_concat(String a, String b);
+bool dynamic_string_eq(String a, String b);
+bool dynamic_string_starts_with(String a, String b);
 
 
 extern GlobalCfg config;

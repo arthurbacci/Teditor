@@ -1,7 +1,7 @@
 #include "ted.h"
 
 // Buffer* is used instead of Buffer for being able to pass NULL
-void display_menu(char *message, char *shadow, Node *n) {
+void display_menu(const char *message, char *shadow, Node *n) {
     const Buffer *buf = &n->data;
     int x, y;
     getyx(stdscr, y, x);
@@ -11,7 +11,7 @@ void display_menu(char *message, char *shadow, Node *n) {
         addch(' ');
 
     move(config.lines, 0);
-    if (!*message) {
+    if (!*message && n) {
         unsigned int scrolled = ((double)buf->cursor.y / ((double)buf->num_lines - 1)) * 100;
 
         printw("I:%u %u%% %s", buf->lines[buf->cursor.x].ident, scrolled, buf->filename);
