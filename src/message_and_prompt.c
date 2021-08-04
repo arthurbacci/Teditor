@@ -7,7 +7,6 @@ char *prompt(const char *msgtmp, char *def) {
 char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
     String msg = dynamic_string(msgtmp, strlen(msgtmp));
     String b = dynamic_string(def, strlen(def));
-    dynamic_string_push_str(&b, def, strlen(def));
 
     while (1) {
         char *hint = "";

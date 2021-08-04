@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
             int len_line_number = calculate_len_line_number(buf->data);
 
             calculate_scroll(&buf->data, len_line_number);
-            
+
             display_buffer(buf->data, len_line_number);
             display_menu(menu_message, NULL, buf);
             refresh();
