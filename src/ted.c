@@ -12,19 +12,12 @@ jmp_buf end;
 
 
 int main(int argc, char **argv) {
-    // piping stderr is ok
-    int susin = !isatty(STDIN_FILENO);
-    int susout = !isatty(STDOUT_FILENO);
-    int num_imposters = susin + susout;
-
-    if (num_imposters) {
-        if (susout)
-            printf("Impostor\n");
-        else
-            printf("Crewmate, there is 1 impostor amogus\n");
+    int is_input_pipe = !isatty(STDIN_FILENO);
+    if (is_input_pipe) {
+        // TODO
+        close(STDIN_FILENO);
+        open("/dev/tty", O_RDONLY);
     }
-    // amogus jokes rest here
-
 
     Node *buf = NULL;
     if (argc < 2) {
