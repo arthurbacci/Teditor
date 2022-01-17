@@ -1,28 +1,45 @@
-all: ted
-
-CFLAGS=-Wall -W -pedantic -std=c99 -O2
-LIBS=-lncursesw
-
+# Default install location
 PREFIX=/usr/local
 
+# The user owns CPPFLAGS, CFLAGS, LDFLAGS, and friends. Use our own internal
+# variables to include our flags. Our flags are listed first so the user
+# can always override our default choices.
+TED_DEBUG=-Wall -O0 -g3 -pedantic -std=c99
+TED_ANALYZE=-Wall -O1 -g3 -pedantic -std=c99
+TED_RELEASE=-Wall -O3 -g2 -pedantic -std=c99
+TED_LIBS=-lncursesw
+
+all: ted
+
 ted: src/*.c
-	$(CC) -o ted $^ $(CFLAGS) $(LIBS)
+	$(CC) -o ted $^ $(TED_RELEASE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 
 debug:  src/*.c
-	$(CC) -o ted $^ $(CFLAGS) $(LIBS) -g3
+	$(CC) -o ted $^ $(TED_DEBUG) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 
 asan: src/*.c
-	$(CC) -o ted $^ $(CFLAGS) $(LIBS) -fsanitize=address
+	$(CC) -o ted $^ $(TED_ANALYZE) $(CPPFLAGS) -fsanitize=address $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
+
+ubsan: src/*.c
+	$(CC) -o ted $^ $(TED_ANALYZE) $(CPPFLAGS) -fsanitize=undefined $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 
 clean:
-	rm ted -f
+	rm -f ted
+
+distclean:
+	rm -rf *.o ted
 
 install: src/*.c
-	rm ted -f
-	$(CC) -o ted $^ $(CFLAGS) $(LIBS)
+	rm -f ted
+	$(CC) -o ted $^ $(TED_RELEASE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 	mkdir -p $(DESTDIR)$(PREFIX)/bin/
+	chmod 0755 $(DESTDIR)$(PREFIX)/bin/
 	cp ted $(DESTDIR)$(PREFIX)/bin/
+	chmod 0755 $(DESTDIR)$(PREFIX)/bin/ted
 	mkdir -p ~/.config/ted/
-	rm ~/.config/ted/docs/ -rf
-	cp docs/ ~/.config/ted/ -r
+	chmod 0755 ~/.config/ted/
+	rm -rf ~/.config/ted/docs/
+	cp -r docs/ ~/.config/ted/
+	chmod 0755 ~/.config/ted/docs/
+	chmod 0644 ~/.config/ted/docs/*
 
