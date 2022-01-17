@@ -12,16 +12,16 @@ TED_LIBS=-lncursesw
 all: ted
 
 ted: src/*.c
-	$(CC) -o ted $^ $(TED_RELEASE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS)
+	$(CC) -o ted $^ $(TED_RELEASE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 
 debug:  src/*.c
-	$(CC) -o ted $^ $(TED_DEBUG) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS)
+	$(CC) -o ted $^ $(TED_DEBUG) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 
 asan: src/*.c
-	$(CC) -o ted $^ $(TED_ANALYZE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) -fsanitize=address
+	$(CC) -o ted $^ $(TED_ANALYZE) $(CPPFLAGS) -fsanitize=address $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 
 ubsan: src/*.c
-	$(CC) -o ted $^ $(TED_ANALYZE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) -fsanitize=undefined
+	$(CC) -o ted $^ $(TED_ANALYZE) $(CPPFLAGS) -fsanitize=undefined $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 
 clean:
 	rm -f ted
@@ -31,11 +31,15 @@ distclean:
 
 install: src/*.c
 	rm -f ted
-	$(CC) -o ted $^ $(TED_RELEASE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS)
+	$(CC) -o ted $^ $(TED_RELEASE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(TED_LIBS) $(LIBS) $(LDLIBS)
 	mkdir -p $(DESTDIR)$(PREFIX)/bin/
+	chmod 0755 $(DESTDIR)$(PREFIX)/bin/
 	cp ted $(DESTDIR)$(PREFIX)/bin/
 	chmod 0755 $(DESTDIR)$(PREFIX)/bin/ted
 	mkdir -p ~/.config/ted/
+	chmod 0755 ~/.config/ted/
 	rm -rf ~/.config/ted/docs/
 	cp -r docs/ ~/.config/ted/
+	chmod 0755 ~/.config/ted/docs/
+	chmod 0644 ~/.config/ted/docs/*
 
