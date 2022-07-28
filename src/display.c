@@ -1,7 +1,7 @@
 #include "ted.h"
 
 // Buffer* is used instead of Buffer for being able to pass NULL
-void display_menu(const char *message, char *shadow, Node *n) {
+void display_menu(const char *message, const char *shadow, Node *n) {
     const Buffer *buf = &n->data;
     int x, y;
     getyx(stdscr, y, x);

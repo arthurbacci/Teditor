@@ -5,53 +5,59 @@ char *prompt(const char *msgtmp, char *def) {
 }
 
 char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
-    String msg = dynamic_string(msgtmp, strlen(msgtmp));
-    String b = dynamic_string(def, strlen(def));
+    char msg[MSG_SZ];
+    {
+        size_t msglen = strlen(msgtmp);
+        if (msglen > MSG_SZ)
+            msglen = MSG_SZ;
+        memcpy(msg, msgtmp, msglen);
+        msg[msglen - 1] = '\0';
+    }
+
+    char *b = msg + strlen(msg);
+    size_t bcap = msg + MSG_SZ - b;
+    
+    {
+        size_t deflen = strlen(def) + 1;
+        if (deflen >= bcap)
+            deflen = bcap;
+        memcpy(b, def, deflen);
+        b[deflen - 1] = '\0';
+    }
+
+    size_t blen = strlen(b);
 
     while (1) {
-        char *hint = "";
-        if (b.len == 0) {
+        const char *hint = "";
+        if (blen == 0) {
             if (base)
                 hint = base;
         } else if (hints) {
-            if (b.start[b.len - 1] == ' ') {
+            if (b[blen - 1] == ' ') {
                 for (size_t i = 0; hints[i].command; i++) {
-                    String s = dynamic_string(
-                        hints[i].command,
-                        strlen(hints[i].command)
-                    );
-                    String stripped_b = b;
-                    stripped_b.len--;
-                    if (dynamic_string_eq(s, stripped_b)) {
+                    b[blen - 1] = '\0';
+                    int cmp = strcmp(hints[i].command, b);
+                    b[blen - 1] = ' ';
+
+                    if (cmp == 0) {
                         hint = hints[i].hint;
-                        dynamic_string_free(&s);
                         break;
                     }
-                    dynamic_string_free(&s);
                 }
             } else {
                 for (size_t i = 0; hints[i].command; i++) {
-                    String s = dynamic_string(
-                        hints[i].command,
-                        strlen(hints[i].command)
-                    );
-                    if (dynamic_string_starts_with(s, b)) {
-                        hint = hints[i].command + b.len;
-                        dynamic_string_free(&s);
+                    if (strlen(hints[i].command) < blen)
+                        continue;
+
+                    if (memcmp(hints[i].command, b, blen)) {
+                        hint = hints[i].command + blen;
                         break;
                     }
-                    dynamic_string_free(&s);
                 }
             }
         }
 
-        String s = dynamic_string_concat(msg, b);
-        char *d = dynamic_string_to_str(s);
-
-        display_menu(d, hint, NULL);
-
-        free(d);
-        dynamic_string_free(&s);
+        display_menu(msg, hint, NULL);
 
         refresh();
 
@@ -59,26 +65,27 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
         switch (c) {
             case KEY_BACKSPACE:
             case ctrl('h'):
-                if (dynamic_string_pop(&b))
+                if (blen > 0) {
+                    b[--blen] = '\0';
                     break;
+                }
                 // If length is 0, it will fall in the ctrl('c') case
             case ctrl('c'):
-                dynamic_string_free(&b);
-                dynamic_string_free(&msg);
                 return NULL;
-            case '\n':
-                goto break_outer;
+            case '\n': {
+                char *r = malloc(blen + 1);
+                memcpy(r, b, blen + 1);
+                return r;
+            }
             default:
-                if (c != ERR)
-                    dynamic_string_push(&b, c);
+                if (c != ERR) {
+                    if (blen + 1 < bcap) {
+                        b[blen++] = c;
+                        b[blen] = '\0';
+                    }
+                }
                 break;
         }
-    }
-    break_outer: {
-        char *r = dynamic_string_to_str(b);
-        dynamic_string_free(&b);
-        dynamic_string_free(&msg);
-        return r;
     }
 }
 

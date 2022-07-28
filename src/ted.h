@@ -29,12 +29,15 @@
 
 #define NUM_PAIRS 6
 
-#define IN_RANGE(x, min, max)   ((x) >= (min)) && ((x) <= (max))
-#define OUT_RANGE(x, min, max)  ((x) < (min)) || ((x) > (max))
+#define IN_RANGE(x, min, max)  ((x) >= (min)) && ((x) <= (max))
+#define OUT_RANGE(x, min, max) ((x) < (min)) || ((x) > (max))
 
-#define INPUT_TIMEOUT  5     //timeout for input in ncurses (in milliseconds)
+// timeout for input in ncurses (in milliseconds)
+#define INPUT_TIMEOUT 5
 
 #define USE(x) (void)(x)
+
+#define MSG_SZ 512
 
 // Types
 
@@ -102,7 +105,7 @@ typedef struct Node {
 
 // message_and_prompt.c
 char *prompt(const char *msgtmp, char *def);
-char *prompt_hints(const char *msg, char *def, char *base, Hints *hints);
+char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
 void message(char *msg);
 
 // ted.c
@@ -121,7 +124,7 @@ void open_file(char *fname, Node **n);
 bool can_write(char *fname);
 
 // display.c
-void display_menu(const char *message, char *shadow, Node *n);
+void display_menu(const char *message, const char *shadow, Node *n);
 void display_buffer(Buffer buf, int len_line_number);
 
 // free.c
@@ -172,18 +175,6 @@ void buffer_add_next(Node *n, Buffer b);
 void buffer_add_prev(Node *n, Buffer b);
 void buffer_close(Node *n);
 void free_buffer_list(Node *n);
-
-// dynamic_string.c
-String dynamic_string(const char *x, size_t length);
-void dynamic_string_check_available(String *s, size_t length);
-void dynamic_string_push(String *s, char x);
-void dynamic_string_push_str(String *s, const char *x, size_t length);
-bool dynamic_string_pop(String *s);
-void dynamic_string_free(String *s);
-char *dynamic_string_to_str(String s);
-String dynamic_string_concat(String a, String b);
-bool dynamic_string_eq(String a, String b);
-bool dynamic_string_starts_with(String a, String b);
 
 
 extern GlobalCfg config;
