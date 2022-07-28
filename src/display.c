@@ -14,7 +14,7 @@ void display_menu(const char *message, const char *shadow, Node *n) {
     if (!*message && n) {
         unsigned int scrolled = ((double)buf->cursor.y / ((double)buf->num_lines - 1)) * 100;
 
-        printw("I:%u %u%% %s", buf->lines[buf->cursor.x].ident, scrolled, buf->filename);
+        printw("I:%u %u%% %s", buf->lines[buf->cursor.y].ident, scrolled, buf->filename);
 
         char b[500];
         int len = snprintf(

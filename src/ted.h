@@ -44,12 +44,6 @@
 typedef uint32_t uchar32_t;
 
 typedef struct {
-    char *start;
-    size_t len;
-    size_t cap;
-} String;
-
-typedef struct {
     unsigned int len;
     uchar32_t *data;
     unsigned int length;

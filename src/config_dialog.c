@@ -177,10 +177,10 @@ Hints hints[] = {
     {"manual"           , "<page (nothing for index)>"   },
     {"read-only"        , "f | t"                        },
     {"find"             , "(start | cursor) <substring>" },
-    {"eof"              , ""                              },
-    {"next"             , ""                              },
-    {"prev"             , ""                              },
-    {"close"            , ""                              },
+    {"eof"              , ""                             },
+    {"next"             , ""                             },
+    {"prev"             , ""                             },
+    {"close"            , ""                             },
     {NULL, NULL}
 };
 

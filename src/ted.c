@@ -1,3 +1,8 @@
+/*
+TODO: use wcwidth and replace code points for grapheme clusters in order to have
+      a better Unicode handling
+*/
+
 #include "ted.h"
 #include <curses.h>
 #include <unistd.h>
@@ -14,7 +19,7 @@ jmp_buf end;
 int main(int argc, char **argv) {
     int is_input_pipe = !isatty(STDIN_FILENO);
     if (is_input_pipe) {
-        // TODO
+        // TODO: read pipe contents to buffer before closing it
         close(STDIN_FILENO);
         open("/dev/tty", O_RDONLY);
     }
