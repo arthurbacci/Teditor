@@ -43,6 +43,6 @@ Please open a Issue if you found some bug or if you have a suggestion or a quest
 
 ## Goals
 
-[ ] Implement grapheme clusters and replace the wchar code points. Also try to make it use a normal `char` buffer.
-[ ] Fix the bad code and try to make it stable enough for real usage
-[ ] Fix all current issues
+- [ ] Implement grapheme clusters and replace the wchar code points. Also try to make it use a normal `char` buffer.
+- [ ] Fix the bad code and try to make it stable enough for real usage
+- [ ] Fix all current issues
