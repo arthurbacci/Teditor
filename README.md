@@ -14,7 +14,6 @@ Go to your programs directory and do:
 ```sh
 git clone https://github.com/ArthurBacci64/Teditor.git
 cd Teditor
-git checkout stable
 sudo make PREFIX=/usr install
 ```
 
