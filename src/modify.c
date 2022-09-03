@@ -24,16 +24,24 @@ bool add_char(size_t x, size_t y, const Grapheme *c, Buffer *buf) {
     return 0;
 }
 
+// Asserts that `x` points to a char boundary
 bool remove_char(size_t x, size_t y, Buffer *buf) {
     if (modify(buf)) {
-        // FIXME: get size of the character that's being pointed in order to
-        //        remove it properly
+        size_t grapheme_sz = grapheme_next_character_break_utf8(
+            &buf->lines[y].data[x],
+            // if len is set to SIZE_MAX the string str is interpreted to be
+            // NUL-terminated and processing stops when a NUL-byte is
+            // encountered.
+            SIZE_MAX,
+        );
 
         memmove(
             &buf->lines[y].data[x],
-            &buf->lines[buf->cursor.y].data[x + 1],
-            (buf->lines[buf->cursor.y].length - x + 1) * sizeof(uchar32_t));
-        buf->lines[y].data[--buf->lines[y].length] = '\0';
+            &buf->lines[buf->cursor.y].data[x + grapheme_sz],
+            buf->lines[buf->cursor.y].length - x + grapheme_sz
+        );
+        buf->lines[y].data[buf->lines[y].length -= grapheme_sz] = '\0';
+
         return 1;
     }
     return 0;
