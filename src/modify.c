@@ -9,23 +9,26 @@ bool modify(Buffer *buf) {
     return !buf->read_only;
 }
 
-bool add_char(int x, int y, uchar32_t c, Buffer *buf) {
+bool add_char(size_t x, size_t y, const Grapheme *c, Buffer *buf) {
     if (modify(buf)) {
-        expand_line(buf->cursor.y, 1, buf);
+        expand_line(buf->cursor.y, c->sz, buf);
         memmove(
-            &buf->lines[y].data[x + 1],
+            &buf->lines[y].data[x + c->sz],
             &buf->lines[y].data[x],
-            (buf->lines[y].length - x) * sizeof(uchar32_t)
+            buf->lines[y].length - x
         );
-        buf->lines[y].data[x] = c;
-        buf->lines[y].data[++buf->lines[y].length] = '\0';
+        memcpy(buf->lines[y].data[x], c->dt, c->sz);
+        buf->lines[y].data[buf->lines[y].length += c->sz] = '\0';
         return 1;
     }
     return 0;
 }
 
-bool remove_char(int x, int y, Buffer *buf) {
+bool remove_char(size_t x, size_t y, Buffer *buf) {
     if (modify(buf)) {
+        // FIXME: get size of the character that's being pointed in order to
+        //        remove it properly
+
         memmove(
             &buf->lines[y].data[x],
             &buf->lines[buf->cursor.y].data[x + 1],

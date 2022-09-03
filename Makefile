@@ -7,7 +7,7 @@ PREFIX=/usr/local
 TED_DEBUG=-Wall -O0 -g3 -pedantic -std=c99
 TED_ANALYZE=-Wall -O1 -g3 -pedantic -std=c99
 TED_RELEASE=-Wall -O3 -g2 -pedantic -std=c99
-TED_LIBS=-lncursesw
+TED_LIBS=-lncursesw -lgrapheme
 
 all: ted
 

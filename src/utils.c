@@ -83,35 +83,11 @@ int calculate_len_line_number(Buffer buf) {
     return i;
 }
 
-int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen) {
-    for (unsigned int j = 0; j < stringlen; j++)
-        if ((uchar32_t)s2[j] != s1[j])
-            return 1; //Different character found
-
-    return 0; //All characters equal
-}
-
-int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen) {
-    for (unsigned int j = 0; j < stringlen; j++)
-        if ((uchar32_t)tolower(s2[j]) != s1[j] && (uchar32_t)toupper(s2[j]) != s1[j])
-            return 1; //Different character found
-
-    return 0; //All characters equal
-}
-
-int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen) {
-    for (unsigned int i = 0; i < hslen; i++)
-        if (!uchar32_cmp(&hs[i], sub, sublen))
-            return i;//Substring found, return index of the match
-
-    return -1; //No substring found
-}
-
 Line blank_line(void) {
     Line ln;
 
-    ln.len = READ_BLOCKSIZE;
-    ln.data = malloc(ln.len * sizeof(*ln.data));
+    ln.cap = READ_BLOCKSIZE;
+    ln.data = malloc(ln.len);
     ln.length = 0;
     ln.ident = 0;
 

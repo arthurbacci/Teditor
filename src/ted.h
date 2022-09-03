@@ -39,15 +39,13 @@
 
 #define MSG_SZ 512
 
-// Types
-
-typedef uint32_t uchar32_t;
+/*--*--TYPES--*--*/
 
 typedef struct {
-    unsigned int len;
-    uchar32_t *data;
-    unsigned int length;
-    unsigned int ident;
+    size_t cap;
+    char *data;
+    size_t length;
+    size_t ident;
 } Line;
 
 typedef struct {
@@ -57,15 +55,15 @@ typedef struct {
 } Cursor;
 
 typedef struct {
-    unsigned int x;
-    unsigned int y;
+    size_t x;
+    size_t y;
 } TextScroll;
 
 typedef struct {
     bool modified;
     bool read_only;
     bool can_write;
-    unsigned char line_break_type; // 0: LF  1: CRLF
+    bool crlf; // 0: LF  1: CRLF
     Line *lines;
     size_t num_lines;
     Cursor cursor;
@@ -136,20 +134,12 @@ void change_position(unsigned int x, unsigned int y, Buffer *buf);
 // mouse.c
 bool process_mouse_event(MEVENT ev, Node **n);
 
-// utf8.c
-void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_);
-int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
-bool validate_utf8(unsigned char *ucs);
-
 // utils.c
 void die(const char *s);
 char *home_path(const char *path);
 char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
 int calculate_len_line_number(Buffer buf);
-int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
-int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
-int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
 Line blank_line(void);
 char *bufn(int a);
 
