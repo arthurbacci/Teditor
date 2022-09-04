@@ -1,6 +1,7 @@
 /*
-TODO: use wcwidth and replace code points for grapheme clusters in order to have
-      a better Unicode handling
+TODO: get width of the characters that are being printed
+
+TODO: make identation calculation lazy, decreasing overhead
 */
 
 #include "ted.h"

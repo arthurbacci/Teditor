@@ -1,25 +1,29 @@
 #include "ted.h"
 
-void expand_line(unsigned int at, int x, Buffer *buf) {
-    while (buf->lines[at].len <= buf->lines[at].length + x) {
-        buf->lines[at].len += READ_BLOCKSIZE;
+void expand_line(size_t at, int x, Buffer *buf) {
+    if (buf->lines[at].len <= buf->lines[at].length + x) {
+        while (buf->lines[at].len <= buf->lines[at].length + x)
+            buf->lines[at].len *= 2;
+
         buf->lines[at].data = realloc(
             buf->lines[buf->cursor.y].data,
-            buf->lines[buf->cursor.y].len * sizeof(uchar32_t)
+            buf->lines[buf->cursor.y].len
         );
     }
 }
 
-void new_line(unsigned int at, int x, Buffer *buf) {
+// TODO: remake this function w/ an easier to understand declaration
+void new_line(size_t at, int x, Buffer *buf) {
     buf->lines[at].len = READ_BLOCKSIZE;
-    buf->lines[at].data = malloc(buf->lines[at].len * sizeof(uchar32_t));
+    buf->lines[at].data = malloc(buf->lines[at].len);
     buf->lines[at].length = 0;
 
     expand_line(at, buf->lines[at - 1].length - x + 1, buf);
+
     memcpy(
         buf->lines[at].data,
         &buf->lines[at - 1].data[x],
-        (buf->lines[at - 1].length - x) * sizeof(uchar32_t)
+        buf->lines[at - 1].length - x
     );
 
     buf->lines[at].length += buf->lines[at - 1].length - x;
@@ -196,80 +200,96 @@ bool process_keypress(int c, Node **n) {
     } */case KEY_BACKSPACE: case KEY_DC: case 127:
     {
         if (modify(buf)) {
-            buf->lines[buf->cursor.y].ident -= buf->cursor.x <= buf->lines[buf->cursor.y].ident && buf->cursor.x > 0;
-
-            if (buf->cursor.x >= 1) {
+            if (buf->cursor.x > 0) {
+                if (buf->cursor.x <= buf->lines[buf->cursor.y].ident)
+                    buf->lines[buf->cursor.y].ident--;
+                
                 if (remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
                     process_keypress(KEY_LEFT, n);
             } else if (buf->cursor.y > 0) {
-                Line del_line = buf->lines[buf->cursor.y];
+                Line del_line = &buf->lines[buf->cursor.y];
+
                 memmove(
                     &buf->lines[buf->cursor.y],
                     &buf->lines[buf->cursor.y + 1],
-                    (buf->num_lines - buf->cursor.y - 1) * sizeof(*buf->lines)
+                    (buf->num_lines - buf->cursor.y - 1) * sizeof(Line)
                 );
-                buf->lines = realloc(buf->lines, --buf->num_lines * sizeof(*buf->lines));
+                buf->num_lines--;
 
-                buf->cursor.y -= buf->cursor.y > 0;
-                buf->cursor.x = buf->lines[buf->cursor.y].length;
-                cursor_in_valid_position(buf);
+                buf->cursor.y--;
+                calculate_cursor_x(buf);
 
-                process_keypress(KEY_RIGHT, n);
+                // TODO: check if process_keypress(KEY_RIGHT) is really not needed
+
                 expand_line(buf->cursor.y, del_line.length, buf);
 
-                memmove(
-                    &buf->lines[buf->cursor.y].data[buf->lines[buf->cursor.y].length],
-                    del_line.data,
-                    del_line.length * sizeof(uchar32_t)
-                );
-                buf->lines[buf->cursor.y].length += del_line.length;
+                Line *to_append = buf->lines[buf->cursor.y];
 
-                buf->lines[buf->cursor.y].data[buf->lines[buf->cursor.y].length] = '\0';
+                memmove(
+                    &to_append->data[to_append->length],
+                    del_line.data,
+                    del_line.length,
+                );
+
+                to_append->length += del_line.length;
+                // TODO: check that expand_line adds space for the null byte
+                to_append->data[to_append->length] = '\0';
+
+
+                to_append->ident = 0;
+                for (size_t i = 0; ' ' == to_append.data[i]; i++)
+                    to_append->ident++;
+
 
                 free(del_line.data);
-            }
-
-            buf->lines[buf->cursor.y].ident = 0;
-            for (unsigned int i = 0; buf->lines[buf->cursor.y].data[i] != '\0'; i++) {
-                if (buf->lines[buf->cursor.y].data[i] != ' ')
-                    break;
-                buf->lines[buf->cursor.y].ident++;
             }
         }
         break;
     } case '\n': case KEY_ENTER: case '\r':
     {
         if (modify(buf)) {
-            buf->lines = realloc(buf->lines, (buf->num_lines + 1) * sizeof(*buf->lines));
+            buf->lines = realloc(buf->lines, ++buf->num_lines * sizeof(Line));
             memmove(
                 &buf->lines[buf->cursor.y + 2],
                 &buf->lines[buf->cursor.y + 1],
-                (buf->num_lines - buf->cursor.y - 1) * sizeof(*buf->lines)
-            );
-            buf->num_lines++;
+                (buf->num_lines - buf->cursor.y - 2) * sizeof(Line),
+            )
 
-            unsigned int lcx = buf->cursor.x;
-            buf->cursor.last_x = 0;
+            size_t lcx = buf->cursor.x;
             buf->cursor.y++;
-            buf->cursor.x = 0;
-            cursor_in_valid_position(buf);
+            buf->cursor.x_grapheme = 0;
+            calculate_cursor_x(buf);
+            buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+
             new_line(buf->cursor.y, lcx, buf);
 
-            if (config.autotab == 1) {
-                const unsigned int ident = buf->lines[buf->cursor.y - 1].ident;
+            if (config.autotab) {
+                size_t ident = buf->lines[buf->cursor.y - 1].ident;
                 buf->lines[buf->cursor.y].ident = ident;
-                buf->lines[buf->cursor.y].len += ident + 1;
-                buf->lines[buf->cursor.y].data = realloc(buf->lines[buf->cursor.y].data, buf->lines[buf->cursor.y].len * sizeof(uchar32_t));
-                memmove(&buf->lines[buf->cursor.y].data[ident], buf->lines[buf->cursor.y].data, (buf->lines[buf->cursor.y].length + 1) * sizeof(uchar32_t));
+                buf->lines[buf->cursor.y].len += ident;
+                buf->lines[buf->cursor.y].data = realloc(
+                    buf->lines[buf->cursor.y].data,
+                    buf->lines[buf->cursor.x].len,
+                );
+                
+                memmove(
+                    &buf->lines[buf->cursor.y].data[ident],
+                    buf->lines[buf->cursor.y].data,
+                    buf->lines[buf->cursor.y].length + 1,
+                );
 
-                for (unsigned int i = 0; i < ident; i++)
+                // TODO: since we're back to bytes we can use memset
+                for (size_t i = 0; i < ident; i++)
                     buf->lines[buf->cursor.y].data[i] = ' ';
                 buf->lines[buf->cursor.y].length += ident;
 
-                for (unsigned int i = 0; i < ident; i++)
+                for (size_t i = 0; i < ident; i++)
                     process_keypress(KEY_RIGHT, n);
-            } else
-                buf->lines[buf->cursor.y].ident = 0;
+            } else {
+                buf->lines[buf->cursor.y]->ident = 0;
+                for (size_t i = 0; ' ' == buf->lines[buf->cursor.y].data[i]; i++)
+                    buf->lines[buf->cursor.y]->ident++;
+            }
         }
         break;
     }
