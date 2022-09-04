@@ -81,8 +81,8 @@ void display_buffer(Buffer buf, int len_line_number) {
             }
 
             Grapheme grapheme = get_next_grapheme(
-                &buf->lines[i].data[buf.scroll.x + j],
-                SIZE_MAX,
+                &buf.lines[i].data[buf.scroll.x + j],
+                SIZE_MAX
             );
             
 
@@ -93,7 +93,7 @@ void display_buffer(Buffer buf, int len_line_number) {
                 // loop
                 size += config.tablen - 1;
             } else {
-                printw("%.*s", grapheme.sz, grapheme.dt)
+                printw("%.*s", grapheme.sz, grapheme.dt);
             }
             
 AFTER_WRITE_CHAR:

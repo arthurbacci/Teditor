@@ -21,6 +21,10 @@
 #include <setjmp.h>
 #include <limits.h>
 
+// suckless' libgrapheme
+#include <grapheme.h>
+
+
 #define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
 
@@ -121,7 +125,7 @@ void open_file(char *fname, Node **n);
 bool can_write(char *fname);
 
 // display.c
-void display_menu(const char *message, const char *shadow, Node *n);
+void display_menu(const char *message, const char *shadow, const Node *n);
 void display_buffer(Buffer buf, int len_line_number);
 
 // free.c
@@ -134,7 +138,7 @@ bool process_keypress(int c, Node **n);
 
 // cursor_in_valid_position.c
 void cursor_in_valid_position(Buffer *buf);
-void change_position(unsigned int x, unsigned int y, Buffer *buf);
+void change_position(size_t x, size_t y, Buffer *buf);
 
 // mouse.c
 bool process_mouse_event(MEVENT ev, Node **n);
@@ -150,8 +154,8 @@ char *bufn(int a);
 
 // modify.c
 bool modify(Buffer *buf);
-bool add_char(size_t x, size_t y, const Grapheme *c, Buffer *buf) {
-bool remove_char(size_t x, size_t y, Buffer *buf) {
+bool add_char(size_t x, size_t y, const Grapheme *c, Buffer *buf);
+bool remove_char(size_t x, size_t y, Buffer *buf);
 
 // scroll.c
 void calculate_scroll(Buffer *buf, int len_line_number);
@@ -164,6 +168,9 @@ void buffer_add_next(Node *n, Buffer b);
 void buffer_add_prev(Node *n, Buffer b);
 void buffer_close(Node *n);
 void free_buffer_list(Node *n);
+
+// grapheme.c
+Grapheme get_next_grapheme(char *str, size_t len);
 
 
 extern GlobalCfg config;

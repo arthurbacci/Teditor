@@ -23,6 +23,8 @@
         return false; \
     }
 
+
+
 DEF_COMMAND(tablen, {
     if (words_len == 1) {
         int answer_int = atoi(words[0]);
@@ -31,17 +33,8 @@ DEF_COMMAND(tablen, {
     }
 })
 
-DEF_COMMAND(linebreak, {
-    if (words_len == 1) {
-        if (!strcasecmp(words[0], "LF"))
-            buf->line_break_type = 0;
-        else if (!strcasecmp(words[0], "CRLF"))
-            buf->line_break_type = 1;
-        else if (!strcasecmp(words[0], "CR"))
-            buf->line_break_type = 2;
-    }
-})
 
+DEF_COMMAND(crlf, BOOL_SET(buf->crlf))
 
 DEF_COMMAND(insert_newline, BOOL_SET(config.insert_newline))
 DEF_COMMAND(use_spaces, BOOL_SET(config.use_spaces))
@@ -52,7 +45,7 @@ DEF_COMMAND(save_as, {
     if (words_len == 1) {
         free(buf->filename);
 
-        unsigned int size = (strlen(words[0]) + 1) * sizeof(char);
+        size_t size = strlen(words[0]) + 1;
         buf->filename = malloc(size);
         memcpy(buf->filename, words[0], size);
 
@@ -95,6 +88,7 @@ DEF_COMMAND(read_only, {
     }
 })
 
+/*
 // FIXME: this code is horrible
 DEF_COMMAND(find, {
     int from_cur = 0;
@@ -118,6 +112,7 @@ DEF_COMMAND(find, {
         message("Substring not found");
     }
 })
+*/
 
 DEF_COMMAND(eof, {
     if (words_len == 0)
@@ -150,7 +145,7 @@ struct {
     bool (*function)(char **words, unsigned int words_len, Node **n);
 } fns[] = {
     {"tablen"           , tablen            },
-    {"linebreak"        , linebreak         },
+    {"crlf"             , crlf              },
     {"insert-newline"   , insert_newline    },
     {"use-spaces"       , use_spaces        },
     {"autotab"          , autotab           },
@@ -158,7 +153,7 @@ struct {
     {"save-as"          , save_as           },
     {"manual"           , manual            },
     {"read-only"        , read_only         },
-    {"find"             , find              },
+    //{"find"             , find              },
     {"eof"              , eof               },
     {"next"             , next              },
     {"prev"             , prev              },
@@ -168,7 +163,7 @@ struct {
 
 Hints hints[] = {
     {"tablen"           , "<tablen>"                     },
-    {"linebreak"        , "LF | CR | CRLF"               },
+    {"crlf"             , "f | t"               },
     {"insert-newline"   , "f | t"                        },
     {"use-spaces"       , "f | t"                        },
     {"autotab"          , "f | t"                        },
@@ -176,7 +171,7 @@ Hints hints[] = {
     {"save-as"          , "<filename>"                   },
     {"manual"           , "<page (nothing for index)>"   },
     {"read-only"        , "f | t"                        },
-    {"find"             , "(start | cursor) <substring>" },
+    //{"find"             , "(start | cursor) <substring>" },
     {"eof"              , ""                             },
     {"next"             , ""                             },
     {"prev"             , ""                             },
