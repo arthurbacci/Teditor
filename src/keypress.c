@@ -43,35 +43,51 @@ bool process_keypress(int c, Node **n) {
         return parse_command("next", n);
     case KEY_UP:
     case ctrl('p'):
-        change_position(buf->cursor.last_x, buf->cursor.y - (buf->cursor.y > 0), buf);
+        // Decrements `y` if it is greater than 0
+        buf->cursor.y -= buf->cursor.y > 0;
+
+        buf->cursor.x_grapheme = buf->cursor.last_x_grapheme;
+        calculate_cursor_x(buf);
+
         break;
     case KEY_DOWN:
     case ctrl('n'):
-        change_position(buf->cursor.last_x, buf->cursor.y + 1, buf);
+        // Increments `y` if it doesn't gets greater or equal than `num_lines`
+        buf->cursor.y += buf->cursor.y + 1 < buf->num_lines;
+
+        buf->cursor.x_grapheme = buf->cursor.last_x_grapheme;
+        calculate_cursor_x(buf);
+
         break;
     case KEY_LEFT:
     case ctrl('b'):
-        buf->cursor.x -= (buf->cursor.x > 0);
-        cursor_in_valid_position(buf);
-        buf->cursor.last_x = buf->cursor.x;
+        buf->cursor.x_grapheme -= buf->cursor.x_grapheme > 0;
+        calculate_cursor_x(buf);
+        buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+
         break;
     case KEY_RIGHT:
     case ctrl('f'):
-        buf->cursor.x++;
-        cursor_in_valid_position(buf);
-        buf->cursor.last_x = buf->cursor.x;
+        // No need to check anything since `calculate_cursor_x` will truncate it
+        // if it overflows
+        buf->cursor.x_grapheme++;
+        calculate_cursor_x(buf);
+        buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+
         break;
     case KEY_HOME:
     case ctrl('a'):
-        buf->cursor.x = 0;
-        buf->cursor.last_x = buf->cursor.x;
-        cursor_in_valid_position(buf);
+        buf->cursor.x_grapheme = 0;
+        calculate_cursor_x(buf);
+        buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+
         break;
     case KEY_END:
     case ctrl('e'):
-        buf->cursor.x = buf->lines[buf->cursor.y].length;
-        buf->cursor.last_x = buf->cursor.x;
-        cursor_in_valid_position(buf);
+        buf->cursor.x_grapheme = SIZE_MAX;
+        calculate_cursor_x(buf);
+        buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+
         break;
     case ctrl('s'):
         if (!buf->read_only)
@@ -79,7 +95,7 @@ bool process_keypress(int c, Node **n) {
         break;
     case '\t':
         if (config.use_spaces == 1) {
-            for (unsigned int i = 0; i < config.tablen; i++)
+            for (int i = 0; i < config.tablen; i++)
                 process_keypress(' ', n);
             return false;
         } // else, it will pass though and be added to the buffer
@@ -95,7 +111,8 @@ bool process_keypress(int c, Node **n) {
         ))
             return true;
         break;
-    case KEY_PPAGE:
+    // TODO: reimplement these
+    /*case KEY_PPAGE:
     {
         unsigned int ccy = buf->cursor.y;
         for (unsigned int i = 0; i < (unsigned int)(ccy % config.lines + config.lines) && buf->cursor.y > 0; i++)
@@ -109,14 +126,15 @@ bool process_keypress(int c, Node **n) {
             buf->cursor.y++;
         cursor_in_valid_position(buf);
         break;
-    } case KEY_MOUSE:
+    } */case KEY_MOUSE:
     {
         MEVENT event;
         if (getmouse(&event) == OK)
             process_mouse_event(event, n);
 
         break;
-    } case 0x209:
+    // TODO: reimplement these tootoo
+    } /*case 0x209:
     {
         if (modify(buf)) {
             if (buf->num_lines > 1) {
@@ -145,13 +163,14 @@ bool process_keypress(int c, Node **n) {
                 passed_spaces = 1;
         }
         break;
-    } case ctrl('o'):
+    }*/ case ctrl('o'):
     {
         char *d = prompt("open: ", buf->filename);
         if (d)
             open_file(d, n);
         break;
-    } case CTRL_KEY_LEFT:
+    // TODO:
+    } /*case CTRL_KEY_LEFT:
     {
         char passed_spaces = 0;
         while (buf->cursor.x > 0) {
@@ -174,7 +193,7 @@ bool process_keypress(int c, Node **n) {
             process_keypress(KEY_RIGHT, n);
         }
         break;
-    } case KEY_BACKSPACE: case KEY_DC: case 127:
+    } */case KEY_BACKSPACE: case KEY_DC: case 127:
     {
         if (modify(buf)) {
             buf->lines[buf->cursor.y].ident -= buf->cursor.x <= buf->lines[buf->cursor.y].ident && buf->cursor.x > 0;
@@ -255,6 +274,8 @@ bool process_keypress(int c, Node **n) {
         break;
     }
     }
+
+    
 
     if (isprint(c) || c == '\t' || (c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) {
 

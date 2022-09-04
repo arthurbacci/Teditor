@@ -57,9 +57,17 @@ typedef struct {
     size_t ident;
 } Line;
 
+// `x` points to the byte, `x_grapheme` indexes the grapheme, the existense of
+// `x` makes it faster to horizontally move the cursor, and `x_grapheme` is
+// used to recalculate `x` when the cursor is moved vertically
+// 
+// `last_x_grapheme` keeps track of the value `x_grapheme` had before it was
+// truncated for a smaller line, so that the cursor doesn't changes position
+// horizontally when you move through smaller lines
 typedef struct {
     size_t x;
-    size_t last_x;
+    size_t x_grapheme;
+    size_t last_x_grapheme;
     size_t y;
 } Cursor;
 
@@ -136,9 +144,7 @@ void expand_line(unsigned int at, int x, Buffer *buf);
 void new_line(unsigned int at, int x, Buffer *buf);
 bool process_keypress(int c, Node **n);
 
-// cursor_in_valid_position.c
-void cursor_in_valid_position(Buffer *buf);
-void change_position(size_t x, size_t y, Buffer *buf);
+// cursor.c
 
 // mouse.c
 bool process_mouse_event(MEVENT ev, Node **n);
