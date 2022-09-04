@@ -94,7 +94,7 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
                 curln->cap *= 2;
                 curln->data = realloc(curln->data, curln->cap * sizeof(Line));
             }
-            curl->data[j] = c;
+            curln->data[j] = c;
         }
 
         curln->data[j] = '\0';

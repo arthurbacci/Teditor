@@ -140,8 +140,8 @@ void display_buffer(Buffer buf, int len_line_number);
 void free_buffer(Buffer *buf);
 
 // keypress.c
-void expand_line(unsigned int at, int x, Buffer *buf);
-void new_line(unsigned int at, int x, Buffer *buf);
+void expand_line(size_t at, int x, Buffer *buf);
+void new_line(size_t at, int x, Buffer *buf);
 bool process_keypress(int c, Node **n);
 
 // cursor.c

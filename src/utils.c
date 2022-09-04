@@ -87,7 +87,7 @@ Line blank_line(void) {
     Line ln;
 
     ln.cap = READ_BLOCKSIZE;
-    ln.data = malloc(ln.len);
+    ln.data = malloc(ln.cap);
     ln.length = 0;
     ln.ident = 0;
 

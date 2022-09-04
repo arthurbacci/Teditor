@@ -1,21 +1,21 @@
 #include "ted.h"
 
 void expand_line(size_t at, int x, Buffer *buf) {
-    if (buf->lines[at].len <= buf->lines[at].length + x) {
-        while (buf->lines[at].len <= buf->lines[at].length + x)
-            buf->lines[at].len *= 2;
+    if (buf->lines[at].cap <= buf->lines[at].length + x) {
+        while (buf->lines[at].cap <= buf->lines[at].length + x)
+            buf->lines[at].cap *= 2;
 
         buf->lines[at].data = realloc(
             buf->lines[buf->cursor.y].data,
-            buf->lines[buf->cursor.y].len
+            buf->lines[buf->cursor.y].cap
         );
     }
 }
 
 // TODO: remake this function w/ an easier to understand declaration
 void new_line(size_t at, int x, Buffer *buf) {
-    buf->lines[at].len = READ_BLOCKSIZE;
-    buf->lines[at].data = malloc(buf->lines[at].len);
+    buf->lines[at].cap = READ_BLOCKSIZE;
+    buf->lines[at].data = malloc(buf->lines[at].cap);
     buf->lines[at].length = 0;
 
     expand_line(at, buf->lines[at - 1].length - x + 1, buf);
@@ -295,44 +295,39 @@ bool process_keypress(int c, Node **n) {
     }
     }
 
-    
+    char cc[4];
+    cc[0] = c;
 
-    if (isprint(c) || c == '\t' || (c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) {
+    uint32_t codepoint;
+    size_t r = grapheme_decode(cc, 1, &codepoint);
 
+    if (GRAPHEME_INVALID_CODEPOINT == codepoint || r != 1) {
+        if (r > 1) {
+            for (size_t i = 1; i < r; i++)
+                cc[i] = getch();
+
+            size_t newr = grapheme_decode(cc, r, &codepoint);
+            if (GRAPHEME_INVALID_CODEPOINT == codepoint || newr != r)
+                return false;
+        } else {
+            // TODO: maybe I can print a message?
+            return false;
+        }
+    }
+
+    if (r > 1 || isprint(c)) {
         if (modify(buf)) {
-            if (c == ' ' && buf->cursor.x <= buf->lines[buf->cursor.y].ident)
+            if (' ' == c && buf->cursor.x <= buf->lines[buf->cursor.y].ident)
                 buf->lines[buf->cursor.y].ident++;
 
-            unsigned char ucs[4] = {c, 0, 0, 0};
-            int len = 1;
-
-            if ((c >= 0xC2 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF4)) {
-                ucs[1] = getch(), len++;
-            }
-            if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF4)) {
-                ucs[2] = getch(), len++;
-            }
-            if (c >= 0xF0 && c <= 0xF4) {
-                ucs[3] = getch(), len++;
-            }
-
-            if (validate_utf8(ucs)) {
-                uchar32_t ec = c;
-                for (int i = 1, off = 8; i < len; i++, off += 8)
-                    ec += ucs[i] << off;
-
-                if (add_char(buf->cursor.x, buf->cursor.y, ec, buf))
+            for (int i = 0; i < 4; i++) {
+                if (add_char(buf->cursor.x, buf->cursor.y, cc[i], buf))
                     process_keypress(KEY_RIGHT, n);
-            } else {
-                for (int i = 0; i < len; i++) {
-                    if (add_char(buf->cursor.x, buf->cursor.y, substitute_char, buf))
-                        process_keypress(KEY_RIGHT, n);
-                    else
-                        break;
-                }
             }
         }
     }
+    
+
     return false;
 }
 
