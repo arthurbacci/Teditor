@@ -42,6 +42,11 @@
 /*--*--TYPES--*--*/
 
 typedef struct {
+    size_t sz;
+    char *dt;
+} Grapheme;
+
+typedef struct {
     size_t cap;
     char *data;
     size_t length;
@@ -145,8 +150,8 @@ char *bufn(int a);
 
 // modify.c
 bool modify(Buffer *buf);
-bool add_char(int x, int y, uchar32_t c, Buffer *buf);
-bool remove_char(int x, int y, Buffer *buf);
+bool add_char(size_t x, size_t y, const Grapheme *c, Buffer *buf) {
+bool remove_char(size_t x, size_t y, Buffer *buf) {
 
 // scroll.c
 void calculate_scroll(Buffer *buf, int len_line_number);
@@ -163,8 +168,6 @@ void free_buffer_list(Node *n);
 
 extern GlobalCfg config;
 extern char *menu_message;
-extern const uchar32_t substitute_char;
-extern const char *substitute_string;
 extern jmp_buf end;
 
 #endif

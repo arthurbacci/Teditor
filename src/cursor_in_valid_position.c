@@ -11,7 +11,7 @@ void cursor_in_valid_position(Buffer *buf) {
         buf->cursor.x = buf->lines[buf->cursor.y].length;
 }
 
-void change_position(unsigned int x, unsigned int y, Buffer *buf) {
+void change_position(size_t x, size_t y, Buffer *buf) {
     buf->cursor.y = y;
     buf->cursor.x = x;
     cursor_in_valid_position(buf);

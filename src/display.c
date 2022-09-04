@@ -1,20 +1,25 @@
 #include "ted.h"
 
-// Buffer* is used instead of Buffer for being able to pass NULL
-void display_menu(const char *message, const char *shadow, Node *n) {
+void display_menu(const char *message, const char *shadow, const Node *n) {
     const Buffer *buf = &n->data;
+
     int x, y;
     getyx(stdscr, y, x);
 
     move(config.lines, 0);
-    for (unsigned int i = 0; i < (unsigned int)COLS; i++)
+    for (size_t i = 0; i < COLS; i++)
         addch(' ');
 
     move(config.lines, 0);
     if (!*message && n) {
-        unsigned int scrolled = ((double)buf->cursor.y / ((double)buf->num_lines - 1)) * 100;
+        int scrolled = 100 * (float)buf->cursor.y / ((float)buf->num_lines - 1);
 
-        printw("I:%u %u%% %s", buf->lines[buf->cursor.y].ident, scrolled, buf->filename);
+        printw(
+            "I:%u %u%% %s",
+            buf->lines[buf->cursor.y].ident,
+            scrolled,
+            buf->filename
+        );
 
         char b[500];
         int len = snprintf(
@@ -22,7 +27,7 @@ void display_menu(const char *message, const char *shadow, Node *n) {
             buf->modified ? "!" : ".",
             buf->read_only ? "o" : "c",
             buf->can_write ? "W" : "R",
-            buf->line_break_type == 0 ? "LF" : (buf->line_break_type == 1 ? "CRLF" : "CR"),
+            buf->crlf ? "CRLF" : "LF",
             n->prev->data.name,
             buf->name,
             n->next->data.name
@@ -32,7 +37,7 @@ void display_menu(const char *message, const char *shadow, Node *n) {
 
     } else if (shadow != NULL) {
         printw("%s", message);
-        getyx(stdscr, y, x); //save message x and y
+        getyx(stdscr, y, x); // save message x and y
 
         attron(A_BOLD);
         printw("%s", shadow);
@@ -45,7 +50,7 @@ void display_menu(const char *message, const char *shadow, Node *n) {
 }
 
 void display_buffer(Buffer buf, int len_line_number) {
-    for (unsigned int i = buf.scroll.y; i < buf.scroll.y + config.lines; i++) {
+    for (size_t i = buf.scroll.y; i < buf.scroll.y + config.lines; i++) {
         move(i - buf.scroll.y, 0);
         if (i >= buf.num_lines) {
             for (int j = 0; j < len_line_number - 1; j++)
@@ -63,8 +68,8 @@ void display_buffer(Buffer buf, int len_line_number) {
         
         attroff(A_BOLD);
     
-        unsigned int size = 0;
-        for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1; j++) {
+        size_t size = 0;
+        for (size_t j = 0; size < COLS - len_line_number - 1; j++) {
 
             if (j + buf.scroll.x == buf.cursor.x && i == buf.cursor.y)
                 attron(A_REVERSE);
@@ -74,28 +79,27 @@ void display_buffer(Buffer buf, int len_line_number) {
                 addch(' ');
                 goto AFTER_WRITE_CHAR;
             }
-            uchar32_t el = buf.lines[i].data[buf.scroll.x + j];
+
+            Grapheme grapheme = get_next_grapheme(
+                &buf->lines[i].data[buf.scroll.x + j],
+                SIZE_MAX,
+            );
             
 
-            if (el == '\t') {
-                for (unsigned int k = 0; k < config.tablen; k++)
+            if (1 == grapheme.sz && '\t' == *grapheme.dt) {
+                for (int k = 0; k < config.tablen; k++)
                     addch(' ');
+                // - 1 because it will already be incremented at the end of the
+                // loop
                 size += config.tablen - 1;
             } else {
-                unsigned char b[4];
-                int len = utf8ToMultibyte(el, b, 1);
-
-                if (len == -1) {
-                    b[0] = substitute_string[0];
-                    b[1] = substitute_string[1];
-                    b[2] = substitute_string[2];
-                    len = 3;
-                }
-                printw("%.*s", len, b);
+                printw("%.*s", grapheme.sz, grapheme.dt)
             }
             
 AFTER_WRITE_CHAR:
             attroff(A_REVERSE);
+            // TODO: some graphemes can take up more than 1 cell in the
+            //       terminal, implement handling for that
             size++;
         }
     }

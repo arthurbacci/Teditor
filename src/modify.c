@@ -27,13 +27,10 @@ bool add_char(size_t x, size_t y, const Grapheme *c, Buffer *buf) {
 // Asserts that `x` points to a char boundary
 bool remove_char(size_t x, size_t y, Buffer *buf) {
     if (modify(buf)) {
-        size_t grapheme_sz = grapheme_next_character_break_utf8(
+        size_t grapheme_sz = get_next_grapheme(
             &buf->lines[y].data[x],
-            // if len is set to SIZE_MAX the string str is interpreted to be
-            // NUL-terminated and processing stops when a NUL-byte is
-            // encountered.
             SIZE_MAX,
-        );
+        ).sz;
 
         memmove(
             &buf->lines[y].data[x],
