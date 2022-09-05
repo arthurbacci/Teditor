@@ -165,7 +165,7 @@ struct {
 
 Hints hints[] = {
     {"tablen"           , "<tablen>"                     },
-    {"crlf"             , "f | t"               },
+    {"crlf"             , "f | t"                        },
     {"insert-newline"   , "f | t"                        },
     {"use-spaces"       , "f | t"                        },
     {"autotab"          , "f | t"                        },

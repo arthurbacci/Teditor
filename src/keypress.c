@@ -217,6 +217,7 @@ bool process_keypress(int c, Node **n) {
                 buf->num_lines--;
 
                 buf->cursor.y--;
+                buf->cursor.x_grapheme = SIZE_MAX;
                 calculate_cursor_x(buf);
 
                 // TODO: check if process_keypress(KEY_RIGHT) is really not needed

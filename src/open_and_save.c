@@ -74,11 +74,6 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
             if (c == '\r')
                 b.crlf = true;
 
-            if (curln->length + 1 >= curln->cap) {
-                curln->cap *= 2;
-                curln->data = realloc(curln->data, curln->cap * sizeof(Line));
-            }
-
             if (!passed_spaces) {
                 if (' ' == c)
                     curln->ident++;
@@ -89,8 +84,7 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
             // TODO: check unicode if file isn't tooooo big
             // For now the buffer is not being asserted to be encoded correctly
             
-            curln->length++;
-            if (curln->cap >= curln->length) {
+            if (++curln->length >= curln->cap) {
                 curln->cap *= 2;
                 curln->data = realloc(curln->data, curln->cap * sizeof(Line));
             }
