@@ -116,7 +116,6 @@ int main(int argc, char **argv) {
                 last_LINES = LINES;
                 last_COLS = COLS;
                 config.lines = LINES - 1;
-                cursor_in_valid_position(&buf->data);
             }
 
             int len_line_number = calculate_len_line_number(buf->data);

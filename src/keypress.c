@@ -207,7 +207,7 @@ bool process_keypress(int c, Node **n) {
                 if (remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
                     process_keypress(KEY_LEFT, n);
             } else if (buf->cursor.y > 0) {
-                Line del_line = &buf->lines[buf->cursor.y];
+                Line del_line = buf->lines[buf->cursor.y];
 
                 memmove(
                     &buf->lines[buf->cursor.y],
@@ -223,12 +223,12 @@ bool process_keypress(int c, Node **n) {
 
                 expand_line(buf->cursor.y, del_line.length, buf);
 
-                Line *to_append = buf->lines[buf->cursor.y];
+                Line *to_append = &buf->lines[buf->cursor.y];
 
                 memmove(
                     &to_append->data[to_append->length],
                     del_line.data,
-                    del_line.length,
+                    del_line.length
                 );
 
                 to_append->length += del_line.length;
@@ -237,7 +237,7 @@ bool process_keypress(int c, Node **n) {
 
 
                 to_append->ident = 0;
-                for (size_t i = 0; ' ' == to_append.data[i]; i++)
+                for (size_t i = 0; ' ' == to_append->data[i]; i++)
                     to_append->ident++;
 
 
@@ -252,8 +252,8 @@ bool process_keypress(int c, Node **n) {
             memmove(
                 &buf->lines[buf->cursor.y + 2],
                 &buf->lines[buf->cursor.y + 1],
-                (buf->num_lines - buf->cursor.y - 2) * sizeof(Line),
-            )
+                (buf->num_lines - buf->cursor.y - 2) * sizeof(Line)
+            );
 
             size_t lcx = buf->cursor.x;
             buf->cursor.y++;
@@ -266,16 +266,16 @@ bool process_keypress(int c, Node **n) {
             if (config.autotab) {
                 size_t ident = buf->lines[buf->cursor.y - 1].ident;
                 buf->lines[buf->cursor.y].ident = ident;
-                buf->lines[buf->cursor.y].len += ident;
+                buf->lines[buf->cursor.y].cap += ident;
                 buf->lines[buf->cursor.y].data = realloc(
                     buf->lines[buf->cursor.y].data,
-                    buf->lines[buf->cursor.x].len,
+                    buf->lines[buf->cursor.x].cap
                 );
                 
                 memmove(
                     &buf->lines[buf->cursor.y].data[ident],
                     buf->lines[buf->cursor.y].data,
-                    buf->lines[buf->cursor.y].length + 1,
+                    buf->lines[buf->cursor.y].length + 1
                 );
 
                 // TODO: since we're back to bytes we can use memset
@@ -286,9 +286,9 @@ bool process_keypress(int c, Node **n) {
                 for (size_t i = 0; i < ident; i++)
                     process_keypress(KEY_RIGHT, n);
             } else {
-                buf->lines[buf->cursor.y]->ident = 0;
+                buf->lines[buf->cursor.y].ident = 0;
                 for (size_t i = 0; ' ' == buf->lines[buf->cursor.y].data[i]; i++)
-                    buf->lines[buf->cursor.y]->ident++;
+                    buf->lines[buf->cursor.y].ident++;
             }
         }
         break;
@@ -299,14 +299,14 @@ bool process_keypress(int c, Node **n) {
     cc[0] = c;
 
     uint32_t codepoint;
-    size_t r = grapheme_decode(cc, 1, &codepoint);
+    size_t r = grapheme_decode_utf8(cc, 1, &codepoint);
 
     if (GRAPHEME_INVALID_CODEPOINT == codepoint || r != 1) {
         if (r > 1) {
             for (size_t i = 1; i < r; i++)
                 cc[i] = getch();
 
-            size_t newr = grapheme_decode(cc, r, &codepoint);
+            size_t newr = grapheme_decode_utf8(cc, r, &codepoint);
             if (GRAPHEME_INVALID_CODEPOINT == codepoint || newr != r)
                 return false;
         } else {
@@ -320,10 +320,9 @@ bool process_keypress(int c, Node **n) {
             if (' ' == c && buf->cursor.x <= buf->lines[buf->cursor.y].ident)
                 buf->lines[buf->cursor.y].ident++;
 
-            for (int i = 0; i < 4; i++) {
-                if (add_char(buf->cursor.x, buf->cursor.y, cc[i], buf))
-                    process_keypress(KEY_RIGHT, n);
-            }
+            Grapheme g = {r, cc};
+            if (add_char(buf->cursor.x, buf->cursor.y, g, buf))
+                process_keypress(KEY_RIGHT, n);
         }
     }
     

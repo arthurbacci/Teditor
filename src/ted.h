@@ -160,7 +160,7 @@ char *bufn(int a);
 
 // modify.c
 bool modify(Buffer *buf);
-bool add_char(size_t x, size_t y, const Grapheme *c, Buffer *buf);
+bool add_char(size_t x, size_t y, const Grapheme c, Buffer *buf);
 bool remove_char(size_t x, size_t y, Buffer *buf);
 
 // scroll.c
@@ -177,6 +177,9 @@ void free_buffer_list(Node *n);
 
 // grapheme.c
 Grapheme get_next_grapheme(char *str, size_t len);
+
+// cursor.c
+void calculate_cursor_x(Buffer *buf);
 
 
 extern GlobalCfg config;

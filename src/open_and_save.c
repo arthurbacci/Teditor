@@ -20,8 +20,8 @@ void savefile(Buffer *buf) {
     for (size_t i = 0; i < buf->num_lines; i++) {
         for (size_t j = 0; j < buf->lines[i].length; j++) {
             Grapheme grapheme = get_next_grapheme(
-                buf->lines[i].data[j],
-                SIZE_MAX,
+                &buf->lines[i].data[j],
+                SIZE_MAX
             );
             
             fwrite(grapheme.dt, sizeof(char), grapheme.sz, fpw);
@@ -30,8 +30,8 @@ void savefile(Buffer *buf) {
         // If we're not at the last line
         if (buf->num_lines - 1 > i) {
             if (buf->crlf)
-                fputc('\r');
-            fputc('\n');
+                fputc('\r', fpw);
+            fputc('\n', fpw);
         }
     }
     fclose(fpw);
@@ -70,13 +70,13 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
         char c;
         bool passed_spaces = 0;
         size_t j;
-        for (j = 0; EOF != (c = fgetc(fp)) != EOF && '\n' != c; j++) {
+        for (j = 0; EOF != (c = fgetc(fp)) && '\n' != c; j++) {
             if (c == '\r')
                 b.crlf = true;
 
             if (curln->length + 1 >= curln->cap) {
                 curln->cap *= 2;
-                curln->data = realloc(cur->data, cur->cap * sizeof(Line));
+                curln->data = realloc(curln->data, curln->cap * sizeof(Line));
             }
 
             if (!passed_spaces) {
