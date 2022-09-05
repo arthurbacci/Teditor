@@ -114,10 +114,12 @@ DEF_COMMAND(find, {
 })
 */
 
+/* TODO: reimplement this
 DEF_COMMAND(eof, {
     if (words_len == 0)
         change_position(buf->lines[buf->num_lines - 1].length, buf->num_lines, buf);
 })
+*/
 
 DEF_COMMAND(next, *n = (*n)->next;)
 DEF_COMMAND(prev, *n = (*n)->prev;)
@@ -154,7 +156,7 @@ struct {
     {"manual"           , manual            },
     {"read-only"        , read_only         },
     //{"find"             , find              },
-    {"eof"              , eof               },
+    //{"eof"              , eof               },
     {"next"             , next              },
     {"prev"             , prev              },
     {"close"            , close_buffer      },
@@ -172,7 +174,7 @@ Hints hints[] = {
     {"manual"           , "<page (nothing for index)>"   },
     {"read-only"        , "f | t"                        },
     //{"find"             , "(start | cursor) <substring>" },
-    {"eof"              , ""                             },
+    //{"eof"              , ""                             },
     {"next"             , ""                             },
     {"prev"             , ""                             },
     {"close"            , ""                             },
