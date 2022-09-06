@@ -1,5 +1,7 @@
 #include "ted.h"
 
+// FIXME: calculate scroll from graphemes
+
 // Calculates `x` from `x_grapheme`, truncating both if needed
 void calculate_cursor_x(Buffer *buf) {
     char *s = buf->lines[buf->cursor.y].data;

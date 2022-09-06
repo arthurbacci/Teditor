@@ -176,7 +176,7 @@ void buffer_close(Node *n);
 void free_buffer_list(Node *n);
 
 // grapheme.c
-Grapheme get_next_grapheme(char *str, size_t len);
+Grapheme get_next_grapheme(char **str, size_t len);
 
 // cursor.c
 void calculate_cursor_x(Buffer *buf);

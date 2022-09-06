@@ -1,8 +1,9 @@
 #include "ted.h"
 
+// TODO: garants that the capacity is (x + 1) bytes greater than the length
 void expand_line(size_t at, int x, Buffer *buf) {
-    if (buf->lines[at].cap <= buf->lines[at].length + x) {
-        while (buf->lines[at].cap <= buf->lines[at].length + x)
+    if (buf->lines[at].cap <= buf->lines[at].length + x + 1) {
+        while (buf->lines[at].cap <= buf->lines[at].length + x + 1)
             buf->lines[at].cap *= 2;
 
         buf->lines[at].data = realloc(
@@ -35,8 +36,11 @@ void new_line(size_t at, int x, Buffer *buf) {
 
 bool process_keypress(int c, Node **n) {
     Buffer *buf = &(*n)->data;
-    if (c != ERR)
-        message("");
+
+    if (c == ERR)
+        return false;
+
+    message("");
 
     switch (c) {
     case ctrl('c'):
@@ -220,8 +224,6 @@ bool process_keypress(int c, Node **n) {
                 buf->cursor.x_grapheme = SIZE_MAX;
                 calculate_cursor_x(buf);
 
-                // TODO: check if process_keypress(KEY_RIGHT) is really not needed
-
                 expand_line(buf->cursor.y, del_line.length, buf);
 
                 Line *to_append = &buf->lines[buf->cursor.y];
@@ -233,7 +235,6 @@ bool process_keypress(int c, Node **n) {
                 );
 
                 to_append->length += del_line.length;
-                // TODO: check that expand_line adds space for the null byte
                 to_append->data[to_append->length] = '\0';
 
 
@@ -316,6 +317,7 @@ bool process_keypress(int c, Node **n) {
         }
     }
 
+
     if (r > 1 || isprint(c)) {
         if (modify(buf)) {
             if (' ' == c && buf->cursor.x <= buf->lines[buf->cursor.y].ident)
@@ -324,6 +326,7 @@ bool process_keypress(int c, Node **n) {
             Grapheme g = {r, cc};
             if (add_char(buf->cursor.x, buf->cursor.y, g, buf))
                 process_keypress(KEY_RIGHT, n);
+
         }
     }
     

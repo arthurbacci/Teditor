@@ -2,6 +2,8 @@
 TODO: get width of the characters that are being printed
 
 TODO: make identation calculation lazy, decreasing overhead
+
+TODO: fix backspace with graphemes
 */
 
 #include "ted.h"

@@ -18,14 +18,17 @@ void savefile(Buffer *buf) {
     }
 
     for (size_t i = 0; i < buf->num_lines; i++) {
-        for (size_t j = 0; j < buf->lines[i].length; j++) {
+
+        char *at = buf->lines[i].data;
+        while ('\0' != *at) {
             Grapheme grapheme = get_next_grapheme(
-                &buf->lines[i].data[j],
+                &at,
                 SIZE_MAX
             );
-            
+
             fwrite(grapheme.dt, sizeof(char), grapheme.sz, fpw);
         }
+
 
         // If we're not at the last line
         if (buf->num_lines - 1 > i) {

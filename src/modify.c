@@ -27,15 +27,17 @@ bool add_char(size_t x, size_t y, const Grapheme c, Buffer *buf) {
 // Asserts that `x` points to a char boundary
 bool remove_char(size_t x, size_t y, Buffer *buf) {
     if (modify(buf)) {
+        char *afterpos = &buf->lines[y].data[x];
+
         size_t grapheme_sz = get_next_grapheme(
-            &buf->lines[y].data[x],
+            &afterpos,
             SIZE_MAX
         ).sz;
 
         memmove(
             &buf->lines[y].data[x],
-            &buf->lines[buf->cursor.y].data[x + grapheme_sz],
-            buf->lines[buf->cursor.y].length - x + grapheme_sz
+            afterpos,
+            buf->lines[y].length - x + grapheme_sz
         );
         buf->lines[y].data[buf->lines[y].length -= grapheme_sz] = '\0';
 

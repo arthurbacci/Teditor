@@ -68,7 +68,10 @@ void display_buffer(Buffer buf, int len_line_number) {
         
         attroff(A_BOLD);
     
+        char *at = &buf.lines[i].data[buf.scroll.x];
+
         size_t size = 0;
+        // TODO: increment j by space the char occupies
         for (size_t j = 0; size < COLS - len_line_number - 1; j++) {
 
             if (j + buf.scroll.x == buf.cursor.x && i == buf.cursor.y)
@@ -81,7 +84,7 @@ void display_buffer(Buffer buf, int len_line_number) {
             }
 
             Grapheme grapheme = get_next_grapheme(
-                &buf.lines[i].data[buf.scroll.x + j],
+                &at,
                 SIZE_MAX
             );
             
