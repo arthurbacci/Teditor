@@ -1,6 +1,6 @@
 #include "ted.h"
 
-// TODO: garants that the capacity is (x + 1) bytes greater than the length
+// garants that the capacity is (x + 1) bytes greater than the length
 void expand_line(size_t at, int x, Buffer *buf) {
     if (buf->lines[at].cap <= buf->lines[at].length + x + 1) {
         while (buf->lines[at].cap <= buf->lines[at].length + x + 1)
@@ -208,8 +208,8 @@ bool process_keypress(int c, Node **n) {
                 if (buf->cursor.x <= buf->lines[buf->cursor.y].ident)
                     buf->lines[buf->cursor.y].ident--;
                 
-                if (remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
-                    process_keypress(KEY_LEFT, n);
+                process_keypress(KEY_LEFT, n);
+                remove_char(buf->cursor.x, buf->cursor.y, buf);
             } else if (buf->cursor.y > 0) {
                 Line del_line = buf->lines[buf->cursor.y];
 

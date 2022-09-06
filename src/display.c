@@ -74,6 +74,7 @@ void display_buffer(Buffer buf, int len_line_number) {
         // TODO: increment j by space the char occupies
         for (size_t j = 0; size < COLS - len_line_number - 1; j++) {
 
+            // TODO: use grapheme_x
             if (j + buf.scroll.x == buf.cursor.x && i == buf.cursor.y)
                 attron(A_REVERSE);
 

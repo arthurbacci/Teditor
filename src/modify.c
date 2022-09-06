@@ -24,7 +24,7 @@ bool add_char(size_t x, size_t y, const Grapheme c, Buffer *buf) {
     return 0;
 }
 
-// Asserts that `x` points to a char boundary
+// Note that `x` must point to a char boundary
 bool remove_char(size_t x, size_t y, Buffer *buf) {
     if (modify(buf)) {
         char *afterpos = &buf->lines[y].data[x];

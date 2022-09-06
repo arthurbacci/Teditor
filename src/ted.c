@@ -55,11 +55,11 @@ int main(int argc, char **argv) {
             size_t len = 0;
 
             if (*argv[i] == '/') {
-                // Absolute file path
+                /* Absolute file path */
                 len = strlen(argv[i]);
                 memcpy(filename, argv[i], len + 1);
             } else {
-                // Relative file path
+                /* Relative file path */
 
                 // Write the directory path into filename
                 if (getcwd(filename, PATH_MAX) != NULL) {
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
                 } else
                     die("Could not get cwd, try an absolute file path");
 
-                // Now we have a absolute filename
+                // Now we have an absolute filename
             }
 
             char *smaller_filename = malloc(len + 1);
