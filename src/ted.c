@@ -4,6 +4,8 @@ FIXME: code assumes that 1 grapheme = 1 cell, this is wrong and should be
 fixed soon
 
 TODO: make identation calculation lazy, decreasing overhead
+
+FIXME: tab is not working
 */
 
 #include "ted.h"
@@ -13,7 +15,7 @@ TODO: make identation calculation lazy, decreasing overhead
 char *menu_message = "";
 
 GlobalCfg config = {
-    1, 4, 0, 0, 1, 1, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
+    4, 0, 1
 };
 
 jmp_buf end;
@@ -106,20 +108,10 @@ int main(int argc, char **argv) {
     timeout(INPUT_TIMEOUT);
 
 
-    config.lines = LINES - 1;
-    int last_LINES = LINES;
-    int last_COLS = COLS;
-
     int val = setjmp(end);
 
     if (!val) {
         while (1) {
-            if (last_LINES != LINES || last_COLS != COLS) {
-                last_LINES = LINES;
-                last_COLS = COLS;
-                config.lines = LINES - 1;
-            }
-
             int len_line_number = calculate_len_line_number(buf->data);
 
             calculate_scroll(&buf->data, COLS - len_line_number - 2);

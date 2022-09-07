@@ -1,3 +1,0 @@
-Create a ~/.config/ted/cfg.ini file for configuration and make most things
-customizable, including: line numbers ON/OFF, autocompletion, syntax
-highlighting...

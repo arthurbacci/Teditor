@@ -91,14 +91,9 @@ typedef struct {
 } Buffer;
 
 typedef struct {
-    bool strict_utf8; // high/low surrogates will be replaced (for now leave it always set)
     unsigned int tablen;
-    int lines;
     bool use_spaces;
     bool autotab;
-    bool automatch;
-    bool insert_newline;
-    char *word_separators;
 } GlobalCfg;
 
 typedef struct {

@@ -11,20 +11,12 @@ void savefile(Buffer *buf) {
         return;
     }
 
-    // Insert a newline to the end of the buffer
-    if (config.insert_newline && 0 < buf->lines[buf->num_lines - 1].length) {
-        buf->lines = realloc(buf->lines, ++buf->num_lines * sizeof(Line));
-        buf->lines[buf->num_lines - 1] = blank_line();
-    }
 
     for (size_t i = 0; i < buf->num_lines; i++) {
 
         char *at = buf->lines[i].data;
         while ('\0' != *at) {
-            Grapheme grapheme = get_next_grapheme(
-                &at,
-                SIZE_MAX
-            );
+            Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
 
             fwrite(grapheme.dt, sizeof(char), grapheme.sz, fpw);
         }

@@ -6,11 +6,11 @@ void display_menu(const char *message, const char *shadow, const Node *n) {
     int x, y;
     getyx(stdscr, y, x);
 
-    move(config.lines, 0);
+    move(LINES - 1, 0);
     for (size_t i = 0; i < COLS; i++)
         addch(' ');
 
-    move(config.lines, 0);
+    move(LINES - 1, 0);
     if (!*message && n) {
         int scrolled = 100 * (float)buf->cursor.y / ((float)buf->num_lines - 1);
 
@@ -33,7 +33,7 @@ void display_menu(const char *message, const char *shadow, const Node *n) {
             n->next->data.name
         );
 
-        mvprintw(config.lines, COLS - len, "%s", b);
+        mvprintw(LINES - 1, COLS - len, "%s", b);
 
     } else if (shadow != NULL) {
         printw("%s", message);
@@ -50,7 +50,7 @@ void display_menu(const char *message, const char *shadow, const Node *n) {
 }
 
 void display_buffer(Buffer buf, int len_line_number) {
-    for (size_t i = buf.scroll.y; i < buf.scroll.y + config.lines; i++) {
+    for (size_t i = buf.scroll.y; i < buf.scroll.y + LINES - 1; i++) {
         move(i - buf.scroll.y, 0);
         if (i >= buf.num_lines) {
             for (int j = 0; j < len_line_number - 1; j++)

@@ -36,10 +36,8 @@ DEF_COMMAND(tablen, {
 
 DEF_COMMAND(crlf, BOOL_SET(buf->crlf))
 
-DEF_COMMAND(insert_newline, BOOL_SET(config.insert_newline))
 DEF_COMMAND(use_spaces, BOOL_SET(config.use_spaces))
 DEF_COMMAND(autotab, BOOL_SET(config.autotab))
-DEF_COMMAND(automatch, BOOL_SET(config.automatch))
 
 DEF_COMMAND(save_as, {
     if (words_len == 1) {
@@ -56,22 +54,6 @@ DEF_COMMAND(save_as, {
             savefile(buf);
         else
             message("Can't save, no permission to write");
-    }
-})
-
-DEF_COMMAND(manual, {
-    if (words_len == 0) {
-        open_file(home_path(".config/ted/docs/help.txt"), n);
-        buf->read_only = 1;
-    } else if (words_len > 0) {
-        char fname[1000];
-        char *p = fname;
-        p += sprintf(p, ".config/ted/docs");
-        for (size_t i = 0; i < words_len; i++)
-            p += sprintf(p, "/%s", words[i]);
-        p += sprintf(p, ".txt");
-        open_file(home_path(fname), n);
-        buf->read_only = 1;
     }
 })
 
@@ -148,12 +130,9 @@ struct {
 } fns[] = {
     {"tablen"           , tablen            },
     {"crlf"             , crlf              },
-    {"insert-newline"   , insert_newline    },
     {"use-spaces"       , use_spaces        },
     {"autotab"          , autotab           },
-    {"automatch"        , automatch         },
     {"save-as"          , save_as           },
-    {"manual"           , manual            },
     {"read-only"        , read_only         },
     //{"find"             , find              },
     //{"eof"              , eof               },
@@ -166,12 +145,9 @@ struct {
 Hints hints[] = {
     {"tablen"           , "<tablen>"                     },
     {"crlf"             , "f | t"                        },
-    {"insert-newline"   , "f | t"                        },
     {"use-spaces"       , "f | t"                        },
     {"autotab"          , "f | t"                        },
-    {"automatch"        , "f | t"                        },
     {"save-as"          , "<filename>"                   },
-    {"manual"           , "<page (nothing for index)>"   },
     {"read-only"        , "f | t"                        },
     //{"find"             , "(start | cursor) <substring>" },
     //{"eof"              , ""                             },
