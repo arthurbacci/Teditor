@@ -65,6 +65,7 @@ typedef struct {
 // truncated for a smaller line, so that the cursor doesn't changes position
 // horizontally when you move through smaller lines
 typedef struct {
+    // TODO: change this to x_bytes so that confusion is less probable
     size_t x;
     size_t x_grapheme;
     size_t last_x_grapheme;
@@ -72,7 +73,7 @@ typedef struct {
 } Cursor;
 
 typedef struct {
-    size_t x;
+    size_t x_grapheme;
     size_t y;
 } TextScroll;
 
@@ -144,8 +145,6 @@ void expand_line(size_t at, int x, Buffer *buf);
 void new_line(size_t at, int x, Buffer *buf);
 bool process_keypress(int c, Node **n);
 
-// cursor.c
-
 // mouse.c
 bool process_mouse_event(MEVENT ev, Node **n);
 
@@ -164,7 +163,7 @@ bool add_char(size_t x, size_t y, const Grapheme c, Buffer *buf);
 bool remove_char(size_t x, size_t y, Buffer *buf);
 
 // scroll.c
-void calculate_scroll(Buffer *buf, int len_line_number);
+void calculate_scroll(Buffer *buf, size_t screen_size);
 
 // buffer_list.c
 Node *allocate_node(Node n);
@@ -179,6 +178,7 @@ void free_buffer_list(Node *n);
 Grapheme get_next_grapheme(char **str, size_t len);
 
 // cursor.c
+size_t calculate_from_grapheme(size_t *gi, char *s0);
 void calculate_cursor_x(Buffer *buf);
 
 

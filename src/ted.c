@@ -1,9 +1,9 @@
 /*
 TODO: get width of the characters that are being printed
+FIXME: code assumes that 1 grapheme = 1 cell, this is wrong and should be
+fixed soon
 
 TODO: make identation calculation lazy, decreasing overhead
-
-TODO: fix backspace with graphemes
 */
 
 #include "ted.h"
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
 
             int len_line_number = calculate_len_line_number(buf->data);
 
-            calculate_scroll(&buf->data, len_line_number);
+            calculate_scroll(&buf->data, COLS - len_line_number - 2);
 
             display_buffer(buf->data, len_line_number);
             display_menu(menu_message, NULL, buf);

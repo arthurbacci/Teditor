@@ -67,43 +67,46 @@ void display_buffer(Buffer buf, int len_line_number) {
         printw("%*d ", len_line_number, i + 1);
         
         attroff(A_BOLD);
-    
-        char *at = &buf.lines[i].data[buf.scroll.x];
+
+        char *at = buf.lines[i].data;
+        size_t at_len = buf.scroll.x_grapheme;
+        // TODO: must be replaced with something which accounts for the sizes
+        // of the glyphs
+        at += calculate_from_grapheme(&at_len, at);
 
         size_t size = 0;
-        // TODO: increment j by space the char occupies
-        for (size_t j = 0; size < COLS - len_line_number - 1; j++) {
-
-            // TODO: use grapheme_x
-            if (j + buf.scroll.x == buf.cursor.x && i == buf.cursor.y)
+        while (*at) {
+            if (i == buf.cursor.y
+            && buf.scroll.x_grapheme + size == buf.cursor.x_grapheme) {
                 attron(A_REVERSE);
-
-            // Write blank space at the right of the line
-            if (buf.scroll.x + j >= buf.lines[i].length) {
-                addch(' ');
-                goto AFTER_WRITE_CHAR;
             }
 
-            Grapheme grapheme = get_next_grapheme(
-                &at,
-                SIZE_MAX
-            );
-            
+            Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
 
             if (1 == grapheme.sz && '\t' == *grapheme.dt) {
                 for (int k = 0; k < config.tablen; k++)
                     addch(' ');
-                // - 1 because it will already be incremented at the end of the
-                // loop
-                size += config.tablen - 1;
+                size += config.tablen;
             } else {
                 printw("%.*s", grapheme.sz, grapheme.dt);
+
+                // TODO: some graphemes can take up more than 1 cell in the
+                //       terminal, implement handling for that
+                size++;
             }
-            
-AFTER_WRITE_CHAR:
+
             attroff(A_REVERSE);
-            // TODO: some graphemes can take up more than 1 cell in the
-            //       terminal, implement handling for that
+        }
+
+        while (size < COLS - len_line_number - 1) {
+            if (i == buf.cursor.y
+            && buf.scroll.x_grapheme + size == buf.cursor.x_grapheme) {
+                attron(A_REVERSE);
+            }
+
+            addch(' ');
+            attroff(A_REVERSE);
+
             size++;
         }
     }
