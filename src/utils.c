@@ -89,7 +89,6 @@ Line blank_line(void) {
     ln.cap = READ_BLOCKSIZE;
     ln.data = malloc(ln.cap);
     ln.length = 0;
-    ln.ident = 0;
 
     *ln.data = '\0';
     return ln;
@@ -107,4 +106,17 @@ char *bufn(int a) {
     *p = '\0';
 
     return s;
+}
+
+size_t get_ident_sz(char *s) {
+    size_t ident_sz;
+    char c;
+    for (
+        ident_sz = 0;
+        ' ' == (c = s[ident_sz])
+        || '\t' == c;
+        ident_sz++
+    );
+
+    return ident_sz;
 }

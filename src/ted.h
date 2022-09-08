@@ -52,9 +52,8 @@ typedef struct {
 
 typedef struct {
     size_t cap;
-    char *data;
     size_t length;
-    size_t ident;
+    char *data;
 } Line;
 
 // `x` points to the byte, `x_grapheme` indexes the grapheme, the existense of
@@ -136,8 +135,7 @@ void display_buffer(Buffer buf, int len_line_number);
 void free_buffer(Buffer *buf);
 
 // keypress.c
-void expand_line(size_t at, int x, Buffer *buf);
-void new_line(size_t at, int x, Buffer *buf);
+void expand_line(Line *ln, size_t x);
 bool process_keypress(int c, Node **n);
 
 // mouse.c
@@ -151,6 +149,7 @@ char **split_str(const char *str, int *num_str);
 int calculate_len_line_number(Buffer buf);
 Line blank_line(void);
 char *bufn(int a);
+size_t get_ident_sz(char *s);
 
 // modify.c
 bool modify(Buffer *buf);

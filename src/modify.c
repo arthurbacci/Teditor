@@ -11,7 +11,7 @@ bool modify(Buffer *buf) {
 
 bool add_char(size_t x, size_t y, const Grapheme c, Buffer *buf) {
     if (modify(buf)) {
-        expand_line(buf->cursor.y, c.sz, buf);
+        expand_line(&buf->lines[buf->cursor.y], c.sz);
         memmove(
             &buf->lines[y].data[x + c.sz],
             &buf->lines[y].data[x],

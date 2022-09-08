@@ -63,18 +63,10 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
 
 
         char c;
-        bool passed_spaces = 0;
         size_t j;
         for (j = 0; EOF != (c = fgetc(fp)) && '\n' != c; j++) {
             if (c == '\r')
                 b.crlf = true;
-
-            if (!passed_spaces) {
-                if (' ' == c)
-                    curln->ident++;
-                else
-                    passed_spaces = true;
-            }
 
             // TODO: check unicode if file isn't tooooo big
             // For now the buffer is not being asserted to be encoded correctly

@@ -1,38 +1,15 @@
 #include "ted.h"
 
 // garants that the capacity is (x + 1) bytes greater than the length
-void expand_line(size_t at, int x, Buffer *buf) {
-    if (buf->lines[at].cap <= buf->lines[at].length + x + 1) {
-        while (buf->lines[at].cap <= buf->lines[at].length + x + 1)
-            buf->lines[at].cap *= 2;
+void expand_line(Line *ln, size_t x) {
+    if (ln->cap <= ln->length + x + 1) {
+        while (ln->cap <= ln->length + x + 1)
+            ln->cap *= 2;
 
-        buf->lines[at].data = realloc(
-            buf->lines[buf->cursor.y].data,
-            buf->lines[buf->cursor.y].cap
-        );
+        ln->data = realloc(ln->data, ln->cap);
     }
 }
 
-// TODO: remake this function w/ an easier to understand declaration
-void new_line(size_t at, int x, Buffer *buf) {
-    buf->lines[at].cap = READ_BLOCKSIZE;
-    buf->lines[at].data = malloc(buf->lines[at].cap);
-    buf->lines[at].length = 0;
-
-    expand_line(at, buf->lines[at - 1].length - x + 1, buf);
-
-    memcpy(
-        buf->lines[at].data,
-        &buf->lines[at - 1].data[x],
-        buf->lines[at - 1].length - x
-    );
-
-    buf->lines[at].length += buf->lines[at - 1].length - x;
-    buf->lines[at].data[buf->lines[at].length] = '\0';
-
-    buf->lines[at - 1].length = x;
-    buf->lines[at - 1].data[buf->lines[at - 1].length] = '\0';
-}
 
 bool process_keypress(int c, Node **n) {
     Buffer *buf = &(*n)->data;
@@ -205,9 +182,6 @@ bool process_keypress(int c, Node **n) {
     {
         if (modify(buf)) {
             if (buf->cursor.x > 0) {
-                if (buf->cursor.x <= buf->lines[buf->cursor.y].ident)
-                    buf->lines[buf->cursor.y].ident--;
-                
                 process_keypress(KEY_LEFT, n);
                 remove_char(buf->cursor.x, buf->cursor.y, buf);
             } else if (buf->cursor.y > 0) {
@@ -224,7 +198,7 @@ bool process_keypress(int c, Node **n) {
                 buf->cursor.x_grapheme = SIZE_MAX;
                 calculate_cursor_x(buf);
 
-                expand_line(buf->cursor.y, del_line.length, buf);
+                expand_line(&buf->lines[buf->cursor.y], del_line.length);
 
                 Line *to_append = &buf->lines[buf->cursor.y];
 
@@ -236,12 +210,6 @@ bool process_keypress(int c, Node **n) {
 
                 to_append->length += del_line.length;
                 to_append->data[to_append->length] = '\0';
-
-
-                to_append->ident = 0;
-                for (size_t i = 0; ' ' == to_append->data[i]; i++)
-                    to_append->ident++;
-
 
                 free(del_line.data);
             }
@@ -257,45 +225,48 @@ bool process_keypress(int c, Node **n) {
                 (buf->num_lines - buf->cursor.y - 2) * sizeof(Line)
             );
 
-            size_t lcx = buf->cursor.x;
-            buf->cursor.y++;
-            buf->cursor.x_grapheme = 0;
-            calculate_cursor_x(buf);
-            buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+            buf->lines[buf->cursor.y + 1] = blank_line();
 
-            new_line(buf->cursor.y, lcx, buf);
+            Line *current = &buf->lines[buf->cursor.y];
+            Line *new = &buf->lines[buf->cursor.y + 1];
 
             if (config.autotab) {
-                size_t ident = buf->lines[buf->cursor.y - 1].ident;
-                buf->lines[buf->cursor.y].ident = ident;
-                buf->lines[buf->cursor.y].cap += ident;
-                buf->lines[buf->cursor.y].data = realloc(
-                    buf->lines[buf->cursor.y].data,
-                    buf->lines[buf->cursor.x].cap
-                );
+                size_t ident_sz = get_ident_sz(current->data);
                 
-                memmove(
-                    &buf->lines[buf->cursor.y].data[ident],
-                    buf->lines[buf->cursor.y].data,
-                    buf->lines[buf->cursor.y].length + 1
-                );
+                expand_line(new, ident_sz);
 
-                // TODO: since we're back to bytes we can use memset
-                for (size_t i = 0; i < ident; i++)
-                    buf->lines[buf->cursor.y].data[i] = ' ';
-                buf->lines[buf->cursor.y].length += ident;
-
-                for (size_t i = 0; i < ident; i++)
-                    process_keypress(KEY_RIGHT, n);
-            } else {
-                buf->lines[buf->cursor.y].ident = 0;
-                for (size_t i = 0; ' ' == buf->lines[buf->cursor.y].data[i]; i++)
-                    buf->lines[buf->cursor.y].ident++;
+                memcpy(new->data, current->data, ident_sz);
+                new->length = ident_sz;
+                new->data[new->length] = '\0';
             }
+
+
+            size_t cur_x = buf->cursor.x;
+
+            buf->cursor.y++;
+            buf->cursor.x_grapheme = SIZE_MAX;
+            calculate_cursor_x(buf);
+
+            expand_line(new, current->length - cur_x);
+
+            memcpy(
+                &new->data[new->length],
+                &current->data[cur_x],
+                // + 1 so that it also copies the null byte
+                current->length + 1 - cur_x
+            );
+
+            new->length += current->length - cur_x;
+
+            current->length = cur_x;
+            current->data[current->length] = '\0';
         }
+
         break;
     }
     }
+
+    // TODO: move this all to `default`
 
     char cc[4];
     cc[0] = c;
@@ -318,15 +289,11 @@ bool process_keypress(int c, Node **n) {
     }
 
 
-    if (r > 1 || isprint(c)) {
+    if (r > 1 || isprint(c) || '\t' == c) {
         if (modify(buf)) {
-            if (' ' == c && buf->cursor.x <= buf->lines[buf->cursor.y].ident)
-                buf->lines[buf->cursor.y].ident++;
-
             Grapheme g = {r, cc};
             if (add_char(buf->cursor.x, buf->cursor.y, g, buf))
                 process_keypress(KEY_RIGHT, n);
-
         }
     }
     

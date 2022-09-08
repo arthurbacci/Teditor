@@ -15,8 +15,7 @@ void display_menu(const char *message, const char *shadow, const Node *n) {
         int scrolled = 100 * (float)buf->cursor.y / ((float)buf->num_lines - 1);
 
         printw(
-            "I:%u %u%% %s",
-            buf->lines[buf->cursor.y].ident,
+            "%u%% %s",
             scrolled,
             buf->filename
         );
@@ -75,9 +74,10 @@ void display_buffer(Buffer buf, int len_line_number) {
         at += calculate_from_grapheme(&at_len, at);
 
         size_t size = 0;
-        while (*at) {
+        size_t j;
+        for (j = 0; *at && size < COLS - len_line_number - 1; j++) {
             if (i == buf.cursor.y
-            && buf.scroll.x_grapheme + size == buf.cursor.x_grapheme) {
+            && buf.scroll.x_grapheme + j == buf.cursor.x_grapheme) {
                 attron(A_REVERSE);
             }
 
@@ -100,7 +100,7 @@ void display_buffer(Buffer buf, int len_line_number) {
 
         while (size < COLS - len_line_number - 1) {
             if (i == buf.cursor.y
-            && buf.scroll.x_grapheme + size == buf.cursor.x_grapheme) {
+            && buf.scroll.x_grapheme + j == buf.cursor.x_grapheme) {
                 attron(A_REVERSE);
             }
 
@@ -108,6 +108,7 @@ void display_buffer(Buffer buf, int len_line_number) {
             attroff(A_REVERSE);
 
             size++;
+            j++;
         }
     }
 }
