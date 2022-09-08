@@ -90,9 +90,7 @@ void display_buffer(Buffer buf, int len_line_number) {
             } else {
                 printw("%.*s", grapheme.sz, grapheme.dt);
 
-                // TODO: some graphemes can take up more than 1 cell in the
-                //       terminal, implement handling for that
-                size++;
+                size += grapheme_width(grapheme);
             }
 
             attroff(A_REVERSE);

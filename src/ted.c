@@ -2,10 +2,6 @@
 TODO: get width of the characters that are being printed
 FIXME: code assumes that 1 grapheme = 1 cell, this is wrong and should be
 fixed soon
-
-TODO: make identation calculation lazy, decreasing overhead
-
-FIXME: tab is not working
 */
 
 #include "ted.h"
@@ -14,14 +10,16 @@ FIXME: tab is not working
 
 char *menu_message = "";
 
-GlobalCfg config = {
-    4, 0, 1
-};
+GlobalCfg config = {4, 0, 1};
 
 jmp_buf end;
 
 
 int main(int argc, char **argv) {
+    char *str = "á";
+    Grapheme g = get_next_grapheme(&str, sizeof(str));
+    fprintf(stderr, "%d\n", grapheme_width(g));
+
     int is_input_pipe = !isatty(STDIN_FILENO);
     if (is_input_pipe) {
         // TODO: read pipe contents to buffer before closing it

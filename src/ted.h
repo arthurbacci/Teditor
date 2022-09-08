@@ -2,6 +2,7 @@
 #define TED_HEADER
 
 #define _POSIX_C_SOURCE 1
+#define _XOPEN_SOURCE
 
 #include <ncurses.h>
 #include <stdio.h>
@@ -20,6 +21,7 @@
 #include <unistd.h>
 #include <setjmp.h>
 #include <limits.h>
+#include <wchar.h>
 
 // suckless' libgrapheme
 #include <grapheme.h>
@@ -170,6 +172,7 @@ void free_buffer_list(Node *n);
 
 // grapheme.c
 Grapheme get_next_grapheme(char **str, size_t len);
+size_t grapheme_width(Grapheme g);
 
 // cursor.c
 size_t calculate_from_grapheme(size_t *gi, char *s0);
