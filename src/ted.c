@@ -2,6 +2,8 @@
 TODO: get width of the characters that are being printed
 FIXME: code assumes that 1 grapheme = 1 cell, this is wrong and should be
 fixed soon
+
+TODO: cursor should use size too
 */
 
 #include "ted.h"
@@ -16,10 +18,6 @@ jmp_buf end;
 
 
 int main(int argc, char **argv) {
-    char *str = "á";
-    Grapheme g = get_next_grapheme(&str, sizeof(str));
-    fprintf(stderr, "%d\n", grapheme_width(g));
-
     int is_input_pipe = !isatty(STDIN_FILENO);
     if (is_input_pipe) {
         // TODO: read pipe contents to buffer before closing it

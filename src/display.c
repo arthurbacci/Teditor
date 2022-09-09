@@ -67,8 +67,15 @@ void display_buffer(Buffer buf, int len_line_number) {
         
         attroff(A_BOLD);
 
+
+
+        size_t scroll_grapheme = wi_to_gi(
+            buf.scroll.x,
+            buf.lines[buf.cursor.y].data
+        );
+
         char *at = buf.lines[i].data;
-        size_t at_len = buf.scroll.x_grapheme;
+        size_t at_len = scroll_grapheme;
         // TODO: must be replaced with something which accounts for the sizes
         // of the glyphs
         at += calculate_from_grapheme(&at_len, at);
@@ -77,7 +84,7 @@ void display_buffer(Buffer buf, int len_line_number) {
         size_t j;
         for (j = 0; *at && size < COLS - len_line_number - 1; j++) {
             if (i == buf.cursor.y
-            && buf.scroll.x_grapheme + j == buf.cursor.x_grapheme) {
+            && scroll_grapheme + j == buf.cursor.x_grapheme) {
                 attron(A_REVERSE);
             }
 
@@ -98,7 +105,7 @@ void display_buffer(Buffer buf, int len_line_number) {
 
         while (size < COLS - len_line_number - 1) {
             if (i == buf.cursor.y
-            && buf.scroll.x_grapheme + j == buf.cursor.x_grapheme) {
+            && scroll_grapheme + j == buf.cursor.x_grapheme) {
                 attron(A_REVERSE);
             }
 

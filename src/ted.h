@@ -74,7 +74,7 @@ typedef struct {
 } Cursor;
 
 typedef struct {
-    size_t x_grapheme;
+    size_t x;
     size_t y;
 } TextScroll;
 
@@ -173,6 +173,8 @@ void free_buffer_list(Node *n);
 // grapheme.c
 Grapheme get_next_grapheme(char **str, size_t len);
 size_t grapheme_width(Grapheme g);
+size_t wi_to_gi(size_t si, char *s);
+size_t gi_to_wi(size_t gi, char *s);
 
 // cursor.c
 size_t calculate_from_grapheme(size_t *gi, char *s0);

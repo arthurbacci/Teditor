@@ -6,13 +6,16 @@ void calculate_scroll(Buffer *buf, size_t screen_size) {
         buf->scroll.y = buf->cursor.y;
     if (buf->cursor.y > buf->scroll.y + LINES - 2)
         buf->scroll.y = buf->cursor.y - LINES;
+
+    char *thisln = buf->lines[buf->cursor.y].data;
+    size_t x_width = gi_to_wi(buf->cursor.x_grapheme, thisln); 
+
     // x
-    if (buf->cursor.x_grapheme < buf->scroll.x_grapheme) {
-        buf->scroll.x_grapheme = buf->cursor.x_grapheme;
-    } else if (buf->cursor.x_grapheme >= buf->scroll.x_grapheme + screen_size)
-        buf->scroll.x_grapheme = buf->cursor.x_grapheme - screen_size;
-    /*
-    else if (buf->cursor.x > buf->scroll.x + (COLS - len_line_number - 2)) {
-        buf->scroll.x = buf->cursor.x - (COLS - len_line_number - 2);
-    }*/
+    if (x_width < buf->scroll.x) {
+        buf->scroll.x = x_width;
+        message("A");
+    } else if (x_width > buf->scroll.x + screen_size) {
+        buf->scroll.x = x_width - screen_size;
+        message("B");
+    }
 }
