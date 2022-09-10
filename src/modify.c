@@ -9,39 +9,30 @@ bool modify(Buffer *buf) {
     return !buf->read_only;
 }
 
-bool add_char(size_t x, size_t y, const Grapheme c, Buffer *buf) {
-    if (modify(buf)) {
-        expand_line(&buf->lines[buf->cursor.y], c.sz);
-        memmove(
-            &buf->lines[y].data[x + c.sz],
-            &buf->lines[y].data[x],
-            buf->lines[y].length - x
-        );
-        memcpy(&buf->lines[y].data[x], c.dt, c.sz);
-        buf->lines[y].data[buf->lines[y].length += c.sz] = '\0';
-        return 1;
-    }
-    return 0;
+void add_char(Grapheme c, size_t x, Line *ln) {
+    expand_line(ln, c.sz);
+    memmove(
+        &ln->data[x + c.sz],
+        &ln->data[x],
+        ln->length - x
+    );
+    memcpy(&ln->data[x], c.dt, c.sz);
+    ln->data[ln->length += c.sz] = '\0';
 }
 
 // Note that `x` must point to a char boundary
-bool remove_char(size_t x, size_t y, Buffer *buf) {
-    if (modify(buf)) {
-        char *afterpos = &buf->lines[y].data[x];
+void remove_char(size_t x, Line *ln) {
+    char *afterpos = &ln->data[x];
 
-        size_t grapheme_sz = get_next_grapheme(
-            &afterpos,
-            SIZE_MAX
-        ).sz;
+    size_t grapheme_sz = get_next_grapheme(
+        &afterpos,
+        SIZE_MAX
+    ).sz;
 
-        memmove(
-            &buf->lines[y].data[x],
-            afterpos,
-            buf->lines[y].length - x + grapheme_sz
-        );
-        buf->lines[y].data[buf->lines[y].length -= grapheme_sz] = '\0';
-
-        return 1;
-    }
-    return 0;
+    memmove(
+        &ln->data[x],
+        afterpos,
+        ln->length - x + grapheme_sz
+    );
+    ln->data[ln->length -= grapheme_sz] = '\0';
 }

@@ -139,6 +139,7 @@ bool process_keypress(int c, Node **n) {
     {
         bool passed_spaces = 0;
         while (buf->cursor.x > 0 && (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x - 1]) || !passed_spaces)) {
+            // FIXME: remove_char now needs modify()
             if (!remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
                 break;
             process_keypress(KEY_LEFT, n);
@@ -179,9 +180,14 @@ bool process_keypress(int c, Node **n) {
     } */case KEY_BACKSPACE: case KEY_DC: case 127:
     {
         if (modify(buf)) {
-            if (buf->cursor.x > 0) {
+            Line *ln = &buf->lines[buf->cursor.y];
+            char *s = ln->data;
+            index_by_width(buf->cursor.x_width, &s);
+            size_t x_byte = s - ln->data;
+
+            if (x_byte > 0) {
                 process_keypress(KEY_LEFT, n);
-                remove_char(buf->cursor.x, buf->cursor.y, buf);
+                remove_char(x_byte, ln);
             } else if (buf->cursor.y > 0) {
                 Line del_line = buf->lines[buf->cursor.y];
 
@@ -239,7 +245,10 @@ bool process_keypress(int c, Node **n) {
             }
 
 
-            size_t cur_x = buf->cursor.x;
+            Line *ln = &buf->lines[buf->cursor.y];
+            char *s = ln->data;
+            index_by_width(buf->cursor.x_width, &s);
+            size_t cur_x = s - ln->data;
 
             buf->cursor.y++;
             buf->cursor.x_width = SIZE_MAX;
@@ -290,8 +299,14 @@ bool process_keypress(int c, Node **n) {
     if (r > 1 || isprint(c) || '\t' == c) {
         if (modify(buf)) {
             Grapheme g = {r, cc};
-            if (add_char(buf->cursor.x, buf->cursor.y, g, buf))
-                process_keypress(KEY_RIGHT, n);
+
+            Line *ln = &buf->lines[buf->cursor.y];
+            char *s = ln->data;
+            index_by_width(buf->cursor.x_width, &s);
+            size_t x_byte = s - ln->data;
+
+            add_char(g, x_byte, ln);
+            process_keypress(KEY_RIGHT, n);
         }
     }
     
