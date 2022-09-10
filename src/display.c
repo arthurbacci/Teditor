@@ -69,30 +69,38 @@ void display_buffer(Buffer buf, int len_line_number) {
 
 
 
-        size_t scroll_grapheme = wi_to_gi(
-            buf.scroll.x,
-            buf.lines[buf.cursor.y].data
-        );
 
         char *at = buf.lines[i].data;
-        size_t at_len = scroll_grapheme;
-        // TODO: must be replaced with something which accounts for the sizes
-        // of the glyphs
-        at += calculate_from_grapheme(&at_len, at);
+        size_t padding = index_by_width_after(buf.scroll.x_width, &at);
+
+        
 
         size_t size = 0;
+        
+        // Note that padding can be negative
+        if (padding > 0) {
+            size += padding;
+            attron(A_REVERSE);
+            for (size_t i = 0; i < padding; i++)
+                addch('>');
+            attroff(A_REVERSE);
+        }
+
         size_t j;
         for (j = 0; *at && size < COLS - len_line_number - 1; j++) {
             if (i == buf.cursor.y
-            && scroll_grapheme + j == buf.cursor.x_grapheme) {
+            && buf.scroll.x_width + size == buf.cursor.x_width) {
                 attron(A_REVERSE);
             }
 
             Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
 
             if (1 == grapheme.sz && '\t' == *grapheme.dt) {
-                for (int k = 0; k < config.tablen; k++)
+                attron(A_REVERSE);
+                addch('T');
+                for (int k = 0; k < config.tablen - 1; k++)
                     addch(' ');
+                attroff(A_REVERSE);
                 size += config.tablen;
             } else {
                 printw("%.*s", grapheme.sz, grapheme.dt);
@@ -105,7 +113,7 @@ void display_buffer(Buffer buf, int len_line_number) {
 
         while (size < COLS - len_line_number - 1) {
             if (i == buf.cursor.y
-            && scroll_grapheme + j == buf.cursor.x_grapheme) {
+            && buf.scroll.x_width + size == buf.cursor.x_width) {
                 attron(A_REVERSE);
             }
 

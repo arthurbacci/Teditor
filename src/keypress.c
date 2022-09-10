@@ -31,8 +31,8 @@ bool process_keypress(int c, Node **n) {
         // Decrements `y` if it is greater than 0
         buf->cursor.y -= buf->cursor.y > 0;
 
-        buf->cursor.x_grapheme = buf->cursor.last_x_grapheme;
-        calculate_cursor_x(buf);
+        buf->cursor.x_width = buf->cursor.last_x_width;
+        truncate_cursor_x(buf);
 
         break;
     case KEY_DOWN:
@@ -40,38 +40,36 @@ bool process_keypress(int c, Node **n) {
         // Increments `y` if it doesn't gets greater or equal than `num_lines`
         buf->cursor.y += buf->cursor.y + 1 < buf->num_lines;
 
-        buf->cursor.x_grapheme = buf->cursor.last_x_grapheme;
-        calculate_cursor_x(buf);
+        buf->cursor.x_width = buf->cursor.last_x_width;
+        truncate_cursor_x(buf);
 
         break;
     case KEY_LEFT:
     case ctrl('b'):
-        buf->cursor.x_grapheme -= buf->cursor.x_grapheme > 0;
-        calculate_cursor_x(buf);
-        buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+        buf->cursor.x_width -= buf->cursor.x_width > 0;
+        truncate_cursor_x(buf);
+        buf->cursor.last_x_width = buf->cursor.x_width;
 
         break;
     case KEY_RIGHT:
     case ctrl('f'):
-        // No need to check anything since `calculate_cursor_x` will truncate it
-        // if it overflows
-        buf->cursor.x_grapheme++;
-        calculate_cursor_x(buf);
-        buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+        buf->cursor.x_width++;
+        truncate_cursor_x(buf);
+        buf->cursor.last_x_width = buf->cursor.x_width;
 
         break;
     case KEY_HOME:
     case ctrl('a'):
-        buf->cursor.x_grapheme = 0;
-        calculate_cursor_x(buf);
-        buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+        buf->cursor.x_width = 0;
+        truncate_cursor_x(buf);
+        buf->cursor.last_x_width = buf->cursor.x_width;
 
         break;
     case KEY_END:
     case ctrl('e'):
-        buf->cursor.x_grapheme = SIZE_MAX;
-        calculate_cursor_x(buf);
-        buf->cursor.last_x_grapheme = buf->cursor.x_grapheme;
+        buf->cursor.x_width = SIZE_MAX;
+        truncate_cursor_x(buf);
+        buf->cursor.last_x_width = buf->cursor.x_width;
 
         break;
     case ctrl('s'):
@@ -195,8 +193,8 @@ bool process_keypress(int c, Node **n) {
                 buf->num_lines--;
 
                 buf->cursor.y--;
-                buf->cursor.x_grapheme = SIZE_MAX;
-                calculate_cursor_x(buf);
+                buf->cursor.x_width = SIZE_MAX;
+                truncate_cursor_x(buf);
 
                 expand_line(&buf->lines[buf->cursor.y], del_line.length);
 
@@ -244,8 +242,8 @@ bool process_keypress(int c, Node **n) {
             size_t cur_x = buf->cursor.x;
 
             buf->cursor.y++;
-            buf->cursor.x_grapheme = SIZE_MAX;
-            calculate_cursor_x(buf);
+            buf->cursor.x_width = SIZE_MAX;
+            truncate_cursor_x(buf);
 
             expand_line(new, current->length - cur_x);
 

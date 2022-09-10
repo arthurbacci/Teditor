@@ -1,28 +1,21 @@
 #include "ted.h"
 
-size_t calculate_from_grapheme(size_t *gi, char *s0) {
-    char *s = s0;
+void calculate_scroll(Buffer *buf, size_t screen_size) {
+    // y
+    if (buf->cursor.y < buf->scroll.y)
+        buf->scroll.y = buf->cursor.y;
+    if (buf->cursor.y > buf->scroll.y + LINES - 2)
+        buf->scroll.y = buf->cursor.y - LINES;
 
-    size_t i;
-    for (i = 0; i < *gi; i++) {
-        if ('\0' == *s)
-            break;
-
-        size_t off = grapheme_next_character_break_utf8(s, SIZE_MAX);
-        s += off;
-
-        if (0 == off)
-            break;
-    }
-
-    *gi = i;
-    return s - s0;
+    // x
+    if (buf->cursor.x_width < buf->scroll.x_width)
+        buf->scroll.x_width = buf->cursor.x_width;
+    else if (buf->cursor.x_width > buf->scroll.x_width + screen_size)
+        buf->scroll.x_width = buf->cursor.x_width - screen_size;
 }
 
-// Calculates `x` from `x_grapheme`, truncating both if needed
-void calculate_cursor_x(Buffer *buf) {
-    buf->cursor.x = calculate_from_grapheme(
-        &buf->cursor.x_grapheme,
-        buf->lines[buf->cursor.y].data
-    );
+void truncate_cursor_x(Buffer *buf) {
+    char *s = buf->lines[buf->cursor.y].data;
+    buf->cursor.x_width -= index_by_width(buf->cursor.x_width, &s);
 }
+

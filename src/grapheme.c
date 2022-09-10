@@ -48,3 +48,29 @@ size_t gi_to_wi(size_t gi, char *s) {
     }
     return r;
 }
+
+ssize_t index_by_width_after(size_t _wi, char **s) {
+    ssize_t wi = _wi;
+    while (1) {
+        if (wi <= 0)
+            return -wi;
+
+        Grapheme g = get_next_grapheme(s, SIZE_MAX);
+        if (g.sz <= 0)
+            return -wi;
+
+        wi -= g.sz;
+    }
+}
+
+size_t index_by_width(size_t wi, char **s) {
+    Grapheme g;
+    while ((g = get_next_grapheme(s, SIZE_MAX)).sz > 0) {
+        if (g.sz > wi)
+            return 0;
+        wi -= g.sz;
+    }
+    return wi;
+}
+
+
