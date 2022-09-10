@@ -1,9 +1,6 @@
 /*
-TODO: get width of the characters that are being printed
-FIXME: code assumes that 1 grapheme = 1 cell, this is wrong and should be
-fixed soon
-
-TODO: cursor should use size too
+TODO: cursor should increment by grapheme when using KEY_LEFT or KEY_RIGHT,
+      instead of incrementing by width
 */
 
 #include "ted.h"

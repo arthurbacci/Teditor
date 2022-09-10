@@ -56,19 +56,21 @@ ssize_t index_by_width_after(size_t _wi, char **s) {
             return -wi;
 
         Grapheme g = get_next_grapheme(s, SIZE_MAX);
+
         if (g.sz <= 0)
             return -wi;
 
-        wi -= g.sz;
+        wi -= grapheme_width(g);
     }
 }
 
 size_t index_by_width(size_t wi, char **s) {
     Grapheme g;
     while ((g = get_next_grapheme(s, SIZE_MAX)).sz > 0) {
-        if (g.sz > wi)
+        size_t gw = grapheme_width(g);
+        if (gw > wi)
             return 0;
-        wi -= g.sz;
+        wi -= gw;
     }
     return wi;
 }

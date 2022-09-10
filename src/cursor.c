@@ -16,6 +16,10 @@ void calculate_scroll(Buffer *buf, size_t screen_size) {
 
 void truncate_cursor_x(Buffer *buf) {
     char *s = buf->lines[buf->cursor.y].data;
-    buf->cursor.x_width -= index_by_width(buf->cursor.x_width, &s);
+    // TODO: check if it is neg before incrementing
+
+    ssize_t iw = index_by_width(buf->cursor.x_width, &s);
+    if (iw > 0)
+        buf->cursor.x_width -= iw;
 }
 

@@ -71,9 +71,7 @@ void display_buffer(Buffer buf, int len_line_number) {
 
 
         char *at = buf.lines[i].data;
-        size_t padding = index_by_width_after(buf.scroll.x_width, &at);
-
-        
+        ssize_t padding = index_by_width_after(buf.scroll.x_width, &at);
 
         size_t size = 0;
         
