@@ -133,20 +133,31 @@ bool process_keypress(int c, Node **n) {
 
         break;
     }
-    /*
     case ctrl('w'): {
-        bool passed_spaces = 0;
-        while (buf->cursor.x > 0 && (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x - 1]) || !passed_spaces)) {
-            // FIXME: remove_char now needs modify()
-            if (!remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
-                break;
+        Line *ln = &buf->lines[buf->cursor.y];
+
+        while (buf->cursor.x_bytes > 0) {
             process_keypress(KEY_LEFT, n);
-            if (buf->cursor.x > 0 && !strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x - 1]))
-                passed_spaces = 1;
+            bool w = is_whitespace(ln->data[buf->cursor.x_bytes]);
+            process_keypress(KEY_RIGHT, n);
+            if (w)
+                break;
+
+            process_keypress(KEY_BACKSPACE, n);
         }
+        
+        while (buf->cursor.x_bytes > 0) {
+            process_keypress(KEY_LEFT, n);
+            bool w = is_whitespace(ln->data[buf->cursor.x_bytes]);
+            process_keypress(KEY_RIGHT, n);
+            if (!w)
+                break;
+
+            process_keypress(KEY_BACKSPACE, n);
+        }
+
         break;
     }
-    */
     case ctrl('o'): {
         char *d = prompt("open: ", buf->filename);
         if (d)
