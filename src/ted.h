@@ -112,9 +112,6 @@ char *prompt(const char *msgtmp, char *def);
 char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
 void message(char *msg);
 
-// ted.c
-void setcolor(int c);
-
 // config_dialog.c
 bool config_dialog(Node **n);
 int run_command(char **words, int words_len, Node **n);
@@ -123,7 +120,6 @@ bool parse_command(char *command, Node **n);
 // open_and_save.c
 void savefile(Buffer *buf);
 Buffer read_lines(FILE *fp, char *filename, bool read_only);
-unsigned char detect_linebreak(FILE *fp);
 void open_file(char *fname, Node **n);
 bool can_write(char *fname);
 

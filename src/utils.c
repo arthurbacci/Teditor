@@ -11,32 +11,6 @@ char *home_path(const char *path) {
     return ret;
 }
 
-/*
-this functions is similar to strtok_r, but tokenizes only on spaces
-*/
-char *split_spaces(char *str, char **save) {
-    if (str == NULL) {
-        if (*save == NULL)
-            return NULL;
-        str = *save;
-    }
-
-    if (*str == '\0') {
-        *save = str;
-        return NULL;
-    }
-
-    char *end = strchr(str, ' ');
-    if (end == NULL) {
-        *save = end;
-        return str;
-    }
-
-    *end = '\0';
-    *save = end + 1;
-    while (isspace(**save)) (*save)++;// skip spaces
-    return str;
-}
 
 char **split_str(const char *str, int *num_str) {
     char *strcp = malloc(strlen(str) + 1);
