@@ -120,3 +120,7 @@ size_t get_ident_sz(char *s) {
 
     return ident_sz;
 }
+
+bool is_whitespace(char c) {
+    return strchr(config.whitespace_chars, c) != NULL;
+}

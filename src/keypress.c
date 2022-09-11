@@ -51,8 +51,9 @@ bool process_keypress(int c, Node **n) {
         if (x_grapheme > 0) {
             buf->cursor.x_width = gi_to_wi(x_grapheme - 1, s);
             truncate_cur(buf);
-            buf->cursor.lx_width = buf->cursor.x_width;
         }
+
+        buf->cursor.lx_width = buf->cursor.x_width;
 
         break;
     }
@@ -104,49 +105,36 @@ bool process_keypress(int c, Node **n) {
         ))
             return true;
         break;
-    // TODO: reimplement these
-    /*case KEY_PPAGE:
-    {
-        unsigned int ccy = buf->cursor.y;
-        for (unsigned int i = 0; i < (unsigned int)(ccy % config.lines + config.lines) && buf->cursor.y > 0; i++)
-            buf->cursor.y--;
-        cursor_in_valid_position(buf);
+    case KEY_PPAGE: {
+        size_t dec = SROW + buf->cursor.y % SROW;
+
+        if (buf->cursor.y > dec)
+            buf->cursor.y -= dec;
+        else
+            buf->cursor.y = 0;
+
+        recalc_cur(buf);
         break;
-    } case KEY_NPAGE:
-    {
-        unsigned int ccy = buf->cursor.y;
-        for (unsigned int i = 0; i < (unsigned int)(config.lines - (ccy % config.lines) - 1 + config.lines) && buf->cursor.y < buf->num_lines - 1; i++)
-            buf->cursor.y++;
-        cursor_in_valid_position(buf);
+    }
+    case KEY_NPAGE: {
+        size_t inc = SROW - buf->cursor.y % SROW;
+
+        buf->cursor.y += inc;
+        if (buf->cursor.y >= buf->num_lines)
+            buf->cursor.y = buf->num_lines - 1;
+
+        recalc_cur(buf);
         break;
-    } */case KEY_MOUSE:
-    {
+    }
+    case KEY_MOUSE: {
         MEVENT event;
         if (getmouse(&event) == OK)
             process_mouse_event(event, n);
 
         break;
-    // TODO: reimplement these tootoo
-    } /*case 0x209:
-    {
-        if (modify(buf)) {
-            if (buf->num_lines > 1) {
-                free(buf->lines[buf->cursor.y].data);
-                memmove(
-                    &buf->lines[buf->cursor.y],
-                    &buf->lines[buf->cursor.y + 1],
-                    (buf->num_lines - buf->cursor.y - 1) * sizeof(*buf->lines)
-                );
-                buf->lines = realloc(buf->lines, --buf->num_lines * sizeof(*buf->lines));
-            } else {
-                buf->lines[buf->cursor.y].data[0] = '\0';
-                buf->lines[buf->cursor.y].length = 0;
-            }
-            cursor_in_valid_position(buf);
-        }
-        break;
-    } case ctrl('w'):
-    {
+    }
+    /*
+    case ctrl('w'): {
         bool passed_spaces = 0;
         while (buf->cursor.x > 0 && (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x - 1]) || !passed_spaces)) {
             // FIXME: remove_char now needs modify()
@@ -157,38 +145,50 @@ bool process_keypress(int c, Node **n) {
                 passed_spaces = 1;
         }
         break;
-    }*/ case ctrl('o'):
-    {
+    }
+    */
+    case ctrl('o'): {
         char *d = prompt("open: ", buf->filename);
         if (d)
             open_file(d, n);
         break;
-    // TODO:
-    } /*case CTRL_KEY_LEFT:
-    {
-        char passed_spaces = 0;
-        while (buf->cursor.x > 0) {
+    }
+    case CTRL_KEY_LEFT:
+    case ctrl('h'): {
+        char *s = buf->lines[buf->cursor.y].data;
+
+        while (
+            buf->cursor.x_bytes > 0 && !is_whitespace(s[buf->cursor.x_bytes])
+        ) {
             process_keypress(KEY_LEFT, n);
-            if (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]))
-                passed_spaces = 1;
-            if (strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]) && passed_spaces) {
-                process_keypress(KEY_RIGHT, n);
-                break;
-            }
         }
+        
+        while (buf->cursor.x_bytes > 0 && is_whitespace(s[buf->cursor.x_bytes]))
+            process_keypress(KEY_LEFT, n);
+
         break;
     }
     case CTRL_KEY_RIGHT:
-    {
-        char passed_spaces = 0;
-        while (buf->lines[buf->cursor.y].data[buf->cursor.x] != '\0' && !(strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]) && passed_spaces)) {
-            if (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]))
-                passed_spaces = 1;
+    case ctrl('l'): {
+        Line ln = buf->lines[buf->cursor.y];
+
+        while (
+            buf->cursor.x_bytes < ln.length
+            && !is_whitespace(ln.data[buf->cursor.x_bytes])
+        ) {
             process_keypress(KEY_RIGHT, n);
         }
+
+        while (
+            buf->cursor.x_bytes < ln.length
+            && is_whitespace(ln.data[buf->cursor.x_bytes])
+        ) {
+            process_keypress(KEY_RIGHT, n);
+        }
+
         break;
-    } */case KEY_BACKSPACE: case KEY_DC: case 127:
-    {
+    }
+    case KEY_BACKSPACE: case KEY_DC: case 127: {
         if (modify(buf)) {
             if (buf->cursor.x_bytes > 0) {
                 process_keypress(KEY_LEFT, n);

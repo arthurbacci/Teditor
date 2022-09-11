@@ -4,7 +4,7 @@
 
 char *menu_message = "";
 
-GlobalCfg config = {4, 0, 1};
+GlobalCfg config = {4, 0, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"};
 
 jmp_buf end;
 

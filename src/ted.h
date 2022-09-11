@@ -26,6 +26,10 @@
 // suckless' libgrapheme
 #include <grapheme.h>
 
+// Screen rows
+#define SROW (LINES - 1)
+// Screen cols
+#define SCOL (COLS - 1)
 
 #define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
@@ -88,6 +92,7 @@ typedef struct {
     unsigned int tablen;
     bool use_spaces;
     bool autotab;
+    char *whitespace_chars;
 } GlobalCfg;
 
 typedef struct {
@@ -145,6 +150,7 @@ int calculate_len_line_number(Buffer buf);
 Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
+bool is_whitespace(char c);
 
 // modify.c
 bool modify(Buffer *buf);

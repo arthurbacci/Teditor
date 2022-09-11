@@ -70,9 +70,7 @@ size_t index_by_width(size_t wi, char **s) {
         size_t gw = grapheme_width(g);
         if (gw > wi) {
             *s -= g.sz;
-            if (wi == 0)
-                return 0;
-            return gw - wi;
+            return wi;
         }
         wi -= gw;
     }
