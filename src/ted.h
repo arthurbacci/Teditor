@@ -158,7 +158,7 @@ void add_char(Grapheme c, size_t x, Line *ln);
 void remove_char(size_t x, Line *ln);
 
 // cursor.c
-void calculate_scroll(Buffer *buf, size_t screen_size);
+void calculate_scroll(Buffer *buf, size_t screen_width);
 void truncate_cur(Buffer *buf);
 void recalc_cur(Buffer *buf);
 

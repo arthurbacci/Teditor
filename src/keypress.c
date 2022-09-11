@@ -112,6 +112,8 @@ bool process_keypress(int c, Node **n) {
             buf->cursor.y -= dec;
         else
             buf->cursor.y = 0;
+        
+        buf->scroll.y = buf->cursor.y;
 
         recalc_cur(buf);
         break;
@@ -122,6 +124,8 @@ bool process_keypress(int c, Node **n) {
         buf->cursor.y += inc;
         if (buf->cursor.y >= buf->num_lines)
             buf->cursor.y = buf->num_lines - 1;
+
+        buf->scroll.y = buf->cursor.y;
 
         recalc_cur(buf);
         break;
