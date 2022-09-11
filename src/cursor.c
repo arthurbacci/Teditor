@@ -4,13 +4,8 @@ void calculate_scroll(Buffer *buf, size_t screen_width) {
     // y
     if (buf->cursor.y < buf->scroll.y)
         buf->scroll.y = buf->cursor.y;
-    if (buf->cursor.y >= buf->scroll.y + SROW) {
+    if (buf->cursor.y >= buf->scroll.y + SROW)
         buf->scroll.y = buf->cursor.y + 1 - SROW;
-
-        static char s[100];
-        snprintf(s, 100, "CUR %lu - %u; SCROLL SET TO %lu", buf->cursor.y, SROW, buf->scroll.y);
-        message(s);
-    }
 
     // x
     if (buf->cursor.x_width < buf->scroll.x_width)
