@@ -31,8 +31,7 @@ bool process_keypress(int c, Node **n) {
         // Decrements `y` if it is greater than 0
         buf->cursor.y -= buf->cursor.y > 0;
 
-        buf->cursor.x_width = buf->cursor.last_x_width;
-        truncate_cursor_x(buf);
+        recalc_cur(buf);
 
         break;
     case KEY_DOWN:
@@ -40,36 +39,41 @@ bool process_keypress(int c, Node **n) {
         // Increments `y` if it doesn't gets greater or equal than `num_lines`
         buf->cursor.y += buf->cursor.y + 1 < buf->num_lines;
 
-        buf->cursor.x_width = buf->cursor.last_x_width;
-        truncate_cursor_x(buf);
+        recalc_cur(buf);
 
         break;
     case KEY_LEFT:
     case ctrl('b'):
+        // TODO: go by grapheme
         buf->cursor.x_width -= buf->cursor.x_width > 0;
-        truncate_cursor_x(buf);
-        buf->cursor.last_x_width = buf->cursor.x_width;
+        truncate_cur(buf);
+        buf->cursor.lx_width = buf->cursor.x_width;
 
         break;
     case KEY_RIGHT:
-    case ctrl('f'):
-        buf->cursor.x_width++;
-        truncate_cursor_x(buf);
-        buf->cursor.last_x_width = buf->cursor.x_width;
+    case ctrl('f'): {
+        char *s = buf->lines[buf->cursor.y].data + buf->cursor.x_bytes;
+        Grapheme g = get_next_grapheme(&s, SIZE_MAX);
+        size_t gw = grapheme_width(g);
+
+        buf->cursor.x_width += gw;
+        truncate_cur(buf);
+        buf->cursor.lx_width = buf->cursor.x_width;
 
         break;
+    }
     case KEY_HOME:
     case ctrl('a'):
         buf->cursor.x_width = 0;
-        truncate_cursor_x(buf);
-        buf->cursor.last_x_width = buf->cursor.x_width;
+        truncate_cur(buf);
+        buf->cursor.lx_width = buf->cursor.x_width;
 
         break;
     case KEY_END:
     case ctrl('e'):
         buf->cursor.x_width = SIZE_MAX;
-        truncate_cursor_x(buf);
-        buf->cursor.last_x_width = buf->cursor.x_width;
+        truncate_cur(buf);
+        buf->cursor.lx_width = buf->cursor.x_width;
 
         break;
     case ctrl('s'):
@@ -180,14 +184,9 @@ bool process_keypress(int c, Node **n) {
     } */case KEY_BACKSPACE: case KEY_DC: case 127:
     {
         if (modify(buf)) {
-            Line *ln = &buf->lines[buf->cursor.y];
-            char *s = ln->data;
-            index_by_width(buf->cursor.x_width, &s);
-            size_t x_byte = s - ln->data;
-
-            if (x_byte > 0) {
+            if (buf->cursor.x_bytes > 0) {
                 process_keypress(KEY_LEFT, n);
-                remove_char(x_byte, ln);
+                remove_char(buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
             } else if (buf->cursor.y > 0) {
                 Line del_line = buf->lines[buf->cursor.y];
 
@@ -200,7 +199,8 @@ bool process_keypress(int c, Node **n) {
 
                 buf->cursor.y--;
                 buf->cursor.x_width = SIZE_MAX;
-                truncate_cursor_x(buf);
+                truncate_cur(buf);
+                buf->cursor.lx_width = buf->cursor.x_width;
 
                 expand_line(&buf->lines[buf->cursor.y], del_line.length);
 
@@ -245,14 +245,12 @@ bool process_keypress(int c, Node **n) {
             }
 
 
-            Line *ln = &buf->lines[buf->cursor.y];
-            char *s = ln->data;
-            index_by_width(buf->cursor.x_width, &s);
-            size_t cur_x = s - ln->data;
+            size_t cur_x = buf->cursor.x_bytes;
 
             buf->cursor.y++;
             buf->cursor.x_width = SIZE_MAX;
-            truncate_cursor_x(buf);
+            truncate_cur(buf);
+            buf->cursor.lx_width = buf->cursor.x_width;
 
             expand_line(new, current->length - cur_x);
 
@@ -300,12 +298,7 @@ bool process_keypress(int c, Node **n) {
         if (modify(buf)) {
             Grapheme g = {r, cc};
 
-            Line *ln = &buf->lines[buf->cursor.y];
-            char *s = ln->data;
-            index_by_width(buf->cursor.x_width, &s);
-            size_t x_byte = s - ln->data;
-
-            add_char(g, x_byte, ln);
+            add_char(g, buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
             process_keypress(KEY_RIGHT, n);
         }
     }

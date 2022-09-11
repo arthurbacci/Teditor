@@ -1,8 +1,3 @@
-/*
-TODO: cursor should increment by grapheme when using KEY_LEFT or KEY_RIGHT,
-      instead of incrementing by width
-*/
-
 #include "ted.h"
 #include <curses.h>
 #include <unistd.h>

@@ -44,7 +44,7 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
         false,              // true if CRLF false if LF
         NULL,               // lines
         0,                  // number of lines
-        {0, 0, 0},          // Cursor (x, last_x, y)
+        {0, 0, 0, 0},       // Cursor (lx_width, x_width, x_bytes, y)
         {0, 0},             // Scroll (x, y)
         bufn(buffer_count), // Buffer Name
         filename,

@@ -67,7 +67,7 @@ void display_buffer(Buffer buf, int len_line_number) {
         
         attroff(A_BOLD);
 
-
+        const size_t screen_sz = COLS - len_line_number - 1;
 
 
         char *at = buf.lines[i].data;
@@ -85,20 +85,34 @@ void display_buffer(Buffer buf, int len_line_number) {
         }
 
         size_t j;
-        for (j = 0; *at && size < COLS - len_line_number - 1; j++) {
+        for (j = 0; *at; j++) {
             if (i == buf.cursor.y
             && buf.scroll.x_width + size == buf.cursor.x_width) {
                 attron(A_REVERSE);
             }
 
             Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
+            size_t gw = grapheme_width(grapheme);
+
+            if (size + gw > screen_sz) {
+                attron(A_REVERSE);
+                while (size < screen_sz) {
+                    addch('<');
+                    size++;
+                }
+                attroff(A_REVERSE);
+
+                break;
+            }
 
             if (1 == grapheme.sz && '\t' == *grapheme.dt) {
-                attron(A_REVERSE);
+                /*attron(A_REVERSE);
                 addch('T');
                 for (int k = 0; k < config.tablen - 1; k++)
                     addch(' ');
-                attroff(A_REVERSE);
+                attroff(A_REVERSE);*/
+                for (int k = 0; k < config.tablen; k++)
+                    addch(' ');
                 size += config.tablen;
             } else {
                 printw("%.*s", grapheme.sz, grapheme.dt);
@@ -109,7 +123,7 @@ void display_buffer(Buffer buf, int len_line_number) {
             attroff(A_REVERSE);
         }
 
-        while (size < COLS - len_line_number - 1) {
+        while (size < screen_sz) {
             if (i == buf.cursor.y
             && buf.scroll.x_width + size == buf.cursor.x_width) {
                 attron(A_REVERSE);

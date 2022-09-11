@@ -59,8 +59,10 @@ typedef struct {
 } Line;
 
 typedef struct {
+    size_t lx_width;
     size_t x_width;
-    size_t last_x_width;
+    size_t x_bytes;
+
     size_t y;
 } Cursor;
 
@@ -151,7 +153,8 @@ void remove_char(size_t x, Line *ln);
 
 // cursor.c
 void calculate_scroll(Buffer *buf, size_t screen_size);
-void truncate_cursor_x(Buffer *buf);
+void truncate_cur(Buffer *buf);
+void recalc_cur(Buffer *buf);
 
 // buffer_list.c
 Node *allocate_node(Node n);

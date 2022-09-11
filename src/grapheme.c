@@ -14,10 +14,10 @@ Grapheme get_next_grapheme(char **str, size_t len) {
 }
 
 size_t grapheme_width(Grapheme g) {
-    if (3 == g.sz && 0 == memcmp("の", g.dt, g.sz)) {
+    if (1 == g.sz && *g.dt == '\t')
+        return config.tablen;
+    if (3 == g.sz && 0 == memcmp("の", g.dt, g.sz))
         return 2;
-    }
-
     return 1;
 }
 
@@ -68,8 +68,12 @@ size_t index_by_width(size_t wi, char **s) {
     Grapheme g;
     while ((g = get_next_grapheme(s, SIZE_MAX)).sz > 0) {
         size_t gw = grapheme_width(g);
-        if (gw > wi)
-            return 0;
+        if (gw > wi) {
+            *s -= g.sz;
+            if (wi == 0)
+                return 0;
+            return gw - wi;
+        }
         wi -= gw;
     }
     return wi;
