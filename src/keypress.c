@@ -43,13 +43,19 @@ bool process_keypress(int c, Node **n) {
 
         break;
     case KEY_LEFT:
-    case ctrl('b'):
-        // TODO: go by grapheme
-        buf->cursor.x_width -= buf->cursor.x_width > 0;
-        truncate_cur(buf);
-        buf->cursor.lx_width = buf->cursor.x_width;
+    case ctrl('b'): {
+        char *s = buf->lines[buf->cursor.y].data;
+
+        size_t x_grapheme = wi_to_gi(buf->cursor.x_width, s);
+
+        if (x_grapheme > 0) {
+            buf->cursor.x_width = gi_to_wi(x_grapheme - 1, s);
+            truncate_cur(buf);
+            buf->cursor.lx_width = buf->cursor.x_width;
+        }
 
         break;
+    }
     case KEY_RIGHT:
     case ctrl('f'): {
         char *s = buf->lines[buf->cursor.y].data + buf->cursor.x_bytes;
