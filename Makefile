@@ -38,8 +38,4 @@ install: src/*.c
 	chmod 0755 $(DESTDIR)$(PREFIX)/bin/ted
 	mkdir -p ~/.config/ted/
 	chmod 0755 ~/.config/ted/
-	rm -rf ~/.config/ted/docs/
-	cp -r docs/ ~/.config/ted/
-	chmod 0755 ~/.config/ted/docs/
-	chmod 0644 ~/.config/ted/docs/*
 
