@@ -62,7 +62,7 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
         Line *curln = &b.lines[i];
 
 
-        char c;
+        int c;
         size_t j;
         for (j = 0; EOF != (c = fgetc(fp)) && '\n' != c; j++) {
             if (c == '\r')

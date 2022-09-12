@@ -130,13 +130,6 @@ bool process_keypress(int c, Node **n) {
         recalc_cur(buf);
         break;
     }
-    case KEY_MOUSE: {
-        MEVENT event;
-        if (getmouse(&event) == OK)
-            process_mouse_event(event, n);
-
-        break;
-    }
     case ctrl('w'): {
         Line *ln = &buf->lines[buf->cursor.y];
 

@@ -4,6 +4,7 @@ char *prompt(const char *msgtmp, char *def) {
     return prompt_hints(msgtmp, def, NULL, NULL);
 }
 
+// TODO: reimplement this fn <-----------------------------
 char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
     char msg[MSG_SZ];
     {

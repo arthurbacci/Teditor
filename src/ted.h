@@ -134,13 +134,9 @@ void free_buffer(Buffer *buf);
 void expand_line(Line *ln, size_t x);
 bool process_keypress(int c, Node **n);
 
-// mouse.c
-bool process_mouse_event(MEVENT ev, Node **n);
-
 // utils.c
 void die(const char *s);
 char *home_path(const char *path);
-char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
 int calculate_len_line_number(Buffer buf);
 Line blank_line(void);

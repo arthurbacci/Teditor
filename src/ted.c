@@ -1,3 +1,7 @@
+/*
+TODO: remove the Grapheme type and do it without overhead
+*/
+
 #include "ted.h"
 #include <curses.h>
 #include <unistd.h>

@@ -63,7 +63,7 @@ void display_buffer(Buffer buf, int len_line_number) {
         if (i == buf.cursor.y)
             attron(A_BOLD);
             
-        printw("%*d ", len_line_number, i + 1);
+        printw("%*lu ", len_line_number, i + 1);
         
         attroff(A_BOLD);
 
@@ -115,7 +115,7 @@ void display_buffer(Buffer buf, int len_line_number) {
                     addch(' ');
                 size += config.tablen;
             } else {
-                printw("%.*s", grapheme.sz, grapheme.dt);
+                printw("%.*s", (int)grapheme.sz, grapheme.dt);
 
                 size += grapheme_width(grapheme);
             }
