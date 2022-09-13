@@ -1,20 +1,24 @@
 #include "ted.h"
 
-// Buffer* is used instead of Buffer for being able to pass NULL
-void display_menu(const char *message, const char *shadow, Node *n) {
+void display_menu(const char *message, const char *shadow, const Node *n) {
     const Buffer *buf = &n->data;
+
     int x, y;
     getyx(stdscr, y, x);
 
-    move(config.lines, 0);
-    for (unsigned int i = 0; i < (unsigned int)COLS; i++)
+    move(LINES - 1, 0);
+    for (size_t i = 0; i < COLS; i++)
         addch(' ');
 
-    move(config.lines, 0);
+    move(LINES - 1, 0);
     if (!*message && n) {
-        unsigned int scrolled = ((double)buf->cursor.y / ((double)buf->num_lines - 1)) * 100;
+        int scrolled = 100 * (float)buf->cursor.y / ((float)buf->num_lines - 1);
 
-        printw("I:%u %u%% %s", buf->lines[buf->cursor.y].ident, scrolled, buf->filename);
+        printw(
+            "%u%% %s",
+            scrolled,
+            buf->filename
+        );
 
         char b[500];
         int len = snprintf(
@@ -22,17 +26,17 @@ void display_menu(const char *message, const char *shadow, Node *n) {
             buf->modified ? "!" : ".",
             buf->read_only ? "o" : "c",
             buf->can_write ? "W" : "R",
-            buf->line_break_type == 0 ? "LF" : (buf->line_break_type == 1 ? "CRLF" : "CR"),
+            buf->crlf ? "CRLF" : "LF",
             n->prev->data.name,
             buf->name,
             n->next->data.name
         );
 
-        mvprintw(config.lines, COLS - len, "%s", b);
+        mvprintw(LINES - 1, COLS - len, "%s", b);
 
     } else if (shadow != NULL) {
         printw("%s", message);
-        getyx(stdscr, y, x); //save message x and y
+        getyx(stdscr, y, x); // save message x and y
 
         attron(A_BOLD);
         printw("%s", shadow);
@@ -45,7 +49,7 @@ void display_menu(const char *message, const char *shadow, Node *n) {
 }
 
 void display_buffer(Buffer buf, int len_line_number) {
-    for (unsigned int i = buf.scroll.y; i < buf.scroll.y + config.lines; i++) {
+    for (size_t i = buf.scroll.y; i < buf.scroll.y + LINES - 1; i++) {
         move(i - buf.scroll.y, 0);
         if (i >= buf.num_lines) {
             for (int j = 0; j < len_line_number - 1; j++)
@@ -59,44 +63,77 @@ void display_buffer(Buffer buf, int len_line_number) {
         if (i == buf.cursor.y)
             attron(A_BOLD);
             
-        printw("%*d ", len_line_number, i + 1);
+        printw("%*lu ", len_line_number, i + 1);
         
         attroff(A_BOLD);
-    
-        unsigned int size = 0;
-        for (unsigned int j = 0; size < (unsigned int)COLS - len_line_number - 1; j++) {
 
-            if (j + buf.scroll.x == buf.cursor.x && i == buf.cursor.y)
-                attron(A_REVERSE);
+        const size_t screen_sz = COLS - len_line_number - 1;
 
-            // Write blank space at the right of the line
-            if (buf.scroll.x + j >= buf.lines[i].length) {
-                addch(' ');
-                goto AFTER_WRITE_CHAR;
-            }
-            uchar32_t el = buf.lines[i].data[buf.scroll.x + j];
-            
 
-            if (el == '\t') {
-                for (unsigned int k = 0; k < config.tablen; k++)
-                    addch(' ');
-                size += config.tablen - 1;
-            } else {
-                unsigned char b[4];
-                int len = utf8ToMultibyte(el, b, 1);
+        char *at = buf.lines[i].data;
+        ssize_t padding = index_by_width_after(buf.scroll.x_width, &at);
 
-                if (len == -1) {
-                    b[0] = substitute_string[0];
-                    b[1] = substitute_string[1];
-                    b[2] = substitute_string[2];
-                    len = 3;
-                }
-                printw("%.*s", len, b);
-            }
-            
-AFTER_WRITE_CHAR:
+        size_t size = 0;
+        
+        // Note that padding can be negative
+        if (padding > 0) {
+            size += padding;
+            attron(A_REVERSE);
+            for (size_t i = 0; i < padding; i++)
+                addch('>');
             attroff(A_REVERSE);
+        }
+
+        size_t j;
+        for (j = 0; *at; j++) {
+            if (i == buf.cursor.y
+            && buf.scroll.x_width + size == buf.cursor.x_width) {
+                attron(A_REVERSE);
+            }
+
+            Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
+            size_t gw = grapheme_width(grapheme);
+
+            if (size + gw > screen_sz) {
+                attron(A_REVERSE);
+                while (size < screen_sz) {
+                    addch('<');
+                    size++;
+                }
+                attroff(A_REVERSE);
+
+                break;
+            }
+
+            if (1 == grapheme.sz && '\t' == *grapheme.dt) {
+                /*attron(A_REVERSE);
+                addch('T');
+                for (int k = 0; k < config.tablen - 1; k++)
+                    addch(' ');
+                attroff(A_REVERSE);*/
+                for (int k = 0; k < config.tablen; k++)
+                    addch(' ');
+                size += config.tablen;
+            } else {
+                printw("%.*s", (int)grapheme.sz, grapheme.dt);
+
+                size += grapheme_width(grapheme);
+            }
+
+            attroff(A_REVERSE);
+        }
+
+        while (size < screen_sz) {
+            if (i == buf.cursor.y
+            && buf.scroll.x_width + size == buf.cursor.x_width) {
+                attron(A_REVERSE);
+            }
+
+            addch(' ');
+            attroff(A_REVERSE);
+
             size++;
+            j++;
         }
     }
 }

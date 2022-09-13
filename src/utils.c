@@ -11,32 +11,6 @@ char *home_path(const char *path) {
     return ret;
 }
 
-/*
-this functions is similar to strtok_r, but tokenizes only on spaces
-*/
-char *split_spaces(char *str, char **save) {
-    if (str == NULL) {
-        if (*save == NULL)
-            return NULL;
-        str = *save;
-    }
-
-    if (*str == '\0') {
-        *save = str;
-        return NULL;
-    }
-
-    char *end = strchr(str, ' ');
-    if (end == NULL) {
-        *save = end;
-        return str;
-    }
-
-    *end = '\0';
-    *save = end + 1;
-    while (isspace(**save)) (*save)++;// skip spaces
-    return str;
-}
 
 char **split_str(const char *str, int *num_str) {
     char *strcp = malloc(strlen(str) + 1);
@@ -83,37 +57,12 @@ int calculate_len_line_number(Buffer buf) {
     return i;
 }
 
-int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen) {
-    for (unsigned int j = 0; j < stringlen; j++)
-        if ((uchar32_t)s2[j] != s1[j])
-            return 1; //Different character found
-
-    return 0; //All characters equal
-}
-
-int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen) {
-    for (unsigned int j = 0; j < stringlen; j++)
-        if ((uchar32_t)tolower(s2[j]) != s1[j] && (uchar32_t)toupper(s2[j]) != s1[j])
-            return 1; //Different character found
-
-    return 0; //All characters equal
-}
-
-int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen) {
-    for (unsigned int i = 0; i < hslen; i++)
-        if (!uchar32_cmp(&hs[i], sub, sublen))
-            return i;//Substring found, return index of the match
-
-    return -1; //No substring found
-}
-
 Line blank_line(void) {
     Line ln;
 
-    ln.len = READ_BLOCKSIZE;
-    ln.data = malloc(ln.len * sizeof(*ln.data));
+    ln.cap = READ_BLOCKSIZE;
+    ln.data = malloc(ln.cap);
     ln.length = 0;
-    ln.ident = 0;
 
     *ln.data = '\0';
     return ln;
@@ -131,4 +80,21 @@ char *bufn(int a) {
     *p = '\0';
 
     return s;
+}
+
+size_t get_ident_sz(char *s) {
+    size_t ident_sz;
+    char c;
+    for (
+        ident_sz = 0;
+        ' ' == (c = s[ident_sz])
+        || '\t' == c;
+        ident_sz++
+    );
+
+    return ident_sz;
+}
+
+bool is_whitespace(char c) {
+    return strchr(config.whitespace_chars, c) != NULL;
 }

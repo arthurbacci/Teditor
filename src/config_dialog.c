@@ -23,6 +23,8 @@
         return false; \
     }
 
+
+
 DEF_COMMAND(tablen, {
     if (words_len == 1) {
         int answer_int = atoi(words[0]);
@@ -31,28 +33,17 @@ DEF_COMMAND(tablen, {
     }
 })
 
-DEF_COMMAND(linebreak, {
-    if (words_len == 1) {
-        if (!strcasecmp(words[0], "LF"))
-            buf->line_break_type = 0;
-        else if (!strcasecmp(words[0], "CRLF"))
-            buf->line_break_type = 1;
-        else if (!strcasecmp(words[0], "CR"))
-            buf->line_break_type = 2;
-    }
-})
 
+DEF_COMMAND(crlf, BOOL_SET(buf->crlf))
 
-DEF_COMMAND(insert_newline, BOOL_SET(config.insert_newline))
 DEF_COMMAND(use_spaces, BOOL_SET(config.use_spaces))
 DEF_COMMAND(autotab, BOOL_SET(config.autotab))
-DEF_COMMAND(automatch, BOOL_SET(config.automatch))
 
 DEF_COMMAND(save_as, {
     if (words_len == 1) {
         free(buf->filename);
 
-        unsigned int size = (strlen(words[0]) + 1) * sizeof(char);
+        size_t size = strlen(words[0]) + 1;
         buf->filename = malloc(size);
         memcpy(buf->filename, words[0], size);
 
@@ -63,22 +54,6 @@ DEF_COMMAND(save_as, {
             savefile(buf);
         else
             message("Can't save, no permission to write");
-    }
-})
-
-DEF_COMMAND(manual, {
-    if (words_len == 0) {
-        open_file(home_path(".config/ted/docs/help.txt"), n);
-        buf->read_only = 1;
-    } else if (words_len > 0) {
-        char fname[1000];
-        char *p = fname;
-        p += sprintf(p, ".config/ted/docs");
-        for (size_t i = 0; i < words_len; i++)
-            p += sprintf(p, "/%s", words[i]);
-        p += sprintf(p, ".txt");
-        open_file(home_path(fname), n);
-        buf->read_only = 1;
     }
 })
 
@@ -95,6 +70,7 @@ DEF_COMMAND(read_only, {
     }
 })
 
+/*
 // FIXME: this code is horrible
 DEF_COMMAND(find, {
     int from_cur = 0;
@@ -118,11 +94,14 @@ DEF_COMMAND(find, {
         message("Substring not found");
     }
 })
+*/
 
+/* TODO: reimplement this
 DEF_COMMAND(eof, {
     if (words_len == 0)
         change_position(buf->lines[buf->num_lines - 1].length, buf->num_lines, buf);
 })
+*/
 
 DEF_COMMAND(next, *n = (*n)->next;)
 DEF_COMMAND(prev, *n = (*n)->prev;)
@@ -150,16 +129,13 @@ struct {
     bool (*function)(char **words, unsigned int words_len, Node **n);
 } fns[] = {
     {"tablen"           , tablen            },
-    {"linebreak"        , linebreak         },
-    {"insert-newline"   , insert_newline    },
+    {"crlf"             , crlf              },
     {"use-spaces"       , use_spaces        },
     {"autotab"          , autotab           },
-    {"automatch"        , automatch         },
     {"save-as"          , save_as           },
-    {"manual"           , manual            },
     {"read-only"        , read_only         },
-    {"find"             , find              },
-    {"eof"              , eof               },
+    //{"find"             , find              },
+    //{"eof"              , eof               },
     {"next"             , next              },
     {"prev"             , prev              },
     {"close"            , close_buffer      },
@@ -168,16 +144,13 @@ struct {
 
 Hints hints[] = {
     {"tablen"           , "<tablen>"                     },
-    {"linebreak"        , "LF | CR | CRLF"               },
-    {"insert-newline"   , "f | t"                        },
+    {"crlf"             , "f | t"                        },
     {"use-spaces"       , "f | t"                        },
     {"autotab"          , "f | t"                        },
-    {"automatch"        , "f | t"                        },
     {"save-as"          , "<filename>"                   },
-    {"manual"           , "<page (nothing for index)>"   },
     {"read-only"        , "f | t"                        },
-    {"find"             , "(start | cursor) <substring>" },
-    {"eof"              , ""                             },
+    //{"find"             , "(start | cursor) <substring>" },
+    //{"eof"              , ""                             },
     {"next"             , ""                             },
     {"prev"             , ""                             },
     {"close"            , ""                             },

@@ -7,7 +7,7 @@ PREFIX=/usr/local
 TED_DEBUG=-Wall -O0 -g3 -pedantic -std=c99
 TED_ANALYZE=-Wall -O1 -g3 -pedantic -std=c99
 TED_RELEASE=-Wall -O3 -g2 -pedantic -std=c99
-TED_LIBS=-lncursesw
+TED_LIBS=-lncursesw -lgrapheme
 
 all: ted
 
@@ -38,8 +38,4 @@ install: src/*.c
 	chmod 0755 $(DESTDIR)$(PREFIX)/bin/ted
 	mkdir -p ~/.config/ted/
 	chmod 0755 ~/.config/ted/
-	rm -rf ~/.config/ted/docs/
-	cp -r docs/ ~/.config/ted/
-	chmod 0755 ~/.config/ted/docs/
-	chmod 0644 ~/.config/ted/docs/*
 

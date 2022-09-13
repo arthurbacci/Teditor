@@ -9,29 +9,30 @@ bool modify(Buffer *buf) {
     return !buf->read_only;
 }
 
-bool add_char(int x, int y, uchar32_t c, Buffer *buf) {
-    if (modify(buf)) {
-        expand_line(buf->cursor.y, 1, buf);
-        memmove(
-            &buf->lines[y].data[x + 1],
-            &buf->lines[y].data[x],
-            (buf->lines[y].length - x) * sizeof(uchar32_t)
-        );
-        buf->lines[y].data[x] = c;
-        buf->lines[y].data[++buf->lines[y].length] = '\0';
-        return 1;
-    }
-    return 0;
+void add_char(Grapheme c, size_t x, Line *ln) {
+    expand_line(ln, c.sz);
+    memmove(
+        &ln->data[x + c.sz],
+        &ln->data[x],
+        ln->length - x
+    );
+    memcpy(&ln->data[x], c.dt, c.sz);
+    ln->data[ln->length += c.sz] = '\0';
 }
 
-bool remove_char(int x, int y, Buffer *buf) {
-    if (modify(buf)) {
-        memmove(
-            &buf->lines[y].data[x],
-            &buf->lines[buf->cursor.y].data[x + 1],
-            (buf->lines[buf->cursor.y].length - x + 1) * sizeof(uchar32_t));
-        buf->lines[y].data[--buf->lines[y].length] = '\0';
-        return 1;
-    }
-    return 0;
+// Note that `x` must point to a char boundary
+void remove_char(size_t x, Line *ln) {
+    char *afterpos = &ln->data[x];
+
+    size_t grapheme_sz = get_next_grapheme(
+        &afterpos,
+        SIZE_MAX
+    ).sz;
+
+    memmove(
+        &ln->data[x],
+        afterpos,
+        ln->length - x + grapheme_sz
+    );
+    ln->data[ln->length -= grapheme_sz] = '\0';
 }

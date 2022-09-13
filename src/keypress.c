@@ -1,38 +1,23 @@
 #include "ted.h"
 
-void expand_line(unsigned int at, int x, Buffer *buf) {
-    while (buf->lines[at].len <= buf->lines[at].length + x) {
-        buf->lines[at].len += READ_BLOCKSIZE;
-        buf->lines[at].data = realloc(
-            buf->lines[buf->cursor.y].data,
-            buf->lines[buf->cursor.y].len * sizeof(uchar32_t)
-        );
+// garants that the capacity is (x + 1) bytes greater than the length
+void expand_line(Line *ln, size_t x) {
+    if (ln->cap <= ln->length + x + 1) {
+        while (ln->cap <= ln->length + x + 1)
+            ln->cap *= 2;
+
+        ln->data = realloc(ln->data, ln->cap);
     }
 }
 
-void new_line(unsigned int at, int x, Buffer *buf) {
-    buf->lines[at].len = READ_BLOCKSIZE;
-    buf->lines[at].data = malloc(buf->lines[at].len * sizeof(uchar32_t));
-    buf->lines[at].length = 0;
-
-    expand_line(at, buf->lines[at - 1].length - x + 1, buf);
-    memcpy(
-        buf->lines[at].data,
-        &buf->lines[at - 1].data[x],
-        (buf->lines[at - 1].length - x) * sizeof(uchar32_t)
-    );
-
-    buf->lines[at].length += buf->lines[at - 1].length - x;
-    buf->lines[at].data[buf->lines[at].length] = '\0';
-
-    buf->lines[at - 1].length = x;
-    buf->lines[at - 1].data[buf->lines[at - 1].length] = '\0';
-}
 
 bool process_keypress(int c, Node **n) {
     Buffer *buf = &(*n)->data;
-    if (c != ERR)
-        message("");
+
+    if (c == ERR)
+        return false;
+
+    message("");
 
     switch (c) {
     case ctrl('c'):
@@ -43,35 +28,60 @@ bool process_keypress(int c, Node **n) {
         return parse_command("next", n);
     case KEY_UP:
     case ctrl('p'):
-        change_position(buf->cursor.last_x, buf->cursor.y - (buf->cursor.y > 0), buf);
+        // Decrements `y` if it is greater than 0
+        buf->cursor.y -= buf->cursor.y > 0;
+
+        recalc_cur(buf);
+
         break;
     case KEY_DOWN:
     case ctrl('n'):
-        change_position(buf->cursor.last_x, buf->cursor.y + 1, buf);
+        // Increments `y` if it doesn't gets greater or equal than `num_lines`
+        buf->cursor.y += buf->cursor.y + 1 < buf->num_lines;
+
+        recalc_cur(buf);
+
         break;
     case KEY_LEFT:
-    case ctrl('b'):
-        buf->cursor.x -= (buf->cursor.x > 0);
-        cursor_in_valid_position(buf);
-        buf->cursor.last_x = buf->cursor.x;
+    case ctrl('b'): {
+        char *s = buf->lines[buf->cursor.y].data;
+
+        size_t x_grapheme = wi_to_gi(buf->cursor.x_width, s);
+
+        if (x_grapheme > 0) {
+            buf->cursor.x_width = gi_to_wi(x_grapheme - 1, s);
+            truncate_cur(buf);
+        }
+
+        buf->cursor.lx_width = buf->cursor.x_width;
+
         break;
+    }
     case KEY_RIGHT:
-    case ctrl('f'):
-        buf->cursor.x++;
-        cursor_in_valid_position(buf);
-        buf->cursor.last_x = buf->cursor.x;
+    case ctrl('f'): {
+        char *s = buf->lines[buf->cursor.y].data + buf->cursor.x_bytes;
+        Grapheme g = get_next_grapheme(&s, SIZE_MAX);
+        size_t gw = grapheme_width(g);
+
+        buf->cursor.x_width += gw;
+        truncate_cur(buf);
+        buf->cursor.lx_width = buf->cursor.x_width;
+
         break;
+    }
     case KEY_HOME:
     case ctrl('a'):
-        buf->cursor.x = 0;
-        buf->cursor.last_x = buf->cursor.x;
-        cursor_in_valid_position(buf);
+        buf->cursor.x_width = 0;
+        truncate_cur(buf);
+        buf->cursor.lx_width = buf->cursor.x_width;
+
         break;
     case KEY_END:
     case ctrl('e'):
-        buf->cursor.x = buf->lines[buf->cursor.y].length;
-        buf->cursor.last_x = buf->cursor.x;
-        cursor_in_valid_position(buf);
+        buf->cursor.x_width = SIZE_MAX;
+        truncate_cur(buf);
+        buf->cursor.lx_width = buf->cursor.x_width;
+
         break;
     case ctrl('s'):
         if (!buf->read_only)
@@ -79,7 +89,7 @@ bool process_keypress(int c, Node **n) {
         break;
     case '\t':
         if (config.use_spaces == 1) {
-            for (unsigned int i = 0; i < config.tablen; i++)
+            for (int i = 0; i < config.tablen; i++)
                 process_keypress(' ', n);
             return false;
         } // else, it will pass though and be added to the buffer
@@ -95,203 +105,219 @@ bool process_keypress(int c, Node **n) {
         ))
             return true;
         break;
-    case KEY_PPAGE:
-    {
-        unsigned int ccy = buf->cursor.y;
-        for (unsigned int i = 0; i < (unsigned int)(ccy % config.lines + config.lines) && buf->cursor.y > 0; i++)
-            buf->cursor.y--;
-        cursor_in_valid_position(buf);
+    case KEY_PPAGE: {
+        size_t dec = SROW + buf->cursor.y % SROW;
+
+        if (buf->cursor.y > dec)
+            buf->cursor.y -= dec;
+        else
+            buf->cursor.y = 0;
+        
+        buf->scroll.y = buf->cursor.y;
+
+        recalc_cur(buf);
         break;
-    } case KEY_NPAGE:
-    {
-        unsigned int ccy = buf->cursor.y;
-        for (unsigned int i = 0; i < (unsigned int)(config.lines - (ccy % config.lines) - 1 + config.lines) && buf->cursor.y < buf->num_lines - 1; i++)
-            buf->cursor.y++;
-        cursor_in_valid_position(buf);
+    }
+    case KEY_NPAGE: {
+        size_t inc = SROW - buf->cursor.y % SROW;
+
+        buf->cursor.y += inc;
+        if (buf->cursor.y >= buf->num_lines)
+            buf->cursor.y = buf->num_lines - 1;
+
+        buf->scroll.y = buf->cursor.y;
+
+        recalc_cur(buf);
         break;
-    } case KEY_MOUSE:
-    {
-        MEVENT event;
-        if (getmouse(&event) == OK)
-            process_mouse_event(event, n);
+    }
+    case ctrl('w'): {
+        Line *ln = &buf->lines[buf->cursor.y];
+
+        while (buf->cursor.x_bytes > 0) {
+            process_keypress(KEY_LEFT, n);
+            bool w = is_whitespace(ln->data[buf->cursor.x_bytes]);
+            process_keypress(KEY_RIGHT, n);
+            if (w)
+                break;
+
+            process_keypress(KEY_BACKSPACE, n);
+        }
+        
+        while (buf->cursor.x_bytes > 0) {
+            process_keypress(KEY_LEFT, n);
+            bool w = is_whitespace(ln->data[buf->cursor.x_bytes]);
+            process_keypress(KEY_RIGHT, n);
+            if (!w)
+                break;
+
+            process_keypress(KEY_BACKSPACE, n);
+        }
 
         break;
-    } case 0x209:
-    {
-        if (modify(buf)) {
-            if (buf->num_lines > 1) {
-                free(buf->lines[buf->cursor.y].data);
-                memmove(
-                    &buf->lines[buf->cursor.y],
-                    &buf->lines[buf->cursor.y + 1],
-                    (buf->num_lines - buf->cursor.y - 1) * sizeof(*buf->lines)
-                );
-                buf->lines = realloc(buf->lines, --buf->num_lines * sizeof(*buf->lines));
-            } else {
-                buf->lines[buf->cursor.y].data[0] = '\0';
-                buf->lines[buf->cursor.y].length = 0;
-            }
-            cursor_in_valid_position(buf);
-        }
-        break;
-    } case ctrl('w'):
-    {
-        bool passed_spaces = 0;
-        while (buf->cursor.x > 0 && (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x - 1]) || !passed_spaces)) {
-            if (!remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
-                break;
-            process_keypress(KEY_LEFT, n);
-            if (buf->cursor.x > 0 && !strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x - 1]))
-                passed_spaces = 1;
-        }
-        break;
-    } case ctrl('o'):
-    {
+    }
+    case ctrl('o'): {
         char *d = prompt("open: ", buf->filename);
         if (d)
             open_file(d, n);
         break;
-    } case CTRL_KEY_LEFT:
-    {
-        char passed_spaces = 0;
-        while (buf->cursor.x > 0) {
+    }
+    case CTRL_KEY_LEFT:
+    case ctrl('h'): {
+        char *s = buf->lines[buf->cursor.y].data;
+
+        while (
+            buf->cursor.x_bytes > 0 && !is_whitespace(s[buf->cursor.x_bytes])
+        ) {
             process_keypress(KEY_LEFT, n);
-            if (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]))
-                passed_spaces = 1;
-            if (strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]) && passed_spaces) {
-                process_keypress(KEY_RIGHT, n);
-                break;
-            }
         }
+        
+        while (buf->cursor.x_bytes > 0 && is_whitespace(s[buf->cursor.x_bytes]))
+            process_keypress(KEY_LEFT, n);
+
         break;
     }
     case CTRL_KEY_RIGHT:
-    {
-        char passed_spaces = 0;
-        while (buf->lines[buf->cursor.y].data[buf->cursor.x] != '\0' && !(strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]) && passed_spaces)) {
-            if (!strchr(config.word_separators, buf->lines[buf->cursor.y].data[buf->cursor.x]))
-                passed_spaces = 1;
+    case ctrl('l'): {
+        Line ln = buf->lines[buf->cursor.y];
+
+        while (
+            buf->cursor.x_bytes < ln.length
+            && !is_whitespace(ln.data[buf->cursor.x_bytes])
+        ) {
             process_keypress(KEY_RIGHT, n);
         }
-        break;
-    } case KEY_BACKSPACE: case KEY_DC: case 127:
-    {
-        if (modify(buf)) {
-            buf->lines[buf->cursor.y].ident -= buf->cursor.x <= buf->lines[buf->cursor.y].ident && buf->cursor.x > 0;
 
-            if (buf->cursor.x >= 1) {
-                if (remove_char(buf->cursor.x - 1, buf->cursor.y, buf))
-                    process_keypress(KEY_LEFT, n);
+        while (
+            buf->cursor.x_bytes < ln.length
+            && is_whitespace(ln.data[buf->cursor.x_bytes])
+        ) {
+            process_keypress(KEY_RIGHT, n);
+        }
+
+        break;
+    }
+    case KEY_BACKSPACE: case KEY_DC: case 127: {
+        if (modify(buf)) {
+            if (buf->cursor.x_bytes > 0) {
+                process_keypress(KEY_LEFT, n);
+                remove_char(buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
             } else if (buf->cursor.y > 0) {
                 Line del_line = buf->lines[buf->cursor.y];
+
                 memmove(
                     &buf->lines[buf->cursor.y],
                     &buf->lines[buf->cursor.y + 1],
-                    (buf->num_lines - buf->cursor.y - 1) * sizeof(*buf->lines)
+                    (buf->num_lines - buf->cursor.y - 1) * sizeof(Line)
                 );
-                buf->lines = realloc(buf->lines, --buf->num_lines * sizeof(*buf->lines));
+                buf->num_lines--;
 
-                buf->cursor.y -= buf->cursor.y > 0;
-                buf->cursor.x = buf->lines[buf->cursor.y].length;
-                cursor_in_valid_position(buf);
+                buf->cursor.y--;
+                buf->cursor.x_width = SIZE_MAX;
+                truncate_cur(buf);
+                buf->cursor.lx_width = buf->cursor.x_width;
 
-                process_keypress(KEY_RIGHT, n);
-                expand_line(buf->cursor.y, del_line.length, buf);
+                expand_line(&buf->lines[buf->cursor.y], del_line.length);
+
+                Line *to_append = &buf->lines[buf->cursor.y];
 
                 memmove(
-                    &buf->lines[buf->cursor.y].data[buf->lines[buf->cursor.y].length],
+                    &to_append->data[to_append->length],
                     del_line.data,
-                    del_line.length * sizeof(uchar32_t)
+                    del_line.length
                 );
-                buf->lines[buf->cursor.y].length += del_line.length;
 
-                buf->lines[buf->cursor.y].data[buf->lines[buf->cursor.y].length] = '\0';
+                to_append->length += del_line.length;
+                to_append->data[to_append->length] = '\0';
 
                 free(del_line.data);
-            }
-
-            buf->lines[buf->cursor.y].ident = 0;
-            for (unsigned int i = 0; buf->lines[buf->cursor.y].data[i] != '\0'; i++) {
-                if (buf->lines[buf->cursor.y].data[i] != ' ')
-                    break;
-                buf->lines[buf->cursor.y].ident++;
             }
         }
         break;
     } case '\n': case KEY_ENTER: case '\r':
     {
         if (modify(buf)) {
-            buf->lines = realloc(buf->lines, (buf->num_lines + 1) * sizeof(*buf->lines));
+            buf->lines = realloc(buf->lines, ++buf->num_lines * sizeof(Line));
             memmove(
                 &buf->lines[buf->cursor.y + 2],
                 &buf->lines[buf->cursor.y + 1],
-                (buf->num_lines - buf->cursor.y - 1) * sizeof(*buf->lines)
+                (buf->num_lines - buf->cursor.y - 2) * sizeof(Line)
             );
-            buf->num_lines++;
 
-            unsigned int lcx = buf->cursor.x;
-            buf->cursor.last_x = 0;
+            buf->lines[buf->cursor.y + 1] = blank_line();
+
+            Line *current = &buf->lines[buf->cursor.y];
+            Line *new = &buf->lines[buf->cursor.y + 1];
+
+            if (config.autotab) {
+                size_t ident_sz = get_ident_sz(current->data);
+                
+                expand_line(new, ident_sz);
+
+                memcpy(new->data, current->data, ident_sz);
+                new->length = ident_sz;
+                new->data[new->length] = '\0';
+            }
+
+
+            size_t cur_x = buf->cursor.x_bytes;
+
             buf->cursor.y++;
-            buf->cursor.x = 0;
-            cursor_in_valid_position(buf);
-            new_line(buf->cursor.y, lcx, buf);
+            buf->cursor.x_width = SIZE_MAX;
+            truncate_cur(buf);
+            buf->cursor.lx_width = buf->cursor.x_width;
 
-            if (config.autotab == 1) {
-                const unsigned int ident = buf->lines[buf->cursor.y - 1].ident;
-                buf->lines[buf->cursor.y].ident = ident;
-                buf->lines[buf->cursor.y].len += ident + 1;
-                buf->lines[buf->cursor.y].data = realloc(buf->lines[buf->cursor.y].data, buf->lines[buf->cursor.y].len * sizeof(uchar32_t));
-                memmove(&buf->lines[buf->cursor.y].data[ident], buf->lines[buf->cursor.y].data, (buf->lines[buf->cursor.y].length + 1) * sizeof(uchar32_t));
+            expand_line(new, current->length - cur_x);
 
-                for (unsigned int i = 0; i < ident; i++)
-                    buf->lines[buf->cursor.y].data[i] = ' ';
-                buf->lines[buf->cursor.y].length += ident;
+            memcpy(
+                &new->data[new->length],
+                &current->data[cur_x],
+                // + 1 so that it also copies the null byte
+                current->length + 1 - cur_x
+            );
 
-                for (unsigned int i = 0; i < ident; i++)
-                    process_keypress(KEY_RIGHT, n);
-            } else
-                buf->lines[buf->cursor.y].ident = 0;
+            new->length += current->length - cur_x;
+
+            current->length = cur_x;
+            current->data[current->length] = '\0';
         }
+
         break;
     }
     }
 
-    if (isprint(c) || c == '\t' || (c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF7)) {
+    // TODO: move this all to `default`
 
-        if (modify(buf)) {
-            if (c == ' ' && buf->cursor.x <= buf->lines[buf->cursor.y].ident)
-                buf->lines[buf->cursor.y].ident++;
+    char cc[4];
+    cc[0] = c;
 
-            unsigned char ucs[4] = {c, 0, 0, 0};
-            int len = 1;
+    uint32_t codepoint;
+    size_t r = grapheme_decode_utf8(cc, 1, &codepoint);
 
-            if ((c >= 0xC2 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF4)) {
-                ucs[1] = getch(), len++;
-            }
-            if ((c >= 0xE0 && c <= 0xEF) || (c >= 0xF0 && c <= 0xF4)) {
-                ucs[2] = getch(), len++;
-            }
-            if (c >= 0xF0 && c <= 0xF4) {
-                ucs[3] = getch(), len++;
-            }
+    if (GRAPHEME_INVALID_CODEPOINT == codepoint || r != 1) {
+        if (r > 1) {
+            for (size_t i = 1; i < r; i++)
+                cc[i] = getch();
 
-            if (validate_utf8(ucs)) {
-                uchar32_t ec = c;
-                for (int i = 1, off = 8; i < len; i++, off += 8)
-                    ec += ucs[i] << off;
-
-                if (add_char(buf->cursor.x, buf->cursor.y, ec, buf))
-                    process_keypress(KEY_RIGHT, n);
-            } else {
-                for (int i = 0; i < len; i++) {
-                    if (add_char(buf->cursor.x, buf->cursor.y, substitute_char, buf))
-                        process_keypress(KEY_RIGHT, n);
-                    else
-                        break;
-                }
-            }
+            size_t newr = grapheme_decode_utf8(cc, r, &codepoint);
+            if (GRAPHEME_INVALID_CODEPOINT == codepoint || newr != r)
+                return false;
+        } else {
+            // TODO: maybe I can print a message?
+            return false;
         }
     }
+
+
+    if (r > 1 || isprint(c) || '\t' == c) {
+        if (modify(buf)) {
+            Grapheme g = {r, cc};
+
+            add_char(g, buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
+            process_keypress(KEY_RIGHT, n);
+        }
+    }
+    
+
     return false;
 }
 

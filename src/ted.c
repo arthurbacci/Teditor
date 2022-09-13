@@ -1,6 +1,5 @@
 /*
-TODO: use wcwidth and replace code points for grapheme clusters in order to have
-      a better Unicode handling
+TODO: remove the Grapheme type and do it without overhead
 */
 
 #include "ted.h"
@@ -9,9 +8,7 @@ TODO: use wcwidth and replace code points for grapheme clusters in order to have
 
 char *menu_message = "";
 
-GlobalCfg config = {
-    1, 4, 0, 0, 1, 1, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
-};
+GlobalCfg config = {4, 0, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"};
 
 jmp_buf end;
 
@@ -52,11 +49,11 @@ int main(int argc, char **argv) {
             size_t len = 0;
 
             if (*argv[i] == '/') {
-                // Absolute file path
+                /* Absolute file path */
                 len = strlen(argv[i]);
                 memcpy(filename, argv[i], len + 1);
             } else {
-                // Relative file path
+                /* Relative file path */
 
                 // Write the directory path into filename
                 if (getcwd(filename, PATH_MAX) != NULL) {
@@ -70,7 +67,7 @@ int main(int argc, char **argv) {
                 } else
                     die("Could not get cwd, try an absolute file path");
 
-                // Now we have a absolute filename
+                // Now we have an absolute filename
             }
 
             char *smaller_filename = malloc(len + 1);
@@ -103,24 +100,13 @@ int main(int argc, char **argv) {
     timeout(INPUT_TIMEOUT);
 
 
-    config.lines = LINES - 1;
-    int last_LINES = LINES;
-    int last_COLS = COLS;
-
     int val = setjmp(end);
 
     if (!val) {
         while (1) {
-            if (last_LINES != LINES || last_COLS != COLS) {
-                last_LINES = LINES;
-                last_COLS = COLS;
-                config.lines = LINES - 1;
-                cursor_in_valid_position(&buf->data);
-            }
-
             int len_line_number = calculate_len_line_number(buf->data);
 
-            calculate_scroll(&buf->data, len_line_number);
+            calculate_scroll(&buf->data, COLS - len_line_number - 2);
 
             display_buffer(buf->data, len_line_number);
             display_menu(menu_message, NULL, buf);

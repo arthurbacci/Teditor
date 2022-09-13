@@ -2,6 +2,7 @@
 #define TED_HEADER
 
 #define _POSIX_C_SOURCE 1
+#define _XOPEN_SOURCE
 
 #include <ncurses.h>
 #include <stdio.h>
@@ -20,6 +21,15 @@
 #include <unistd.h>
 #include <setjmp.h>
 #include <limits.h>
+#include <wchar.h>
+
+// suckless' libgrapheme
+#include <grapheme.h>
+
+// Screen rows
+#define SROW (LINES - 1)
+// Screen cols
+#define SCOL (COLS - 1)
 
 #define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
@@ -39,33 +49,37 @@
 
 #define MSG_SZ 512
 
-// Types
-
-typedef uint32_t uchar32_t;
+/*--*--TYPES--*--*/
 
 typedef struct {
-    unsigned int len;
-    uchar32_t *data;
-    unsigned int length;
-    unsigned int ident;
+    size_t sz;
+    char *dt;
+} Grapheme;
+
+typedef struct {
+    size_t cap;
+    size_t length;
+    char *data;
 } Line;
 
 typedef struct {
-    size_t x;
-    size_t last_x;
+    size_t lx_width;
+    size_t x_width;
+    size_t x_bytes;
+
     size_t y;
 } Cursor;
 
 typedef struct {
-    unsigned int x;
-    unsigned int y;
+    size_t x_width;
+    size_t y;
 } TextScroll;
 
 typedef struct {
     bool modified;
     bool read_only;
     bool can_write;
-    unsigned char line_break_type; // 0: LF  1: CRLF
+    bool crlf; // 0: LF  1: CRLF
     Line *lines;
     size_t num_lines;
     Cursor cursor;
@@ -75,14 +89,10 @@ typedef struct {
 } Buffer;
 
 typedef struct {
-    bool strict_utf8; // high/low surrogates will be replaced (for now leave it always set)
     unsigned int tablen;
-    int lines;
     bool use_spaces;
     bool autotab;
-    bool automatch;
-    bool insert_newline;
-    char *word_separators;
+    char *whitespace_chars;
 } GlobalCfg;
 
 typedef struct {
@@ -102,9 +112,6 @@ char *prompt(const char *msgtmp, char *def);
 char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
 void message(char *msg);
 
-// ted.c
-void setcolor(int c);
-
 // config_dialog.c
 bool config_dialog(Node **n);
 int run_command(char **words, int words_len, Node **n);
@@ -113,53 +120,39 @@ bool parse_command(char *command, Node **n);
 // open_and_save.c
 void savefile(Buffer *buf);
 Buffer read_lines(FILE *fp, char *filename, bool read_only);
-unsigned char detect_linebreak(FILE *fp);
 void open_file(char *fname, Node **n);
 bool can_write(char *fname);
 
 // display.c
-void display_menu(const char *message, const char *shadow, Node *n);
+void display_menu(const char *message, const char *shadow, const Node *n);
 void display_buffer(Buffer buf, int len_line_number);
 
 // free.c
 void free_buffer(Buffer *buf);
 
 // keypress.c
-void expand_line(unsigned int at, int x, Buffer *buf);
-void new_line(unsigned int at, int x, Buffer *buf);
+void expand_line(Line *ln, size_t x);
 bool process_keypress(int c, Node **n);
-
-// cursor_in_valid_position.c
-void cursor_in_valid_position(Buffer *buf);
-void change_position(unsigned int x, unsigned int y, Buffer *buf);
-
-// mouse.c
-bool process_mouse_event(MEVENT ev, Node **n);
-
-// utf8.c
-void utf8ReadFile(unsigned char uc, uchar32_t *out, FILE *fp_);
-int utf8ToMultibyte(uchar32_t c, unsigned char *out, bool validate);
-bool validate_utf8(unsigned char *ucs);
 
 // utils.c
 void die(const char *s);
 char *home_path(const char *path);
-char *split_spaces(char *str, char **save);
 char **split_str(const char *str, int *num_str);
 int calculate_len_line_number(Buffer buf);
-int uchar32_cmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
-int uchar32_casecmp(const uchar32_t *s1, const char *s2, unsigned int stringlen);
-int uchar32_sub(const uchar32_t *hs, const char *sub, unsigned int hslen, unsigned int sublen);
 Line blank_line(void);
 char *bufn(int a);
+size_t get_ident_sz(char *s);
+bool is_whitespace(char c);
 
 // modify.c
 bool modify(Buffer *buf);
-bool add_char(int x, int y, uchar32_t c, Buffer *buf);
-bool remove_char(int x, int y, Buffer *buf);
+void add_char(Grapheme c, size_t x, Line *ln);
+void remove_char(size_t x, Line *ln);
 
-// scroll.c
-void calculate_scroll(Buffer *buf, int len_line_number);
+// cursor.c
+void calculate_scroll(Buffer *buf, size_t screen_width);
+void truncate_cur(Buffer *buf);
+void recalc_cur(Buffer *buf);
 
 // buffer_list.c
 Node *allocate_node(Node n);
@@ -170,11 +163,17 @@ void buffer_add_prev(Node *n, Buffer b);
 void buffer_close(Node *n);
 void free_buffer_list(Node *n);
 
+// grapheme.c
+Grapheme get_next_grapheme(char **str, size_t len);
+size_t grapheme_width(Grapheme g);
+size_t wi_to_gi(size_t si, char *s);
+size_t gi_to_wi(size_t gi, char *s);
+ssize_t index_by_width_after(size_t _wi, char **s);
+size_t index_by_width(size_t wi, char **s);
+
 
 extern GlobalCfg config;
 extern char *menu_message;
-extern const uchar32_t substitute_char;
-extern const char *substitute_string;
 extern jmp_buf end;
 
 #endif

@@ -1,5 +1,4 @@
 #include "ted.h"
-#include <setjmp.h>
 
 Node *allocate_node(Node n) {
     Node *r = malloc(sizeof(n));

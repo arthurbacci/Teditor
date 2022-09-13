@@ -11,22 +11,22 @@ void savefile(Buffer *buf) {
         return;
     }
 
-    if (config.insert_newline && buf->lines[buf->num_lines - 1].length > 0) {
-        buf->lines = realloc(buf->lines, ++buf->num_lines * sizeof(*buf->lines));
-        buf->lines[buf->num_lines - 1] = blank_line();
-    }
 
-    for (unsigned int i = 0; i < buf->num_lines; i++) {
-        for (unsigned int j = 0; j < buf->lines[i].length; j++) {
-            unsigned char b[4];
-            int len = utf8ToMultibyte(buf->lines[i].data[j], b, 0);
-            fwrite(b, sizeof(unsigned char), len, fpw);
+    for (size_t i = 0; i < buf->num_lines; i++) {
+
+        char *at = buf->lines[i].data;
+        while ('\0' != *at) {
+            Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
+
+            fwrite(grapheme.dt, sizeof(char), grapheme.sz, fpw);
         }
-        if (buf->num_lines > 1) {
-            if (buf->line_break_type == 0)
-                fputc('\n', fpw);
-            else
-                fputs("\r\n", fpw);
+
+
+        // If we're not at the last line
+        if (buf->num_lines - 1 > i) {
+            if (buf->crlf)
+                fputc('\r', fpw);
+            fputc('\n', fpw);
         }
     }
     fclose(fpw);
@@ -41,83 +41,56 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
         0,                  // Modified
         !can_write,         // read-only
         can_write,          // data can be written to the buffer
-        0,                  // line break type: defaults to LF
+        false,              // true if CRLF false if LF
         NULL,               // lines
         0,                  // number of lines
-        {0, 0, 0},          // Cursor (x, last_x, y)
+        {0, 0, 0, 0},       // Cursor (lx_width, x_width, x_bytes, y)
         {0, 0},             // Scroll (x, y)
         bufn(buffer_count), // Buffer Name
         filename,
     };
     if (!fp) {
-        b.num_lines = 1;
-        b.lines = malloc(b.num_lines * sizeof(*(b.lines)));
-        b.lines[0] = blank_line();
-        b.modified = 1;
-        return b;
-    }
+        message("New file");
 
-    b.line_break_type = detect_linebreak(fp);
+        goto EMPTY_BUFFER;
+    }
 
     b.num_lines = 0;
-    for (unsigned int i = 0; !feof(fp); i++) {
-
-        if (fgetc(fp) == EOF && b.num_lines > 0)
-            break;
-        else
-            fseek(fp, -1, SEEK_CUR);
-
-        b.lines = realloc(b.lines, ++b.num_lines * sizeof(*(b.lines)));
-
+    for (size_t i = 0; !feof(fp); i++) {
+        b.lines = realloc(b.lines, ++b.num_lines * sizeof(Line));
         b.lines[i] = blank_line();
+        Line *curln = &b.lines[i];
 
-        char c;
-        unsigned int j;
-        char passed_spaces = 0;
 
-        for (j = 0; (c = fgetc(fp)) != '\n' && c != EOF; j++) {
+        int c;
+        size_t j;
+        for (j = 0; EOF != (c = fgetc(fp)) && '\n' != c; j++) {
             if (c == '\r')
-                continue;
+                b.crlf = true;
 
-            if (b.lines[i].length + 1 >= b.lines[i].len) {
-                b.lines[i].len += READ_BLOCKSIZE;
-                b.lines[i].data = realloc(b.lines[i].data, b.lines[i].len * sizeof(*b.lines[i].data));
+            // TODO: check unicode if file isn't tooooo big
+            // For now the buffer is not being asserted to be encoded correctly
+            
+            if (++curln->length >= curln->cap) {
+                curln->cap *= 2;
+                curln->data = realloc(curln->data, curln->cap * sizeof(Line));
             }
-
-            if (passed_spaces == 0 && c != ' ')
-                passed_spaces = 1;
-            else if (passed_spaces == 0)
-                b.lines[i].ident++;
-
-            unsigned char uc = c;
-            utf8ReadFile(uc, &b.lines[i].data[j], fp);
-            b.lines[i].length++;
+            curln->data[j] = c;
         }
-        
-        b.lines[i].data[j] = '\0';
-        
-        if (b.line_break_type == 1)
-            fgetc(fp);
+
+        curln->data[j] = '\0';
     }
+
+    if (b.num_lines > 0)
+        return b;
+
+EMPTY_BUFFER:
+    b.num_lines = 1;
+    b.lines = malloc(b.num_lines * sizeof(Line));
+    b.lines[0] = blank_line();
+    b.modified = 1;
+
     return b;
-}
-
-unsigned char detect_linebreak(FILE *fp) {
-    unsigned char line_break_type = 0;
-    char c;
-    while (!feof(fp)) {
-        c = fgetc(fp);
-
-        if (c == '\r') {
-            line_break_type = 1;
-            break;
-        } else if (c == '\n') {
-            line_break_type = 0;
-            break;
-        }
-    }
-    rewind(fp);
-    return line_break_type;
 }
 
 void open_file(char *fname, Node **n) {
