@@ -12,11 +12,11 @@ void display_menu(const char *message, const char *shadow, const Node *n) {
 
     move(LINES - 1, 0);
     if (!*message && n) {
-        int scrolled = 100 * (float)buf->cursor.y / ((float)buf->num_lines - 1);
-
         printw(
-            "%u%% %s",
-            scrolled,
+            "%lu:%lu/%lu %s",
+            buf->cursor.y + 1,
+            buf->cursor.x_width,
+            buf->cursor.x_bytes,
             buf->filename
         );
 
