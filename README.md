@@ -1,3 +1,7 @@
+# Archival
+
+Code is bad and needs a complete rewrite in order to work properly. The editor however has no distinctive features, therefore i don't think there's any reason at all to rewrite it. Please don't use this to work with any important files.
+
 # Teditor
 ## A simple text/code editor
 
