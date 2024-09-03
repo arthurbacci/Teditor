@@ -29,9 +29,18 @@ void buffer_add_prev(Node *n, Buffer b) {
 }
 
 void buffer_close(Node *n) {
+    if (n->next == n) {
+        if (is_jmp_set)
+            longjmp(end, TED_LONGJMP_USER_EXIT);
+        else
+            exit(EXIT_SUCCESS);
+    }
+
     n->prev->next = n->next;
     n->next->prev = n->prev;
+
     free_buffer(&n->data);
+
     free(n);
 }
 

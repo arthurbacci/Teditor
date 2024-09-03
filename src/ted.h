@@ -49,6 +49,9 @@
 
 #define MSG_SZ 512
 
+#define TED_LONGJMP_DIE 2
+#define TED_LONGJMP_USER_EXIT 1
+
 /*--*--TYPES--*--*/
 
 typedef struct {
@@ -113,9 +116,9 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
 void message(char *msg);
 
 // config_dialog.c
-bool config_dialog(Node **n);
+void config_dialog(Node **n);
 int run_command(char **words, int words_len, Node **n);
-bool parse_command(char *command, Node **n);
+void parse_command(char *command, Node **n);
 
 // open_and_save.c
 void savefile(Buffer *buf);
@@ -132,7 +135,7 @@ void free_buffer(Buffer *buf);
 
 // keypress.c
 void expand_line(Line *ln, size_t x);
-bool process_keypress(int c, Node **n);
+void process_keypress(int c, Node **n);
 
 // utils.c
 void die(const char *s);
@@ -174,6 +177,7 @@ size_t index_by_width(size_t wi, char **s);
 
 extern GlobalCfg config;
 extern char *menu_message;
+extern bool is_jmp_set;
 extern jmp_buf end;
 
 #endif

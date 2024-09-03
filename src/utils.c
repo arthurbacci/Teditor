@@ -2,7 +2,10 @@
 
 void die(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
-    longjmp(end, 0);
+    if (is_jmp_set)
+        longjmp(end, TED_LONGJMP_DIE);
+    else
+        exit(2);
 }
 
 char *home_path(const char *path) {

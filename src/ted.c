@@ -10,16 +10,27 @@ char *menu_message = "";
 
 GlobalCfg config = {4, 0, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"};
 
+bool is_jmp_set = false;
 jmp_buf end;
 
 
 int main(int argc, char **argv) {
-    int is_input_pipe = !isatty(STDIN_FILENO);
-    if (is_input_pipe) {
+    if (!isatty(STDIN_FILENO)) {
         // TODO: read pipe contents to buffer before closing it
         close(STDIN_FILENO);
-        open("/dev/tty", O_RDONLY);
+        if (STDIN_FILENO != open("/dev/tty", O_RDONLY))
+            die("didn't open as stdin");
     }
+
+    /*
+    if (isatty(STDERR_FILENO)) {
+        close(STDERR_FILENO);
+        if (STDERR_FILENO != creat("log.txt", O_WRONLY))
+            die("didn't open as stderr");
+    }
+    */
+
+
 
     Node *buf = NULL;
     if (argc < 2) {
@@ -103,6 +114,8 @@ int main(int argc, char **argv) {
     int val = setjmp(end);
 
     if (!val) {
+        is_jmp_set = true;
+
         while (1) {
             int len_line_number = calculate_len_line_number(buf->data);
 
@@ -113,14 +126,13 @@ int main(int argc, char **argv) {
             refresh();
 
             int c = getch();
-            if (process_keypress(c, &buf))
-                break;
+            process_keypress(c, &buf);
         }
     }
 
     free_buffer_list(buf);
 
     endwin();
-    return 0;
+    return val - 1;
 }
 
