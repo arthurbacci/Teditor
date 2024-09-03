@@ -4,7 +4,7 @@ void savefile(Buffer *buf) {
     FILE *fpw = fopen(buf->filename, "w");
 
     if (fpw == NULL) {
-        char buf[1000];
+        static char buf[1000];
         snprintf(buf, 1000, "Could not open the file; Errno: %d", errno);
 
         message(buf);

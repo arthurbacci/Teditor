@@ -22,13 +22,20 @@ int main(int argc, char **argv) {
             die("didn't open as stdin");
     }
 
-    /*
     if (isatty(STDERR_FILENO)) {
+        char *filename = log_file_path();
+
+        // Create file if it doesn't exist (creat() gives it some strange
+        // permissions)
+        FILE *fp = fopen(filename, "w");
+        if (fp) fclose(fp);
+
         close(STDERR_FILENO);
-        if (STDERR_FILENO != creat("log.txt", O_WRONLY))
+        if (STDERR_FILENO != open(filename, O_WRONLY))
             die("didn't open as stderr");
+
+        free(filename);
     }
-    */
 
 
 

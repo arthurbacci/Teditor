@@ -107,15 +107,15 @@ void ensure_data_dir() {
     struct stat st = {0};
 
     // TODO: support $XDG_DATA_DIR
-    char *data_dir = home_path(".local/share/");
+    char *data_dir = home_path(".local/state/");
     if (-1 == stat(data_dir, &st))
-        mkdir(data_dir, 0660);
+        mkdir(data_dir, 0770);
 
     free(data_dir);
 
-    char *data_ted_dir = home_path(".local/share/ted/");
+    char *data_ted_dir = home_path(".local/state/ted/");
     if (-1 == stat(data_ted_dir, &st))
-        mkdir(data_ted_dir, 0660);
+        mkdir(data_ted_dir, 0770);
 
     free(data_ted_dir);
 }
@@ -123,9 +123,14 @@ void ensure_data_dir() {
 Node *default_buffer() {
     ensure_data_dir();
 
-    char *filename = home_path(".local/share/ted/buffer");
+    char *filename = home_path(".local/state/ted/buffer");
 
     FILE *fp = fopen(filename, "r");
     return single_buffer(read_lines(fp, filename, can_write(filename)));
+}
+
+char *log_file_path() {
+    ensure_data_dir();
+    return home_path(".local/state/ted/log");
 }
 
