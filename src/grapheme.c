@@ -1,6 +1,32 @@
+/* Some functions built on top of suckless' libgrapheme */
+
 #include "ted.h"
 
-/* Some functions built on top of suckless' libgrapheme */
+
+struct CodepointRange {
+    uint_least32_t start;
+    uint_least32_t end;
+};
+
+struct CodepointRange fullwidth_ranges[] = {
+    #include "data/fullwidth.def"
+    {0, 0}
+};
+
+bool is_codepoint_fullwidth(uint_least32_t cp) {
+    // TODO: binary search for speed and maybe adding an if case for all ascii
+    // characters considering that they're very common and it's not really
+    // necessary to access the list for them, except if the user really wants
+    // to do so for some reason (by tweaking the fullwidth.def file. In this
+    // case it may be interesting to add a #define ASCII_WIDTH_OPTIMIZE that
+    // can be disabled (#undef) in case such a thing is done
+    
+    for (size_t i = 0; fullwidth_ranges[i].end > 0; i++) {
+        if (cp >= fullwidth_ranges[i].start && cp <= fullwidth_ranges[i].end)
+            return true;
+    }
+    return false;
+}
 
 Grapheme get_next_grapheme(char **str, size_t len) {
     Grapheme grapheme = {
@@ -13,11 +39,33 @@ Grapheme get_next_grapheme(char **str, size_t len) {
     return grapheme;
 }
 
+void print_grapheme_width_debug() {
+}
+
 size_t grapheme_width(Grapheme g) {
+    // TODO: the current mechanism of getting the width of a grapheme cluster
+    // is "if it has any fullwidth, it's fullwidth, if not, it's not", which
+    // isn't true for emojis. A better way of handling this is needed later.
+    //
+    // Why later? Neither vim nor neovim support them correctly anyway, so it's
+    // probably not something that will affect many people.
+    //
+    // Resources that may be useful:
+    // - https://www.unicode.org/reports/tr51/
+
     if (1 == g.sz && *g.dt == '\t')
         return config.tablen;
-    if (3 == g.sz && 0 == memcmp("の", g.dt, g.sz))
-        return 2;
+
+
+    for (size_t off = 0; off < g.sz; ) {
+        uint_least32_t cp;
+
+        off += grapheme_decode_utf8(g.dt + off, g.sz - off, &cp);
+        // In case of an error
+        if (off > g.sz) break;
+
+        if (is_codepoint_fullwidth(cp)) return 2;
+    }
     return 1;
 }
 
