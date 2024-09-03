@@ -81,14 +81,19 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
         curln->data[j] = '\0';
     }
 
+    if (fp) fclose(fp);
+
     if (b.num_lines > 0)
         return b;
 
+    // FIXME: check if can_write is false before trying to create a new file
+    // (only possible after fixing can_write)
 EMPTY_BUFFER:
     b.num_lines = 1;
     b.lines = malloc(b.num_lines * sizeof(Line));
     b.lines[0] = blank_line();
     b.modified = 1;
+    b.can_write = 1;
 
     return b;
 }
@@ -97,10 +102,9 @@ void open_file(char *fname, Node **n) {
     FILE *fp = fopen(fname, "r");
     buffer_add_next(*n, read_lines(fp, fname, can_write(fname)));
     parse_command("next", n);
-    if (fp != NULL)
-        fclose(fp);
 }
 
+// FIXME: make it check the directory if the files doesn't exist
 bool can_write(char *fname) {
     struct stat st;
     if (stat(fname, &st) == 0) {

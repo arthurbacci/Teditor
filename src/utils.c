@@ -101,3 +101,31 @@ size_t get_ident_sz(char *s) {
 bool is_whitespace(char c) {
     return strchr(config.whitespace_chars, c) != NULL;
 }
+
+
+void ensure_data_dir() {
+    struct stat st = {0};
+
+    // TODO: support $XDG_DATA_DIR
+    char *data_dir = home_path(".local/share/");
+    if (-1 == stat(data_dir, &st))
+        mkdir(data_dir, 0660);
+
+    free(data_dir);
+
+    char *data_ted_dir = home_path(".local/share/ted/");
+    if (-1 == stat(data_ted_dir, &st))
+        mkdir(data_ted_dir, 0660);
+
+    free(data_ted_dir);
+}
+
+Node *default_buffer() {
+    ensure_data_dir();
+
+    char *filename = home_path(".local/share/ted/buffer");
+
+    FILE *fp = fopen(filename, "r");
+    return single_buffer(read_lines(fp, filename, can_write(filename)));
+}
+

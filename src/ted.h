@@ -147,6 +147,8 @@ char *bufn(int a);
 size_t get_ident_sz(char *s);
 bool is_whitespace(char c);
 
+Node *default_buffer();
+
 // modify.c
 bool modify(Buffer *buf);
 void add_char(Grapheme c, size_t x, Line *ln);

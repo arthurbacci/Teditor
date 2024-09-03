@@ -34,26 +34,7 @@ int main(int argc, char **argv) {
 
     Node *buf = NULL;
     if (argc < 2) {
-        // FIXME: Lots of calls to home_path
-
-        struct stat st = {0};
-
-        char *config = home_path(".config/");
-        if (stat(config, &st) == -1)
-            mkdir(config, 0777);
-
-        char *config_ted = home_path(".config/ted/");
-        if (stat(config_ted, &st) == -1)
-            mkdir(config_ted, 0777);
-            
-        char *filename = home_path(".config/ted/buffer");
-        free(config);
-        free(config_ted);
-
-        FILE *fp = fopen(filename, "r");
-        buf = single_buffer(read_lines(fp, filename, can_write(filename)));
-        if (fp)
-            fclose(fp);
+        buf = default_buffer();
     } else {
         for (int i = 1; i < argc; i++) {
             char *filename = malloc(PATH_MAX + 1);
@@ -92,9 +73,6 @@ int main(int argc, char **argv) {
                 buf = single_buffer(b);
             else
                 buffer_add_prev(buf, b);
-
-            if (fp)
-                fclose(fp);
         }
     }
 
