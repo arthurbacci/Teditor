@@ -291,19 +291,16 @@ void process_keypress(int c, Node **n) {
     uint32_t codepoint;
     size_t r = grapheme_decode_utf8(cc, 1, &codepoint);
 
-    if (GRAPHEME_INVALID_CODEPOINT == codepoint || r != 1) {
-        if (r > 1) {
-            for (size_t i = 1; i < r; i++)
-                cc[i] = getch();
+    if (r > 1) {
+        for (size_t i = 1; i < r; i++)
+            cc[i] = getch();
 
-            size_t newr = grapheme_decode_utf8(cc, r, &codepoint);
-            if (GRAPHEME_INVALID_CODEPOINT == codepoint || newr != r)
-                return;
-        } else {
-            // TODO: maybe I can print a message?
-            return;
-        }
+        grapheme_decode_utf8(cc, r, &codepoint);
     }
+
+    if (GRAPHEME_INVALID_CODEPOINT == codepoint)
+        // TODO: maybe I can print a message?
+        return;
 
 
     if (r > 1 || isprint(c) || '\t' == c) {

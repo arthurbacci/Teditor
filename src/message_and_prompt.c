@@ -7,13 +7,9 @@ char *prompt(const char *msgtmp, char *def) {
 // TODO: reimplement this fn <-----------------------------
 char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
     char msg[MSG_SZ];
-    {
-        size_t msglen = strlen(msgtmp);
-        if (msglen > MSG_SZ)
-            msglen = MSG_SZ;
-        memcpy(msg, msgtmp, msglen);
-        msg[msglen - 1] = '\0';
-    }
+
+    strncpy(msg, msgtmp, MSG_SZ);
+    msg[MSG_SZ - 1] = '\0';
 
     char *b = msg + strlen(msg);
     size_t bcap = msg + MSG_SZ - b;
