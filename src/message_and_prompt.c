@@ -4,23 +4,17 @@ char *prompt(const char *msgtmp, char *def) {
     return prompt_hints(msgtmp, def, NULL, NULL);
 }
 
-// TODO: reimplement this fn <-----------------------------
 char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
     char msg[MSG_SZ];
 
-    strncpy(msg, msgtmp, MSG_SZ);
+    strncpy(msg, msgtmp, sizeof(msg));
     msg[MSG_SZ - 1] = '\0';
 
     char *b = msg + strlen(msg);
-    size_t bcap = msg + MSG_SZ - b;
+    size_t bcap = MSG_SZ + msg - b;
     
-    {
-        size_t deflen = strlen(def) + 1;
-        if (deflen >= bcap)
-            deflen = bcap;
-        memcpy(b, def, deflen);
-        b[deflen - 1] = '\0';
-    }
+    strncpy(b, def, bcap);
+    b[bcap - 1] = '\0';
 
     size_t blen = strlen(b);
 
@@ -32,21 +26,14 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
         } else if (hints) {
             if (b[blen - 1] == ' ') {
                 for (size_t i = 0; hints[i].command; i++) {
-                    b[blen - 1] = '\0';
-                    int cmp = strcmp(hints[i].command, b);
-                    b[blen - 1] = ' ';
-
-                    if (cmp == 0) {
+                    if (0 == strncmp(hints[i].command, b, strlen(hints[i].command))) {
                         hint = hints[i].hint;
                         break;
                     }
                 }
             } else {
                 for (size_t i = 0; hints[i].command; i++) {
-                    if (strlen(hints[i].command) < blen)
-                        continue;
-
-                    if (memcmp(hints[i].command, b, blen)) {
+                    if (0 == strncmp(hints[i].command, b, blen)) {
                         hint = hints[i].command + blen;
                         break;
                     }
