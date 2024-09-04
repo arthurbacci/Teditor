@@ -56,11 +56,8 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
                 // If length is 0, it will fall in the ctrl('c') case
             case ctrl('c'):
                 return NULL;
-            case '\n': {
-                char *r = malloc(blen + 1);
-                memcpy(r, b, blen + 1);
-                return r;
-            }
+            case '\n':
+                return strdup(b);
             default:
                 if (c != ERR) {
                     if (blen + 1 < bcap) {
@@ -68,7 +65,6 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
                         b[blen] = '\0';
                     }
                 }
-                break;
         }
     }
 }
