@@ -37,29 +37,38 @@ void savefile(Buffer *buf) {
 Buffer read_lines(FILE *fp, char *filename, bool can_write) {
     static int buffer_count = -1;
     buffer_count++;
+
+
     Buffer b = {
-        0,                  // Modified
+        false,              // Modified
         !can_write,         // read-only
         can_write,          // data can be written to the buffer
         false,              // true if CRLF false if LF
         NULL,               // lines
-        0,                  // number of lines
+        1,                  // number of lines
         {0, 0, 0, 0},       // Cursor (lx_width, x_width, x_bytes, y)
         {0, 0},             // Scroll (x, y)
         bufn(buffer_count), // Buffer Name
         filename,
     };
+
+
     if (!fp) {
         message("New file");
 
-        goto EMPTY_BUFFER;
-    }
+        b.lines = malloc(b.num_lines * sizeof(Line));
+        b.lines[0] = blank_line();
+        b.read_only = false;
+        b.modified = true;
 
-    b.num_lines = 0;
-    for (size_t ln_num = 0; !feof(fp); ln_num++) {
-        b.lines = realloc(b.lines, ++b.num_lines * sizeof(Line));
-        b.lines[ln_num] = blank_line();
-        Line *curln = &b.lines[ln_num];
+        return b;
+    }
+    
+    for (; !feof(fp); b.num_lines++) {
+        b.lines = realloc(b.lines, b.num_lines * sizeof(Line));
+
+        Line *curln = &b.lines[b.num_lines - 1];
+        *curln = blank_line();
 
         for (int c; EOF != (c = fgetc(fp)) && '\n' != c; curln->length++) {
             if ('\r' == c) {
@@ -71,25 +80,17 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
                 curln->cap *= 2;
                 curln->data = realloc(curln->data, curln->cap * sizeof(char));
             }
+
             curln->data[curln->length] = c;
         }
         curln->data[curln->length] = '\0';
     }
 
+    b.num_lines--;
+    
 
-    if (fp) fclose(fp);
+    fclose(fp);
 
-    if (b.num_lines > 0)
-        return b;
-
-    // FIXME: check if can_write is false before trying to create a new file
-    // (only possible after fixing can_write)
-EMPTY_BUFFER:
-    b.num_lines = 1;
-    b.lines = malloc(b.num_lines * sizeof(Line));
-    b.lines[0] = blank_line();
-    b.modified = 1;
-    b.can_write = 1;
 
     return b;
 }
