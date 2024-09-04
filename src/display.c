@@ -96,29 +96,32 @@ void display_buffer(Buffer buf, int len_line_number) {
 
             if (size + gw > screen_sz) {
                 attron(A_REVERSE);
-                while (size < screen_sz) {
+                for (; size < screen_sz; size++)
                     addch('<');
-                    size++;
-                }
                 attroff(A_REVERSE);
 
                 break;
             }
 
+            if (1 == grapheme.sz && !isprint(*grapheme.dt))
+                grapheme = replacement_character();
+
             if (1 == grapheme.sz && '\t' == *grapheme.dt) {
-                /*attron(A_REVERSE);
-                addch('T');
-                for (int k = 0; k < config.tablen - 1; k++)
-                    addch(' ');
-                attroff(A_REVERSE);*/
+                attron(A_REVERSE);
+
                 for (int k = 0; k < config.tablen; k++)
                     addch(' ');
+
                 size += config.tablen;
+            } else if (is_replacement_character(grapheme)) {
+                attron(A_REVERSE);
+
+                addch('X');
             } else {
                 printw("%.*s", (int)grapheme.sz, grapheme.dt);
-
                 size += grapheme_width(grapheme);
             }
+
 
             attroff(A_REVERSE);
         }

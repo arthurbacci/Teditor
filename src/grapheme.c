@@ -39,8 +39,6 @@ Grapheme get_next_grapheme(char **str, size_t len) {
     return grapheme;
 }
 
-void print_grapheme_width_debug() {
-}
 
 size_t grapheme_width(Grapheme g) {
     // TODO: the current mechanism of getting the width of a grapheme cluster
@@ -52,10 +50,6 @@ size_t grapheme_width(Grapheme g) {
     //
     // Resources that may be useful:
     // - https://www.unicode.org/reports/tr51/
-
-    if (1 == g.sz && *g.dt == '\t')
-        return config.tablen;
-
 
     for (size_t off = 0; off < g.sz; ) {
         uint_least32_t cp;
@@ -123,6 +117,20 @@ size_t index_by_width(size_t wi, char **s) {
         wi -= gw;
     }
     return wi;
+}
+
+bool is_replacement_character(Grapheme g) {
+    return g.sz == 3
+        && g.dt[0] == (char)0xef
+        && g.dt[1] == (char)0xbf
+        && g.dt[2] == (char)0xbd;
+}
+
+Grapheme replacement_character(void) {
+    static unsigned char dt[3] = {0xef, 0xbf, 0xbd};
+    Grapheme g = {3, (char *)dt};
+
+    return g;
 }
 
 

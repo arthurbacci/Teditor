@@ -56,30 +56,26 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
     }
 
     b.num_lines = 0;
-    for (size_t i = 0; !feof(fp); i++) {
+    for (size_t ln_num = 0; !feof(fp); ln_num++) {
         b.lines = realloc(b.lines, ++b.num_lines * sizeof(Line));
-        b.lines[i] = blank_line();
-        Line *curln = &b.lines[i];
+        b.lines[ln_num] = blank_line();
+        Line *curln = &b.lines[ln_num];
 
-
-        int c;
-        size_t j;
-        for (j = 0; EOF != (c = fgetc(fp)) && '\n' != c; j++) {
-            if (c == '\r')
+        for (int c; EOF != (c = fgetc(fp)) && '\n' != c; curln->length++) {
+            if ('\r' == c) {
                 b.crlf = true;
-
-            // TODO: check unicode if file isn't tooooo big
-            // For now the buffer is not being asserted to be encoded correctly
-            
-            if (++curln->length >= curln->cap) {
-                curln->cap *= 2;
-                curln->data = realloc(curln->data, curln->cap * sizeof(Line));
+                continue;
             }
-            curln->data[j] = c;
-        }
 
-        curln->data[j] = '\0';
+            if (curln->length + 1 >= curln->cap) {
+                curln->cap *= 2;
+                curln->data = realloc(curln->data, curln->cap * sizeof(char));
+            }
+            curln->data[curln->length] = c;
+        }
+        curln->data[curln->length] = '\0';
     }
+
 
     if (fp) fclose(fp);
 

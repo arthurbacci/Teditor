@@ -175,6 +175,8 @@ size_t wi_to_gi(size_t si, char *s);
 size_t gi_to_wi(size_t gi, char *s);
 ssize_t index_by_width_after(size_t _wi, char **s);
 size_t index_by_width(size_t wi, char **s);
+bool is_replacement_character(Grapheme g);
+Grapheme replacement_character(void);
 
 
 extern GlobalCfg config;
