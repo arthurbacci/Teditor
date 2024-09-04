@@ -91,8 +91,8 @@ void display_buffer(Buffer buf, int len_line_number) {
                 attron(A_REVERSE);
             }
 
-            Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
-            size_t gw = grapheme_width(grapheme);
+            Grapheme g = get_next_grapheme(&at, SIZE_MAX);
+            size_t gw = grapheme_width(g);
 
             if (size + gw > screen_sz) {
                 attron(A_REVERSE);
@@ -103,24 +103,21 @@ void display_buffer(Buffer buf, int len_line_number) {
                 break;
             }
 
-            if (1 == grapheme.sz && !isprint(*grapheme.dt))
-                grapheme = replacement_character();
 
-            if (1 == grapheme.sz && '\t' == *grapheme.dt) {
+            // CAUTION: if anything is changed here be sure to make grapheme
+            // _width follow along
+            if (1 == g.sz && '\t' == *g.dt) {
                 attron(A_REVERSE);
 
                 for (int k = 0; k < config.tablen; k++)
                     addch(' ');
-
-                size += config.tablen;
-            } else if (is_replacement_character(grapheme)) {
+            } else if (is_replacement_character(g) || (1 == g.sz && !isprint(*g.dt))) {
                 attron(A_REVERSE);
-
                 addch('X');
             } else {
-                printw("%.*s", (int)grapheme.sz, grapheme.dt);
-                size += grapheme_width(grapheme);
+                printw("%.*s", (int)g.sz, g.dt);
             }
+            size += grapheme_width(g);
 
 
             attroff(A_REVERSE);

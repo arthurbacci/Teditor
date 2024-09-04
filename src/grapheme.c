@@ -51,6 +51,11 @@ size_t grapheme_width(Grapheme g) {
     // Resources that may be useful:
     // - https://www.unicode.org/reports/tr51/
 
+    if (1 == g.sz && '\t' == *g.dt)
+        return config.tablen;
+    if (is_replacement_character(g) || (1 == g.sz && !isprint(*g.dt)))
+        return 1;
+
     for (size_t off = 0; off < g.sz; ) {
         uint_least32_t cp;
 
