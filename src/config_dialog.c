@@ -1,10 +1,14 @@
 #include "ted.h"
 
+// TODO: error messages for incomplete commands (right now they're being
+// completely ignored)
+
 #define BOOL_COMMAND(a, b) \
     if (words_len == 1) { \
-        if (!strcmp(words[0], "t")) \
+        int r = process_as_bool(words[0]); \
+        if (r == 1) \
             a \
-        else if (!strcmp(words[0], "f")) \
+        else if (r == 0) \
             b \
     }
 
@@ -58,43 +62,14 @@ DEF_COMMAND(save_as, {
 })
 
 DEF_COMMAND(read_only, {
-    if (words_len == 1) {
-        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
-            buf->read_only = 1;
-        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0")) {
-            if (buf->can_write)
-                buf->read_only = 0;
-            else
-                message("Can't unlock buffer without write permission");
-        }
+    BOOL_SET(buf->read_only);
+
+    if (!buf->can_write && !buf->read_only) {
+        buf->read_only = 1;
+        message("Can't unlock buffer without write permission");
     }
 })
 
-/*
-// FIXME: this code is horrible
-DEF_COMMAND(find, {
-    int from_cur = 0;
-    if (words_len == 2 && !strcmp(words[0], "cursor"))
-        from_cur = 1;
-    if (words_len == 1 || words_len == 2) {
-        unsigned int len = strlen(words[words_len - 1]);
-        int index;
-        for (unsigned int at = from_cur ? buf->cursor.y : 0; at < buf->num_lines; ++at) {
-            if (buf->lines[at].length >= len &&
-                (index = uchar32_sub(
-                    from_cur && at == buf->cursor.y ? &buf->lines[at].data[buf->cursor.x] : buf->lines[at].data,
-                    words[words_len - 1], buf->lines[at].length,
-                    len
-                )) >= 0
-            ) {
-                change_position(index + len + (from_cur && at == buf->cursor.y) * buf->cursor.x, at, buf);
-                return;
-            }
-        }
-        message("Substring not found");
-    }
-})
-*/
 
 /* TODO: reimplement this
 DEF_COMMAND(eof, {

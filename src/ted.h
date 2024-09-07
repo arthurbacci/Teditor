@@ -49,8 +49,12 @@
 
 #define MSG_SZ 512
 
+#define CMD_WORD_SZ 128
+
 #define TED_LONGJMP_DIE 2
 #define TED_LONGJMP_USER_EXIT 1
+
+#define PRETEND_TO_USE(x) (void)(x)
 
 /*--*--TYPES--*--*/
 
@@ -149,6 +153,7 @@ bool is_whitespace(char c);
 Node *default_buffer();
 char *log_file_path();
 char *strdup(const char *s);
+int process_as_bool(const char *s);
 
 // modify.c
 bool modify(Buffer *buf);

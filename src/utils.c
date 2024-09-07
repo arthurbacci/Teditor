@@ -15,6 +15,7 @@ char *home_path(const char *path) {
 }
 
 
+// TODO: delete this
 char **split_str(const char *str, int *num_str) {
     char *strcp = malloc(strlen(str) + 1);
     char *origstrcp = strcp; // for free()
@@ -140,4 +141,28 @@ char *strdup(const char *s) {
     memcpy(r, s, len + 1);
     return r;
 }
+
+int process_as_bool(const char *s) {
+    size_t len = strlen(s);
+    
+    if (len == 1) {
+        if (*s == 't' || *s == 'T' || *s == '1')
+            return 1;
+        if (*s == 'f' || *s == 'F' || *s == '0')
+            return 0;
+        return -1;
+    }
+
+    // NOTE: this function only works if the first letter of t is different
+    // than the first letter of f
+    const char *t = "true";
+    const char *f = "false";
+
+    for (size_t c = 0; c < len; c++)
+        if (tolower(s[c]) != t[c] && tolower(s[c]) != f[c])
+            return -1;
+
+    return tolower(*s) == 't';
+}
+
 
