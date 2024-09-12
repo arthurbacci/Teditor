@@ -21,3 +21,7 @@ Currently unavailable, please open an issue with your question or send me an ema
 ## Contributing
 
 Please open an Issue if you have any problems, questions or suggestions.
+Pull requests are welcome, but if they have any considerable additions please
+open a PR Draft explaining what you pretend to add so that you don't waste any time
+working on a feature that may not get merged.
+
