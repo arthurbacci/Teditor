@@ -1,17 +1,21 @@
 #include "ted.h"
 
+// TODO: error messages for incomplete commands (right now they're being
+// completely ignored)
+
 #define BOOL_COMMAND(a, b) \
     if (words_len == 1) { \
-        if (!strcmp(words[0], "t")) \
+        int r = process_as_bool(words[0]); \
+        if (r == 1) \
             a \
-        else if (!strcmp(words[0], "f")) \
+        else if (r == 0) \
             b \
     }
 
 #define BOOL_SET(a) BOOL_COMMAND((a) = 1;, (a) = 0;);
 
 #define DEF_COMMAND(a, b) \
-    static bool (a)(char **words, unsigned int words_len, Node **n) { \
+    static void (a)(char **words, unsigned int words_len, Node **n) { \
         Buffer *buf = &(*n)->data; \
         /* Only for suppressing warnings */ \
         USE(words); \
@@ -20,7 +24,7 @@
         USE(buf); \
         \
         b \
-        return false; \
+        return; \
     }
 
 
@@ -58,43 +62,14 @@ DEF_COMMAND(save_as, {
 })
 
 DEF_COMMAND(read_only, {
-    if (words_len == 1) {
-        if (!strcasecmp(words[0], "TRUE") || !strcmp(words[0], "1"))
-            buf->read_only = 1;
-        else if (!strcasecmp(words[0], "FALSE") || !strcmp(words[0], "0")) {
-            if (buf->can_write)
-                buf->read_only = 0;
-            else
-                message("Can't unlock buffer without write permission");
-        }
+    BOOL_SET(buf->read_only);
+
+    if (!buf->can_write && !buf->read_only) {
+        buf->read_only = 1;
+        message("Can't unlock buffer without write permission");
     }
 })
 
-/*
-// FIXME: this code is horrible
-DEF_COMMAND(find, {
-    int from_cur = 0;
-    if (words_len == 2 && !strcmp(words[0], "cursor"))
-        from_cur = 1;
-    if (words_len == 1 || words_len == 2) {
-        unsigned int len = strlen(words[words_len - 1]);
-        int index;
-        for (unsigned int at = from_cur ? buf->cursor.y : 0; at < buf->num_lines; ++at) {
-            if (buf->lines[at].length >= len &&
-                (index = uchar32_sub(
-                    from_cur && at == buf->cursor.y ? &buf->lines[at].data[buf->cursor.x] : buf->lines[at].data,
-                    words[words_len - 1], buf->lines[at].length,
-                    len
-                )) >= 0
-            ) {
-                change_position(index + len + (from_cur && at == buf->cursor.y) * buf->cursor.x, at, buf);
-                return false;
-            }
-        }
-        message("Substring not found");
-    }
-})
-*/
 
 /* TODO: reimplement this
 DEF_COMMAND(eof, {
@@ -107,26 +82,21 @@ DEF_COMMAND(next, *n = (*n)->next;)
 DEF_COMMAND(prev, *n = (*n)->prev;)
 DEF_COMMAND(close_buffer, {
     if (buf->modified) {
-        char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to exit", NULL);
-        if (prt && !strcmp("exit", prt)) {
-            free(prt);
-            goto GOODBYE_BUFFER;
-        }
+        char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to confirm", NULL);
+        bool confirmed = prt && 0 == strcmp("exit", prt);
         free(prt);
-        return false;
-    } else
-        goto GOODBYE_BUFFER;
 
-    GOODBYE_BUFFER:
-    if ((*n)->next == *n)
-        return true;
+        if (!confirmed)
+            return;
+    }
+
     *n = (*n)->prev;
     buffer_close((*n)->next);
 })
 
 struct {
     const char *name;
-    bool (*function)(char **words, unsigned int words_len, Node **n);
+    void (*function)(char **words, unsigned int words_len, Node **n);
 } fns[] = {
     {"tablen"           , tablen            },
     {"crlf"             , crlf              },
@@ -167,26 +137,23 @@ void calculate_base_hint(char *base_hint) {
         p[-1] = '\0';
 }
 
-bool config_dialog(Node **n) {
+void config_dialog(Node **n) {
     char base_hint[1000];
     calculate_base_hint(base_hint);
     char *command = prompt_hints("Enter command: ", "", base_hint, hints);
 
-    bool r = parse_command(command, n);
+    parse_command(command, n);
 
     free(command);
-    return r;
 }
 
 
-bool parse_command(char *command, Node **n) {
+void parse_command(char *command, Node **n) {
     if (!command)
-        return false;
+        return;
 
     int words_len;
     char **words = split_str(command, &words_len);
-
-    bool r = false;
 
     switch (run_command(words, words_len, n)) {
         // repeat command
@@ -199,26 +166,23 @@ bool parse_command(char *command, Node **n) {
             if (command != last_command)
                 strcpy(last_command, command);
             break;
-
-        // stop!
-        case 2:
-            r = true;
     }
 
     for (int i = 0; i < words_len; i++)
         free(words[i]);
     free(words);
-
-    return r;
 }
 
 
 int run_command(char **words, int words_len, Node **n) {
     if (words_len == 1 && !strcmp(words[0], "repeat"))
         return 0;
-    for (unsigned int i = 0; fns[i].name; i++)
-        if (!strcmp(words[0], fns[i].name))
-            return 1 + fns[i].function(words + 1, words_len - 1, n);
+    for (unsigned int i = 0; fns[i].name; i++) {
+        if (!strcmp(words[0], fns[i].name)) {
+            fns[i].function(words + 1, words_len - 1, n);
+            break;
+        }
+    }
 
     return 1;
 }

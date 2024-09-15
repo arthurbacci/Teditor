@@ -11,21 +11,21 @@ void expand_line(Line *ln, size_t x) {
 }
 
 
-bool process_keypress(int c, Node **n) {
+void process_keypress(int c, Node **n) {
     Buffer *buf = &(*n)->data;
 
     if (c == ERR)
-        return false;
+        return;
 
     message("");
 
     switch (c) {
     case ctrl('c'):
-        return parse_command("close", n);
+        parse_command("close", n);
     case ctrl('z'):
-        return parse_command("prev", n);
+        parse_command("prev", n);
     case ctrl('x'):
-        return parse_command("next", n);
+        parse_command("next", n);
     case KEY_UP:
     case ctrl('p'):
         // Decrements `y` if it is greater than 0
@@ -91,19 +91,17 @@ bool process_keypress(int c, Node **n) {
         if (config.use_spaces == 1) {
             for (int i = 0; i < config.tablen; i++)
                 process_keypress(' ', n);
-            return false;
+            return;
         } // else, it will pass though and be added to the buffer
         break;
     case ctrl('g'):
-        if (config_dialog(n))
-            return true;
+        config_dialog(n);
         break;
     case ctrl('q'):
-        if (parse_command(
+        parse_command(
             buf->read_only ? "read-only 0" : "read-only 1",
             n
-        ))
-            return true;
+        );
         break;
     case KEY_PPAGE: {
         size_t dec = SROW + buf->cursor.y % SROW;
@@ -293,19 +291,16 @@ bool process_keypress(int c, Node **n) {
     uint32_t codepoint;
     size_t r = grapheme_decode_utf8(cc, 1, &codepoint);
 
-    if (GRAPHEME_INVALID_CODEPOINT == codepoint || r != 1) {
-        if (r > 1) {
-            for (size_t i = 1; i < r; i++)
-                cc[i] = getch();
+    if (r > 1) {
+        for (size_t i = 1; i < r; i++)
+            cc[i] = getch();
 
-            size_t newr = grapheme_decode_utf8(cc, r, &codepoint);
-            if (GRAPHEME_INVALID_CODEPOINT == codepoint || newr != r)
-                return false;
-        } else {
-            // TODO: maybe I can print a message?
-            return false;
-        }
+        grapheme_decode_utf8(cc, r, &codepoint);
     }
+
+    if (GRAPHEME_INVALID_CODEPOINT == codepoint)
+        // TODO: maybe I can print a message?
+        return;
 
 
     if (r > 1 || isprint(c) || '\t' == c) {
@@ -318,6 +313,6 @@ bool process_keypress(int c, Node **n) {
     }
     
 
-    return false;
+    return;
 }
 

@@ -10,39 +10,38 @@ char *menu_message = "";
 
 GlobalCfg config = {4, 0, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"};
 
+bool is_jmp_set = false;
 jmp_buf end;
 
 
 int main(int argc, char **argv) {
-    int is_input_pipe = !isatty(STDIN_FILENO);
-    if (is_input_pipe) {
+    if (!isatty(STDIN_FILENO)) {
         // TODO: read pipe contents to buffer before closing it
         close(STDIN_FILENO);
-        open("/dev/tty", O_RDONLY);
+        if (STDIN_FILENO != open("/dev/tty", O_RDONLY))
+            die("didn't open as stdin");
     }
+
+    if (isatty(STDERR_FILENO)) {
+        char *filename = log_file_path();
+
+        // Create file if it doesn't exist (creat() gives it some strange
+        // permissions)
+        FILE *fp = fopen(filename, "w");
+        if (fp) fclose(fp);
+
+        close(STDERR_FILENO);
+        if (STDERR_FILENO != open(filename, O_WRONLY))
+            die("didn't open as stderr");
+
+        free(filename);
+    }
+
+
 
     Node *buf = NULL;
     if (argc < 2) {
-        // FIXME: Lots of calls to home_path
-
-        struct stat st = {0};
-
-        char *config = home_path(".config/");
-        if (stat(config, &st) == -1)
-            mkdir(config, 0777);
-
-        char *config_ted = home_path(".config/ted/");
-        if (stat(config_ted, &st) == -1)
-            mkdir(config_ted, 0777);
-            
-        char *filename = home_path(".config/ted/buffer");
-        free(config);
-        free(config_ted);
-
-        FILE *fp = fopen(filename, "r");
-        buf = single_buffer(read_lines(fp, filename, can_write(filename)));
-        if (fp)
-            fclose(fp);
+        buf = default_buffer();
     } else {
         for (int i = 1; i < argc; i++) {
             char *filename = malloc(PATH_MAX + 1);
@@ -81,9 +80,6 @@ int main(int argc, char **argv) {
                 buf = single_buffer(b);
             else
                 buffer_add_prev(buf, b);
-
-            if (fp)
-                fclose(fp);
         }
     }
 
@@ -103,6 +99,8 @@ int main(int argc, char **argv) {
     int val = setjmp(end);
 
     if (!val) {
+        is_jmp_set = true;
+
         while (1) {
             int len_line_number = calculate_len_line_number(buf->data);
 
@@ -113,14 +111,13 @@ int main(int argc, char **argv) {
             refresh();
 
             int c = getch();
-            if (process_keypress(c, &buf))
-                break;
+            process_keypress(c, &buf);
         }
     }
 
     free_buffer_list(buf);
 
     endwin();
-    return 0;
+    return val - 1;
 }
 

@@ -4,7 +4,7 @@ void savefile(Buffer *buf) {
     FILE *fpw = fopen(buf->filename, "w");
 
     if (fpw == NULL) {
-        char buf[1000];
+        static char buf[1000];
         snprintf(buf, 1000, "Could not open the file; Errno: %d", errno);
 
         message(buf);
@@ -37,58 +37,60 @@ void savefile(Buffer *buf) {
 Buffer read_lines(FILE *fp, char *filename, bool can_write) {
     static int buffer_count = -1;
     buffer_count++;
+
+
     Buffer b = {
-        0,                  // Modified
+        false,              // Modified
         !can_write,         // read-only
         can_write,          // data can be written to the buffer
         false,              // true if CRLF false if LF
         NULL,               // lines
-        0,                  // number of lines
+        1,                  // number of lines
         {0, 0, 0, 0},       // Cursor (lx_width, x_width, x_bytes, y)
         {0, 0},             // Scroll (x, y)
         bufn(buffer_count), // Buffer Name
         filename,
     };
+
+
     if (!fp) {
         message("New file");
 
-        goto EMPTY_BUFFER;
-    }
+        b.lines = malloc(b.num_lines * sizeof(Line));
+        b.lines[0] = blank_line();
+        b.read_only = false;
+        b.modified = true;
 
-    b.num_lines = 0;
-    for (size_t i = 0; !feof(fp); i++) {
-        b.lines = realloc(b.lines, ++b.num_lines * sizeof(Line));
-        b.lines[i] = blank_line();
-        Line *curln = &b.lines[i];
-
-
-        int c;
-        size_t j;
-        for (j = 0; EOF != (c = fgetc(fp)) && '\n' != c; j++) {
-            if (c == '\r')
-                b.crlf = true;
-
-            // TODO: check unicode if file isn't tooooo big
-            // For now the buffer is not being asserted to be encoded correctly
-            
-            if (++curln->length >= curln->cap) {
-                curln->cap *= 2;
-                curln->data = realloc(curln->data, curln->cap * sizeof(Line));
-            }
-            curln->data[j] = c;
-        }
-
-        curln->data[j] = '\0';
-    }
-
-    if (b.num_lines > 0)
         return b;
+    }
+    
+    for (; !feof(fp); b.num_lines++) {
+        b.lines = realloc(b.lines, b.num_lines * sizeof(Line));
 
-EMPTY_BUFFER:
-    b.num_lines = 1;
-    b.lines = malloc(b.num_lines * sizeof(Line));
-    b.lines[0] = blank_line();
-    b.modified = 1;
+        Line *curln = &b.lines[b.num_lines - 1];
+        *curln = blank_line();
+
+        for (int c; EOF != (c = fgetc(fp)) && '\n' != c; curln->length++) {
+            if ('\r' == c) {
+                b.crlf = true;
+                continue;
+            }
+
+            if (curln->length + 1 >= curln->cap) {
+                curln->cap *= 2;
+                curln->data = realloc(curln->data, curln->cap * sizeof(char));
+            }
+
+            curln->data[curln->length] = c;
+        }
+        curln->data[curln->length] = '\0';
+    }
+
+    b.num_lines--;
+    
+
+    fclose(fp);
+
 
     return b;
 }
@@ -97,10 +99,9 @@ void open_file(char *fname, Node **n) {
     FILE *fp = fopen(fname, "r");
     buffer_add_next(*n, read_lines(fp, fname, can_write(fname)));
     parse_command("next", n);
-    if (fp != NULL)
-        fclose(fp);
 }
 
+// FIXME: make it check the directory if the files doesn't exist
 bool can_write(char *fname) {
     struct stat st;
     if (stat(fname, &st) == 0) {

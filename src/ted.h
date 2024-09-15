@@ -49,6 +49,13 @@
 
 #define MSG_SZ 512
 
+#define CMD_WORD_SZ 128
+
+#define TED_LONGJMP_DIE 2
+#define TED_LONGJMP_USER_EXIT 1
+
+#define PRETEND_TO_USE(x) (void)(x)
+
 /*--*--TYPES--*--*/
 
 typedef struct {
@@ -113,9 +120,9 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
 void message(char *msg);
 
 // config_dialog.c
-bool config_dialog(Node **n);
+void config_dialog(Node **n);
 int run_command(char **words, int words_len, Node **n);
-bool parse_command(char *command, Node **n);
+void parse_command(char *command, Node **n);
 
 // open_and_save.c
 void savefile(Buffer *buf);
@@ -132,7 +139,7 @@ void free_buffer(Buffer *buf);
 
 // keypress.c
 void expand_line(Line *ln, size_t x);
-bool process_keypress(int c, Node **n);
+void process_keypress(int c, Node **n);
 
 // utils.c
 void die(const char *s);
@@ -143,6 +150,10 @@ Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
 bool is_whitespace(char c);
+Node *default_buffer();
+char *log_file_path();
+char *strdup(const char *s);
+int process_as_bool(const char *s);
 
 // modify.c
 bool modify(Buffer *buf);
@@ -170,10 +181,13 @@ size_t wi_to_gi(size_t si, char *s);
 size_t gi_to_wi(size_t gi, char *s);
 ssize_t index_by_width_after(size_t _wi, char **s);
 size_t index_by_width(size_t wi, char **s);
+bool is_replacement_character(Grapheme g);
+Grapheme replacement_character(void);
 
 
 extern GlobalCfg config;
 extern char *menu_message;
+extern bool is_jmp_set;
 extern jmp_buf end;
 
 #endif

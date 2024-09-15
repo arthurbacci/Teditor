@@ -2,7 +2,10 @@
 
 void die(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
-    longjmp(end, 0);
+    if (is_jmp_set)
+        longjmp(end, TED_LONGJMP_DIE);
+    else
+        exit(2);
 }
 
 char *home_path(const char *path) {
@@ -12,6 +15,7 @@ char *home_path(const char *path) {
 }
 
 
+// TODO: delete this
 char **split_str(const char *str, int *num_str) {
     char *strcp = malloc(strlen(str) + 1);
     char *origstrcp = strcp; // for free()
@@ -98,3 +102,67 @@ size_t get_ident_sz(char *s) {
 bool is_whitespace(char c) {
     return strchr(config.whitespace_chars, c) != NULL;
 }
+
+
+void ensure_data_dir() {
+    struct stat st = {0};
+
+    // TODO: support $XDG_DATA_DIR
+    char *data_dir = home_path(".local/state/");
+    if (-1 == stat(data_dir, &st))
+        mkdir(data_dir, 0770);
+
+    free(data_dir);
+
+    char *data_ted_dir = home_path(".local/state/ted/");
+    if (-1 == stat(data_ted_dir, &st))
+        mkdir(data_ted_dir, 0770);
+
+    free(data_ted_dir);
+}
+
+Node *default_buffer() {
+    ensure_data_dir();
+
+    char *filename = home_path(".local/state/ted/buffer");
+
+    FILE *fp = fopen(filename, "r");
+    return single_buffer(read_lines(fp, filename, can_write(filename)));
+}
+
+char *log_file_path() {
+    ensure_data_dir();
+    return home_path(".local/state/ted/log");
+}
+
+char *strdup(const char *s) {
+    size_t len = strlen(s);
+    char *r = malloc(len + 1);
+    memcpy(r, s, len + 1);
+    return r;
+}
+
+int process_as_bool(const char *s) {
+    size_t len = strlen(s);
+    
+    if (len == 1) {
+        if (*s == 't' || *s == 'T' || *s == '1')
+            return 1;
+        if (*s == 'f' || *s == 'F' || *s == '0')
+            return 0;
+        return -1;
+    }
+
+    // NOTE: this function only works if the first letter of t is different
+    // than the first letter of f
+    const char *t = "true";
+    const char *f = "false";
+
+    for (size_t c = 0; c < len; c++)
+        if (tolower(s[c]) != t[c] && tolower(s[c]) != f[c])
+            return -1;
+
+    return tolower(*s) == 't';
+}
+
+
