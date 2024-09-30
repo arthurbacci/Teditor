@@ -15,7 +15,7 @@
 #define BOOL_SET(a) BOOL_COMMAND((a) = 1;, (a) = 0;);
 
 #define DEF_COMMAND(a, b) \
-    static void (a)(char **words, unsigned int words_len, Node **n) { \
+    static void (a)(char words[][CMD_WORD_SZ], unsigned int words_len, Node **n) { \
         Buffer *buf = &(*n)->data; \
         /* Only for suppressing warnings */ \
         USE(words); \
@@ -96,7 +96,7 @@ DEF_COMMAND(close_buffer, {
 
 struct {
     const char *name;
-    void (*function)(char **words, unsigned int words_len, Node **n);
+    void (*function)(char words[][CMD_WORD_SZ], unsigned int words_len, Node **n);
 } fns[] = {
     {"tablen"           , tablen            },
     {"crlf"             , crlf              },
@@ -152,7 +152,23 @@ void parse_command(char *command, Node **n) {
     if (!command)
         return;
 
-    int words_len;
+
+    char words[CMD_ARR_SZ + 1][CMD_WORD_SZ];
+    size_t words_len = split_cmd_string(command, words);
+
+    if (words_len == 1 && !strcmp(words[0], "repeat"))
+        parse_command(last_command, n);
+    for (unsigned int i = 0; fns[i].name; i++) {
+        if (!strcmp(words[0], fns[i].name)) {
+            fns[i].function(words + 1, words_len - 1, n);
+            if (command != last_command)
+                strcpy(last_command, command);
+            break;
+        }
+    }
+
+
+    /*int words_len;
     char **words = split_str(command, &words_len);
 
     switch (run_command(words, words_len, n)) {
@@ -171,18 +187,7 @@ void parse_command(char *command, Node **n) {
     for (int i = 0; i < words_len; i++)
         free(words[i]);
     free(words);
+    */
 }
 
 
-int run_command(char **words, int words_len, Node **n) {
-    if (words_len == 1 && !strcmp(words[0], "repeat"))
-        return 0;
-    for (unsigned int i = 0; fns[i].name; i++) {
-        if (!strcmp(words[0], fns[i].name)) {
-            fns[i].function(words + 1, words_len - 1, n);
-            break;
-        }
-    }
-
-    return 1;
-}

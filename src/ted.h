@@ -42,6 +42,9 @@
 #define IN_RANGE(x, min, max)  ((x) >= (min)) && ((x) <= (max))
 #define OUT_RANGE(x, min, max) ((x) < (min)) || ((x) > (max))
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 // timeout for input in ncurses (in milliseconds)
 #define INPUT_TIMEOUT 5
 
@@ -50,6 +53,7 @@
 #define MSG_SZ 512
 
 #define CMD_WORD_SZ 128
+#define CMD_ARR_SZ 30
 
 #define TED_LONGJMP_DIE 2
 #define TED_LONGJMP_USER_EXIT 1
@@ -121,7 +125,6 @@ void message(char *msg);
 
 // config_dialog.c
 void config_dialog(Node **n);
-int run_command(char **words, int words_len, Node **n);
 void parse_command(char *command, Node **n);
 
 // open_and_save.c
@@ -144,7 +147,7 @@ void process_keypress(int c, Node **n);
 // utils.c
 void die(const char *s);
 char *home_path(const char *path);
-char **split_str(const char *str, int *num_str);
+size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
 int calculate_len_line_number(Buffer buf);
 Line blank_line(void);
 char *bufn(int a);

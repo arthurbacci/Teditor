@@ -15,39 +15,25 @@ char *home_path(const char *path) {
 }
 
 
-// TODO: delete this
-char **split_str(const char *str, int *num_str) {
-    char *strcp = malloc(strlen(str) + 1);
-    char *origstrcp = strcp; // for free()
-    strcpy(strcp, str);
+size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]) {
+    for (; *s == ' '; s++);
 
-    while (*strcp == ' ') strcp++; // Removes trailing spaces
-    *num_str = 0;
-    char **strs = NULL;
+    size_t i;
+    for (i = 0; *s; i++) {
+        const char *n = s;
+        for (; *n != ' ' && *n != '\0'; n++);
 
-    while (1) {
-        char *astr = malloc(1000);
-        strcpy(astr, strcp);
-        char *spc = strchr(strcp, ' ');
+        size_t cpsz = MIN(n - s, CMD_WORD_SZ - 1);
+        memcpy(ret[i], s, cpsz);
+        ret[i][cpsz] = '\0';
 
-        if (spc) {
-            astr[spc - strcp] = '\0';
-            while (*spc == ' ') spc++;
-        }
-
-        strs = realloc(strs, ++(*num_str) * sizeof(*strs));
-
-        strs[*num_str - 1] = astr;
-
-        if (spc == NULL || !*spc)
-            break;
-
-        strcp = spc;
+        for (; *n == ' '; n++);
+        s = n;
     }
 
-    free(origstrcp);
-    return strs;
+    return i;
 }
+
 
 int calculate_len_line_number(Buffer buf) {
     // + 1 because lines numbers start with 1, not 0
