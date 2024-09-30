@@ -166,28 +166,6 @@ void parse_command(char *command, Node **n) {
             break;
         }
     }
-
-
-    /*int words_len;
-    char **words = split_str(command, &words_len);
-
-    switch (run_command(words, words_len, n)) {
-        // repeat command
-        case 0:
-            parse_command(last_command, n);
-            break;
-
-        // normal command
-        case 1:
-            if (command != last_command)
-                strcpy(last_command, command);
-            break;
-    }
-
-    for (int i = 0; i < words_len; i++)
-        free(words[i]);
-    free(words);
-    */
 }
 
 
