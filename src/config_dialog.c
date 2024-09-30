@@ -140,11 +140,14 @@ void calculate_base_hint(char *base_hint) {
 void config_dialog(Node **n) {
     char base_hint[1000];
     calculate_base_hint(base_hint);
-    char *command = prompt_hints("Enter command: ", "", base_hint, hints);
+
+    char command[MSG_SZ];
+    char *_command = prompt_hints("Enter command: ", "", base_hint, hints);
+    strncpy(command, _command, MSG_SZ - 1);
+    command[MSG_SZ - 1] = '\0';
+    free(_command);
 
     parse_command(command, n);
-
-    free(command);
 }
 
 
