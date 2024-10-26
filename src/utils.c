@@ -143,4 +143,39 @@ int process_as_bool(const char *s) {
     return tolower(*s) == 't';
 }
 
+int invoke_editorconfig(const char *prop) {
+    char *program_path = home_path(".local/share/ted/ted_editorconfig");
+
+    int status;
+    pid_t child;
+
+    switch (child = fork()) {
+        case -1:
+            return 127;
+        case 0:
+            execl(program_path, "ted_editorconfig", prop, SEL_BUF.filename, (char *) NULL);
+            _exit(127);
+        default:
+            if (waitpid(child, &status, 0) == -1)
+                return 127;
+    }
+
+    free(program_path);
+
+    return WEXITSTATUS(status);
+}
+
+void configure_editorconfig(void) {
+    bool use_tabs = invoke_editorconfig("indent_style") == 1;
+    int indent_size = invoke_editorconfig("indent_size");
+    int tab_width = invoke_editorconfig("tab_width");
+
+    if (indent_size < 100)
+        config.indent_size = indent_size;
+    if (tab_width < 100)
+        config.tab_width = tab_width;
+    if (use_tabs)
+        config.indent_size = 0;
+}
+
 

@@ -21,7 +21,8 @@
 #include <unistd.h>
 #include <setjmp.h>
 #include <limits.h>
-#include <wchar.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 // suckless' libgrapheme
 #include <grapheme.h>
@@ -162,6 +163,8 @@ char *log_file_path();
 char *strdup(const char *s);
 int process_as_bool(const char *s);
 void ensure_data_dir(void);
+int invoke_editorconfig(const char *prop);
+void configure_editorconfig(void);
 
 // modify.c
 bool modify(Buffer *buf);
