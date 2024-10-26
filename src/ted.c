@@ -8,11 +8,11 @@ TODO: remove the Grapheme type and do it without overhead
 
 char *menu_message = "";
 
-GlobalCfg config = {4, 0, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"};
+GlobalCfg config = { DEFAULT_WHITESPACE_CHARS, DEFAULT_INDENT_SIZE, DEFAULT_TAB_WIDTH,
+    DEFAULT_AUTOTAB};
 
 bool is_jmp_set = false;
 jmp_buf end;
-
 
 int main(int argc, char **argv) {
     if (!isatty(STDIN_FILENO)) {

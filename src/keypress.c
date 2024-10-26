@@ -88,8 +88,8 @@ void process_keypress(int c, Node **n) {
             savefile(buf);
         break;
     case '\t':
-        if (config.use_spaces == 1) {
-            for (int i = 0; i < config.tablen; i++)
+        if (config.indent_size > 0) {
+            for (int i = 0; i < config.indent_size; i++)
                 process_keypress(' ', n);
             return;
         } // else, it will pass though and be added to the buffer

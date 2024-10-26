@@ -100,10 +100,11 @@ typedef struct {
 } Buffer;
 
 typedef struct {
-    unsigned int tablen;
-    bool use_spaces;
-    bool autotab;
     char *whitespace_chars;
+    // Set to `0` for indenting with tabs
+    unsigned short indent_size;
+    unsigned short tab_width;
+    bool autotab;
 } GlobalCfg;
 
 typedef struct {
@@ -192,6 +193,8 @@ extern GlobalCfg config;
 extern char *menu_message;
 extern bool is_jmp_set;
 extern jmp_buf end;
+
+#include "config.h"
 
 #endif
 

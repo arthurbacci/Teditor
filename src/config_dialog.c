@@ -29,18 +29,24 @@
 
 
 
-DEF_COMMAND(tablen, {
+DEF_COMMAND(tabwidth, {
     if (words_len == 1) {
         int answer_int = atoi(words[0]);
-        if (answer_int > 0)
-            config.tablen = answer_int;
+        if (answer_int > 0 && answer_int < 256)
+            config.tab_width = answer_int;
+    }
+})
+DEF_COMMAND(indentsize, {
+    if (words_len == 1) {
+        int answer_int = atoi(words[0]);
+        if (answer_int >= 0 && answer_int < 256)
+            config.indent_size = answer_int;
     }
 })
 
 
 DEF_COMMAND(crlf, BOOL_SET(buf->crlf))
 
-DEF_COMMAND(use_spaces, BOOL_SET(config.use_spaces))
 DEF_COMMAND(autotab, BOOL_SET(config.autotab))
 
 DEF_COMMAND(save_as, {
@@ -98,32 +104,28 @@ struct {
     const char *name;
     void (*function)(char words[][CMD_WORD_SZ], unsigned int words_len, Node **n);
 } fns[] = {
-    {"tablen"           , tablen            },
-    {"crlf"             , crlf              },
-    {"use-spaces"       , use_spaces        },
-    {"autotab"          , autotab           },
-    {"save-as"          , save_as           },
-    {"read-only"        , read_only         },
-    //{"find"             , find              },
-    //{"eof"              , eof               },
-    {"next"             , next              },
-    {"prev"             , prev              },
-    {"close"            , close_buffer      },
+    {"tab_width"        , tabwidth    },
+    {"indent_size"      , indentsize  },
+    {"crlf"             , crlf        },
+    {"autotab"          , autotab     },
+    {"save-as"          , save_as     },
+    {"read-only"        , read_only   },
+    {"next"             , next        },
+    {"prev"             , prev        },
+    {"close"            , close_buffer},
     {NULL, NULL}
 };
 
 Hints hints[] = {
-    {"tablen"           , "<tablen>"                     },
-    {"crlf"             , "f | t"                        },
-    {"use-spaces"       , "f | t"                        },
-    {"autotab"          , "f | t"                        },
-    {"save-as"          , "<filename>"                   },
-    {"read-only"        , "f | t"                        },
-    //{"find"             , "(start | cursor) <substring>" },
-    //{"eof"              , ""                             },
-    {"next"             , ""                             },
-    {"prev"             , ""                             },
-    {"close"            , ""                             },
+    {"tab_width"        , "<tabwidth>"             },
+    {"indent_size"      , "<indent sz, 0 for tabs>"},
+    {"crlf"             , "f | t"                  },
+    {"autotab"          , "f | t"                  },
+    {"save-as"          , "<filename>"             },
+    {"read-only"        , "f | t"                  },
+    {"next"             , ""                       },
+    {"prev"             , ""                       },
+    {"close"            , ""                       },
     {NULL, NULL}
 };
 
