@@ -15,12 +15,11 @@
 #define BOOL_SET(a) BOOL_COMMAND((a) = 1;, (a) = 0;);
 
 #define DEF_COMMAND(a, b) \
-    static void (a)(char words[][CMD_WORD_SZ], unsigned int words_len, Node **n) { \
-        Buffer *buf = &(*n)->data; \
+    static void (a)(char words[][CMD_WORD_SZ], size_t words_len) { \
+        Buffer *buf = &SEL_BUF; \
         /* Only for suppressing warnings */ \
         USE(words); \
         USE(words_len); \
-        USE(n); \
         USE(buf); \
         \
         b \
@@ -77,15 +76,8 @@ DEF_COMMAND(read_only, {
 })
 
 
-/* TODO: reimplement this
-DEF_COMMAND(eof, {
-    if (words_len == 0)
-        change_position(buf->lines[buf->num_lines - 1].length, buf->num_lines, buf);
-})
-*/
-
-DEF_COMMAND(next, *n = (*n)->next;)
-DEF_COMMAND(prev, *n = (*n)->prev;)
+DEF_COMMAND(next, next_buffer();)
+DEF_COMMAND(prev, previous_buffer();)
 DEF_COMMAND(close_buffer, {
     if (buf->modified) {
         char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to confirm", NULL);
@@ -95,40 +87,39 @@ DEF_COMMAND(close_buffer, {
         if (!confirmed)
             return;
     }
-
-    *n = (*n)->prev;
-    buffer_close((*n)->next);
+    buffer_close();
 })
 
 struct {
     const char *name;
-    void (*function)(char words[][CMD_WORD_SZ], unsigned int words_len, Node **n);
+    void (*function)(char words[][CMD_WORD_SZ], size_t words_len);
 } fns[] = {
-    {"tab_width"        , tabwidth    },
-    {"indent_size"      , indentsize  },
-    {"crlf"             , crlf        },
-    {"autotab"          , autotab     },
-    {"save-as"          , save_as     },
-    {"read-only"        , read_only   },
-    {"next"             , next        },
-    {"prev"             , prev        },
-    {"close"            , close_buffer},
+    {"tab_width"  , tabwidth    },
+    {"indent_size", indentsize  },
+    {"crlf"       , crlf        },
+    {"autotab"    , autotab     },
+    {"save-as"    , save_as     },
+    {"read-only"  , read_only   },
+    {"next"       , next        },
+    {"prev"       , prev        },
+    {"close"      , close_buffer},
     {NULL, NULL}
 };
 
 Hints hints[] = {
-    {"tab_width"        , "<tabwidth>"             },
-    {"indent_size"      , "<indent sz, 0 for tabs>"},
-    {"crlf"             , "f | t"                  },
-    {"autotab"          , "f | t"                  },
-    {"save-as"          , "<filename>"             },
-    {"read-only"        , "f | t"                  },
-    {"next"             , ""                       },
-    {"prev"             , ""                       },
-    {"close"            , ""                       },
+    {"tab_width"  , "<tabwidth>"             },
+    {"indent_size", "<indent sz, 0 for tabs>"},
+    {"crlf"       , "f | t"                  },
+    {"autotab"    , "f | t"                  },
+    {"save-as"    , "<filename>"             },
+    {"read-only"  , "f | t"                  },
+    {"next"       , ""                       },
+    {"prev"       , ""                       },
+    {"close"      , ""                       },
     {NULL, NULL}
 };
 
+// FIXME: dont hardcode 1000
 char last_command[1000] = "";
 
 void calculate_base_hint(char *base_hint) {
@@ -139,7 +130,7 @@ void calculate_base_hint(char *base_hint) {
         p[-1] = '\0';
 }
 
-void config_dialog(Node **n) {
+void config_dialog(void) {
     char base_hint[1000];
     calculate_base_hint(base_hint);
 
@@ -152,23 +143,22 @@ void config_dialog(Node **n) {
     command[MSG_SZ - 1] = '\0';
     free(_command);
 
-    parse_command(command, n);
+    parse_command(command);
 }
 
 
-void parse_command(char *command, Node **n) {
+void parse_command(char *command) {
     if (!command)
         return;
-
 
     char words[CMD_ARR_SZ + 1][CMD_WORD_SZ];
     size_t words_len = split_cmd_string(command, words);
 
     if (words_len == 1 && !strcmp(words[0], "repeat"))
-        parse_command(last_command, n);
+        parse_command(last_command);
     for (unsigned int i = 0; fns[i].name; i++) {
         if (!strcmp(words[0], fns[i].name)) {
-            fns[i].function(words + 1, words_len - 1, n);
+            fns[i].function(words + 1, words_len - 1);
             if (command != last_command)
                 strcpy(last_command, command);
             break;

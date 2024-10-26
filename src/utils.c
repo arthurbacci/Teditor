@@ -90,7 +90,7 @@ bool is_whitespace(char c) {
 }
 
 
-void ensure_data_dir() {
+void ensure_data_dir(void) {
     struct stat st = {0};
 
     // TODO: support $XDG_DATA_DIR
@@ -107,14 +107,6 @@ void ensure_data_dir() {
     free(data_ted_dir);
 }
 
-Node *default_buffer() {
-    ensure_data_dir();
-
-    char *filename = home_path(".local/state/ted/buffer");
-
-    FILE *fp = fopen(filename, "r");
-    return single_buffer(read_lines(fp, filename, can_write(filename)));
-}
 
 char *log_file_path() {
     ensure_data_dir();

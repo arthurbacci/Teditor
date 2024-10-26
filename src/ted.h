@@ -60,6 +60,10 @@
 
 #define PRETEND_TO_USE(x) (void)(x)
 
+#define NUM_BUFFERS 16
+
+#define SEL_BUF (buffer_list.bufs[buffer_list.selected])
+
 /*--*--TYPES--*--*/
 
 typedef struct {
@@ -90,7 +94,7 @@ typedef struct {
     bool modified;
     bool read_only;
     bool can_write;
-    bool crlf; // 0: LF  1: CRLF
+    bool crlf;
     Line *lines;
     size_t num_lines;
     Cursor cursor;
@@ -98,6 +102,12 @@ typedef struct {
     char *name;
     char *filename;
 } Buffer;
+
+typedef struct {
+    Buffer bufs[NUM_BUFFERS];
+    size_t len;
+    size_t selected;
+} BufferList;
 
 typedef struct {
     char *whitespace_chars;
@@ -112,12 +122,6 @@ typedef struct {
     const char *hint;
 } Hints;
 
-typedef struct Node {
-    Buffer data;
-    struct Node *next;
-    struct Node *prev;
-} Node;
-
 
 // message_and_prompt.c
 char *prompt(const char *msgtmp, char *def);
@@ -125,17 +129,17 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
 void message(char *msg);
 
 // config_dialog.c
-void config_dialog(Node **n);
-void parse_command(char *command, Node **n);
+void config_dialog(void);
+void parse_command(char *command);
 
 // open_and_save.c
 void savefile(Buffer *buf);
 Buffer read_lines(FILE *fp, char *filename, bool read_only);
-void open_file(char *fname, Node **n);
+void open_file(char *fname);
 bool can_write(char *fname);
 
 // display.c
-void display_menu(const char *message, const char *shadow, const Node *n);
+void display_menu(const char *message, const char *shadow);
 void display_buffer(Buffer buf, int len_line_number);
 
 // free.c
@@ -143,7 +147,7 @@ void free_buffer(Buffer *buf);
 
 // keypress.c
 void expand_line(Line *ln, size_t x);
-void process_keypress(int c, Node **n);
+void process_keypress(int c);
 
 // utils.c
 void die(const char *s);
@@ -154,10 +158,10 @@ Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
 bool is_whitespace(char c);
-Node *default_buffer();
 char *log_file_path();
 char *strdup(const char *s);
 int process_as_bool(const char *s);
+void ensure_data_dir(void);
 
 // modify.c
 bool modify(Buffer *buf);
@@ -169,14 +173,12 @@ void calculate_scroll(Buffer *buf, size_t screen_width);
 void truncate_cur(Buffer *buf);
 void recalc_cur(Buffer *buf);
 
-// buffer_list.c
-Node *allocate_node(Node n);
-void deallocate_node(Node *n);
-Node *single_buffer(Buffer b);
-void buffer_add_next(Node *n, Buffer b);
-void buffer_add_prev(Node *n, Buffer b);
-void buffer_close(Node *n);
-void free_buffer_list(Node *n);
+// buffers.c
+Buffer default_buffer();
+void open_buffer(Buffer b);
+void buffer_close(void);
+void next_buffer(void);
+void previous_buffer(void);
 
 // grapheme.c
 Grapheme get_next_grapheme(char **str, size_t len);
@@ -193,6 +195,7 @@ extern GlobalCfg config;
 extern char *menu_message;
 extern bool is_jmp_set;
 extern jmp_buf end;
+extern BufferList buffer_list;
 
 #include "config.h"
 

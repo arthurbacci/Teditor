@@ -95,10 +95,9 @@ Buffer read_lines(FILE *fp, char *filename, bool can_write) {
     return b;
 }
 
-void open_file(char *fname, Node **n) {
+void open_file(char *fname) {
     FILE *fp = fopen(fname, "r");
-    buffer_add_next(*n, read_lines(fp, fname, can_write(fname)));
-    parse_command("next", n);
+    open_buffer(read_lines(fp, fname, can_write(fname)));
 }
 
 // FIXME: make it check the directory if the files doesn't exist
@@ -115,3 +114,4 @@ bool can_write(char *fname) {
         // if stat fails and errno is not EACCES, can_write will be true
         return errno != EACCES;
 }
+

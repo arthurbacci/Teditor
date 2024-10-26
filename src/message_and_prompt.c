@@ -41,7 +41,7 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
             }
         }
 
-        display_menu(msg, hint, NULL);
+        display_menu(msg, hint);
 
         refresh();
 

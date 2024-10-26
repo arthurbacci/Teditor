@@ -39,9 +39,8 @@ int main(int argc, char **argv) {
 
 
 
-    Node *buf = NULL;
     if (argc < 2) {
-        buf = default_buffer();
+        open_buffer(default_buffer());
     } else {
         for (int i = 1; i < argc; i++) {
             char *filename = malloc(PATH_MAX + 1);
@@ -76,10 +75,7 @@ int main(int argc, char **argv) {
 
             FILE *fp = fopen(filename, "r");
             Buffer b = read_lines(fp, filename, can_write(filename));
-            if (i == 1)
-                buf = single_buffer(b);
-            else
-                buffer_add_prev(buf, b);
+            open_buffer(b);
         }
     }
 
@@ -102,20 +98,18 @@ int main(int argc, char **argv) {
         is_jmp_set = true;
 
         while (1) {
-            int len_line_number = calculate_len_line_number(buf->data);
+            int len_line_number = calculate_len_line_number(SEL_BUF);
 
-            calculate_scroll(&buf->data, COLS - len_line_number - 2);
+            calculate_scroll(&SEL_BUF, COLS - len_line_number - 2);
 
-            display_buffer(buf->data, len_line_number);
-            display_menu(menu_message, NULL, buf);
+            display_buffer(SEL_BUF, len_line_number);
+            display_menu(menu_message, NULL);
             refresh();
 
             int c = getch();
-            process_keypress(c, &buf);
+            process_keypress(c);
         }
     }
-
-    free_buffer_list(buf);
 
     endwin();
     return val - 1;

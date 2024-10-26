@@ -1,7 +1,7 @@
 #include "ted.h"
 
-void display_menu(const char *message, const char *shadow, const Node *n) {
-    const Buffer *buf = &n->data;
+void display_menu(const char *message, const char *shadow) {
+    const Buffer buf = SEL_BUF;
 
     int x, y;
     getyx(stdscr, y, x);
@@ -11,25 +11,22 @@ void display_menu(const char *message, const char *shadow, const Node *n) {
         addch(' ');
 
     move(LINES - 1, 0);
-    if (!*message && n) {
+    if (!*message) {
         printw(
             "%lu:%lu/%lu %s",
-            buf->cursor.y + 1,
-            buf->cursor.x_width,
-            buf->cursor.x_bytes,
-            buf->filename
+            buf.cursor.y + 1,
+            buf.cursor.x_width,
+            buf.cursor.x_bytes,
+            buf.filename
         );
 
         char b[500];
         int len = snprintf(
-            b, 500, "%s%s%s %s | %s<-%s->%s",
-            buf->modified ? "!" : ".",
-            buf->read_only ? "o" : "c",
-            buf->can_write ? "W" : "R",
-            buf->crlf ? "CRLF" : "LF",
-            n->prev->data.name,
-            buf->name,
-            n->next->data.name
+            b, 500, "%s%s%s %s",
+            buf.modified ? "!" : ".",
+            buf.read_only ? "o" : "c",
+            buf.can_write ? "W" : "R",
+            buf.crlf ? "CRLF" : "LF"
         );
 
         mvprintw(LINES - 1, COLS - len, "%s", b);
