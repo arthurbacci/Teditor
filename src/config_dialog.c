@@ -145,6 +145,9 @@ void config_dialog(Node **n) {
 
     char command[MSG_SZ];
     char *_command = prompt_hints("Enter command: ", "", base_hint, hints);
+    if (!_command)
+        return;
+
     strncpy(command, _command, MSG_SZ - 1);
     command[MSG_SZ - 1] = '\0';
     free(_command);
