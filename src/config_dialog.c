@@ -32,21 +32,21 @@ DEF_COMMAND(tabwidth, {
     if (words_len == 1) {
         int answer_int = atoi(words[0]);
         if (answer_int > 0 && answer_int < 256)
-            config.tab_width = answer_int;
+            SEL_BUF.tab_width = answer_int;
     }
 })
 DEF_COMMAND(indentsize, {
     if (words_len == 1) {
         int answer_int = atoi(words[0]);
         if (answer_int >= 0 && answer_int < 256)
-            config.indent_size = answer_int;
+            SEL_BUF.indent_size = answer_int;
     }
 })
 
 
 DEF_COMMAND(crlf, BOOL_SET(buf->crlf))
 
-DEF_COMMAND(autotab, BOOL_SET(config.autotab))
+DEF_COMMAND(autotab, BOOL_SET(SEL_BUF.autotab_on))
 
 DEF_COMMAND(save_as, {
     if (words_len == 1) {

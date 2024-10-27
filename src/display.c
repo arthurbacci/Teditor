@@ -106,7 +106,7 @@ void display_buffer(Buffer buf, int len_line_number) {
             if (1 == g.sz && '\t' == *g.dt) {
                 attron(A_REVERSE);
 
-                for (int k = 0; k < config.tab_width; k++)
+                for (int k = 0; k < SEL_BUF.tab_width; k++)
                     addch(' ');
             } else if (is_replacement_character(g) || (1 == g.sz && !isprint(*g.dt))) {
                 attron(A_REVERSE);

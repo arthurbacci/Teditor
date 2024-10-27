@@ -88,8 +88,8 @@ void process_keypress(int c) {
             savefile(buf);
         break;
     case '\t':
-        if (config.indent_size > 0) {
-            for (int i = 0; i < config.indent_size; i++)
+        if (SEL_BUF.indent_size > 0) {
+            for (int i = 0; i < SEL_BUF.indent_size; i++)
                 process_keypress(' ');
             return;
         } // else, it will pass though and be added to the buffer
@@ -245,7 +245,7 @@ void process_keypress(int c) {
             Line *current = &buf->lines[buf->cursor.y];
             Line *new = &buf->lines[buf->cursor.y + 1];
 
-            if (config.autotab) {
+            if (SEL_BUF.autotab_on) {
                 size_t ident_sz = get_ident_sz(current->data);
                 
                 expand_line(new, ident_sz);

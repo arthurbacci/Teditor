@@ -58,20 +58,6 @@ Line blank_line(void) {
     return ln;
 }
 
-char *bufn(int a) {
-    const char letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    char *s = malloc(100);
-    char *p = s;
-
-    do {
-        *(p++) = letters[a % sizeof(letters)];
-        a = a / sizeof(letters);
-    } while (a >= sizeof(letters));
-    *p = '\0';
-
-    return s;
-}
-
 size_t get_ident_sz(char *s) {
     size_t ident_sz;
     char c;
@@ -86,7 +72,7 @@ size_t get_ident_sz(char *s) {
 }
 
 bool is_whitespace(char c) {
-    return strchr(config.whitespace_chars, c) != NULL;
+    return strchr(WHITESPACE_CHARS, c) != NULL;
 }
 
 
@@ -143,7 +129,7 @@ int process_as_bool(const char *s) {
     return tolower(*s) == 't';
 }
 
-int invoke_editorconfig(const char *prop) {
+int invoke_editorconfig(const char *prop, const char *filename) {
     char *program_path = home_path(".local/share/ted/ted_editorconfig");
 
     int status;
@@ -153,7 +139,7 @@ int invoke_editorconfig(const char *prop) {
         case -1:
             return 127;
         case 0:
-            execl(program_path, "ted_editorconfig", prop, SEL_BUF.filename, (char *) NULL);
+            execl(program_path, "ted_editorconfig", prop, filename, (char *) NULL);
             _exit(127);
         default:
             if (waitpid(child, &status, 0) == -1)
@@ -165,17 +151,17 @@ int invoke_editorconfig(const char *prop) {
     return WEXITSTATUS(status);
 }
 
-void configure_editorconfig(void) {
-    bool use_tabs = invoke_editorconfig("indent_style") == 1;
-    int indent_size = invoke_editorconfig("indent_size");
-    int tab_width = invoke_editorconfig("tab_width");
+void configure_editorconfig(Buffer *b) {
+    bool use_tabs = 1 == invoke_editorconfig("indent_style", b->filename);
+    int indent_size = invoke_editorconfig("indent_size", b->filename);
+    int tab_width = invoke_editorconfig("tab_width", b->filename);
 
     if (indent_size < 100)
-        config.indent_size = indent_size;
+        b->indent_size = indent_size;
     if (tab_width < 100)
-        config.tab_width = tab_width;
+        b->tab_width = tab_width;
     if (use_tabs)
-        config.indent_size = 0;
+        b->indent_size = 0;
 }
 
 

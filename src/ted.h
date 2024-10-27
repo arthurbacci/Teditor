@@ -92,16 +92,22 @@ typedef struct {
 } TextScroll;
 
 typedef struct {
+    Cursor cursor;
+    TextScroll scroll;
+
+    Line *lines;
+    size_t num_lines;
+
+    char *filename;
+
     bool modified;
     bool read_only;
     bool can_write;
     bool crlf;
-    Line *lines;
-    size_t num_lines;
-    Cursor cursor;
-    TextScroll scroll;
-    char *name;
-    char *filename;
+
+    bool autotab_on;
+    uint8_t indent_size;
+    uint8_t tab_width;
 } Buffer;
 
 typedef struct {
@@ -109,14 +115,6 @@ typedef struct {
     size_t len;
     size_t selected;
 } BufferList;
-
-typedef struct {
-    char *whitespace_chars;
-    // Set to `0` for indenting with tabs
-    unsigned short indent_size;
-    unsigned short tab_width;
-    bool autotab;
-} GlobalCfg;
 
 typedef struct {
     const char *command;
@@ -163,8 +161,8 @@ char *log_file_path();
 char *strdup(const char *s);
 int process_as_bool(const char *s);
 void ensure_data_dir(void);
-int invoke_editorconfig(const char *prop);
-void configure_editorconfig(void);
+int invoke_editorconfig(const char *prop, const char *filename);
+void configure_editorconfig(Buffer *b);
 
 // modify.c
 bool modify(Buffer *buf);
@@ -194,7 +192,6 @@ bool is_replacement_character(Grapheme g);
 Grapheme replacement_character(void);
 
 
-extern GlobalCfg config;
 extern char *menu_message;
 extern bool is_jmp_set;
 extern jmp_buf end;

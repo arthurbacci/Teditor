@@ -35,23 +35,22 @@ void savefile(Buffer *buf) {
 }
 
 Buffer read_lines(FILE *fp, char *filename, bool can_write) {
-    static int buffer_count = -1;
-    buffer_count++;
-
-
     Buffer b = {
-        false,              // Modified
-        !can_write,         // read-only
-        can_write,          // data can be written to the buffer
-        false,              // true if CRLF false if LF
-        NULL,               // lines
-        1,                  // number of lines
-        {0, 0, 0, 0},       // Cursor (lx_width, x_width, x_bytes, y)
-        {0, 0},             // Scroll (x, y)
-        bufn(buffer_count), // Buffer Name
+        {0, 0, 0, 0}, // Cursor
+        {0, 0},       // Scroll
+        NULL,
+        1,
         filename,
+        false,      // Modified
+        !can_write, // Read-only
+        can_write,  // Can-write
+        false,      // CRFL buffer (if a carriage return is detected this is set)
+        DEFAULT_AUTOTAB,
+        DEFAULT_INDENT_SIZE,
+        DEFAULT_TAB_WIDTH
     };
-
+    
+    configure_editorconfig(&b);
 
     if (!fp) {
         message("New file");

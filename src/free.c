@@ -6,6 +6,5 @@ void free_buffer(Buffer *buf) {
     }
     free(buf->lines);
     free(buf->filename);
-    free(buf->name);
 }
 

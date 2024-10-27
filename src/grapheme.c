@@ -52,7 +52,7 @@ size_t grapheme_width(Grapheme g) {
     // - https://www.unicode.org/reports/tr51/
 
     if (1 == g.sz && '\t' == *g.dt)
-        return config.tab_width;
+        return SEL_BUF.tab_width;
     if (is_replacement_character(g) || (1 == g.sz && !isprint(*g.dt)))
         return 1;
 
