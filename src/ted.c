@@ -12,12 +12,8 @@ bool is_jmp_set = false;
 jmp_buf end;
 
 int main(int argc, char **argv) {
-    if (!isatty(STDIN_FILENO)) {
-        // TODO: read pipe contents to buffer before closing it
-        close(STDIN_FILENO);
-        if (STDIN_FILENO != open("/dev/tty", O_RDONLY))
-            die("didn't open as stdin");
-    }
+    if (!isatty(STDOUT_FILENO) || !isatty(STDIN_FILENO))
+        die("This editor doesn't support pipes");
 
     if (isatty(STDERR_FILENO)) {
         char *filename = log_file_path();
