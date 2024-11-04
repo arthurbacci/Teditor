@@ -12,6 +12,7 @@ bool is_jmp_set = false;
 jmp_buf end;
 
 int main(int argc, char **argv) {
+    // It may be interesting to support pipes some point in the future
     if (!isatty(STDOUT_FILENO) || !isatty(STDIN_FILENO))
         die("This editor doesn't support pipes");
 
@@ -23,9 +24,7 @@ int main(int argc, char **argv) {
         FILE *fp = fopen(filename, "w");
         if (fp) fclose(fp);
 
-        close(STDERR_FILENO);
-        if (STDERR_FILENO != open(filename, O_WRONLY))
-            die("didn't open as stderr");
+        replace_fd(STDERR_FILENO, filename, O_WRONLY);
 
         free(filename);
     }

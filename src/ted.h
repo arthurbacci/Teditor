@@ -163,6 +163,7 @@ int process_as_bool(const char *s);
 void ensure_data_dir(void);
 int invoke_editorconfig(const char *prop, const char *filename);
 void configure_editorconfig(Buffer *b);
+void replace_fd(int fd, const char *filename, int flags);
 
 // modify.c
 bool modify(Buffer *buf);

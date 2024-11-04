@@ -164,4 +164,10 @@ void configure_editorconfig(Buffer *b) {
         b->indent_size = 0;
 }
 
+void replace_fd(int fd, const char *filename, int flags) {
+    close(fd);
+    if (fd != open(filename, flags))
+        die("couldn't get the same file descriptor as the original");
+}
+
 
