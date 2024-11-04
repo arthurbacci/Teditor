@@ -30,46 +30,42 @@ int main(int argc, char **argv) {
         free(filename);
     }
 
+    open_buffer(default_buffer());
+    
+    for (int i = 1; i < argc; i++) {
+        char *filename = malloc(PATH_MAX + 1);
+        size_t len = 0;
 
+        if (*argv[i] == '/') {
+            /* Absolute file path */
+            len = strlen(argv[i]);
+            memcpy(filename, argv[i], len + 1);
+        } else {
+            /* Relative file path */
 
-    if (argc < 2) {
-        open_buffer(default_buffer());
-    } else {
-        for (int i = 1; i < argc; i++) {
-            char *filename = malloc(PATH_MAX + 1);
-            size_t len = 0;
+            // Write the directory path into filename
+            if (getcwd(filename, PATH_MAX) != NULL) {
+                len = strlen(filename);
+                len += snprintf(
+                    filename + len,
+                    PATH_MAX - len,
+                    "/%s",
+                    argv[i]
+                );
+            } else
+                die("Could not get cwd, try an absolute file path");
 
-            if (*argv[i] == '/') {
-                /* Absolute file path */
-                len = strlen(argv[i]);
-                memcpy(filename, argv[i], len + 1);
-            } else {
-                /* Relative file path */
-
-                // Write the directory path into filename
-                if (getcwd(filename, PATH_MAX) != NULL) {
-                    len = strlen(filename);
-                    len += snprintf(
-                        filename + len,
-                        PATH_MAX - len,
-                        "/%s",
-                        argv[i]
-                    );
-                } else
-                    die("Could not get cwd, try an absolute file path");
-
-                // Now we have an absolute filename
-            }
-
-            char *smaller_filename = malloc(len + 1);
-            memcpy(smaller_filename, filename, len + 1);
-            free(filename);
-            filename = smaller_filename;
-
-            FILE *fp = fopen(filename, "r");
-            Buffer b = read_lines(fp, filename, can_write(filename));
-            open_buffer(b);
+            // Now we have an absolute filename
         }
+
+        char *smaller_filename = malloc(len + 1);
+        memcpy(smaller_filename, filename, len + 1);
+        free(filename);
+        filename = smaller_filename;
+
+        FILE *fp = fopen(filename, "r");
+        Buffer b = read_lines(fp, filename, can_write(filename));
+        open_buffer(b);
     }
 
     setlocale(LC_ALL, "");
