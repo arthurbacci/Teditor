@@ -100,6 +100,6 @@ int main(int argc, char **argv) {
     }
 
     endwin();
-    return val - 1;
+    return val != 1;
 }
 

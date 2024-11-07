@@ -3,6 +3,7 @@
 
 #define _POSIX_C_SOURCE 1
 #define _XOPEN_SOURCE
+#define _XOPEN_SOURCE_EXTENDED
 
 #include <ncurses.h>
 #include <stdio.h>
@@ -23,6 +24,7 @@
 #include <limits.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <time.h>
 
 // suckless' libgrapheme
 #include <grapheme.h>
@@ -191,6 +193,10 @@ ssize_t index_by_width_after(size_t _wi, char **s);
 size_t index_by_width(size_t wi, char **s);
 bool is_replacement_character(Grapheme g);
 Grapheme replacement_character(void);
+
+
+// uuid.c
+void uuid_version4(char uuid[37]);
 
 
 extern char *menu_message;
