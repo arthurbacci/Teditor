@@ -11,3 +11,4 @@
 // Name for the subdirectories of the XDG config, data, state and cache dirs
 #define TED_DIRECTORY_NAME "ted"
 
+#define TED_EDITORCONFIG_PLUGIN_NAME "ted_editorconfig"

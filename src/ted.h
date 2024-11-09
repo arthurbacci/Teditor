@@ -153,7 +153,6 @@ void process_keypress(int c);
 
 // utils.c
 void die(const char *s);
-char *home_path(const char *path);
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
 int calculate_len_line_number(Buffer buf);
 Line blank_line(void);

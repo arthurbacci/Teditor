@@ -8,13 +8,6 @@ void die(const char *s) {
         exit(2);
 }
 
-char *home_path(const char *path) {
-    char *ret = malloc(1000 * sizeof *ret);
-    snprintf(ret, 1000, "%s/%s", getenv("HOME"), path);
-    return ret;
-}
-
-
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]) {
     for (; *s == ' '; s++);
 
@@ -114,7 +107,10 @@ int process_as_bool(const char *s) {
 }
 
 int invoke_editorconfig(const char *prop, const char *filename) {
-    char *program_path = home_path(".local/share/ted/ted_editorconfig");
+    // TODO: Store those paths somewhere global and clear them when the program ends
+    char *ted_data_home = get_ted_data_home();
+    char *program_path = printdup("%s/" TED_EDITORCONFIG_PLUGIN_NAME, ted_data_home);
+    free(ted_data_home);
 
     int status;
     pid_t child;
@@ -123,7 +119,7 @@ int invoke_editorconfig(const char *prop, const char *filename) {
         case -1:
             return 127;
         case 0:
-            execl(program_path, "ted_editorconfig", prop, filename, (char *) NULL);
+            execl(program_path, TED_EDITORCONFIG_PLUGIN_NAME, prop, filename, (char *) NULL);
             _exit(127);
         default:
             if (waitpid(child, &status, 0) == -1)
