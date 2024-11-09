@@ -90,13 +90,6 @@ void ensure_ted_dirs(void) {
     }
 }
 
-char *strdup(const char *s) {
-    size_t len = strlen(s);
-    char *r = malloc(len + 1);
-    memcpy(r, s, len + 1);
-    return r;
-}
-
 int process_as_bool(const char *s) {
     size_t len = strlen(s);
     

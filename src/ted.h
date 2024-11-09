@@ -160,7 +160,6 @@ Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
 bool is_whitespace(char c);
-char *strdup(const char *s);
 int process_as_bool(const char *s);
 void ensure_ted_dirs(void);
 int invoke_editorconfig(const char *prop, const char *filename);

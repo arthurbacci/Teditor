@@ -1,5 +1,6 @@
 #include "ted.h"
 
+// TODO: remove this function
 char *prompt(const char *msgtmp, char *def) {
     return prompt_hints(msgtmp, def, NULL, NULL);
 }
@@ -57,7 +58,7 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
             case ctrl('c'):
                 return NULL;
             case '\n':
-                return strdup(b);
+                return printdup("%s", b);
             default:
                 if (c != ERR) {
                     if (blen + 1 < bcap) {
