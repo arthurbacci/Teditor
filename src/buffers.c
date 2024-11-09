@@ -3,9 +3,7 @@
 BufferList buffer_list = {0};
 
 Buffer default_buffer() {
-    ensure_data_dir();
-
-    char *filename = home_path(".local/state/ted/buffer");
+    char *filename = printdup("%s/buffer", get_ted_data_home());
 
     FILE *fp = fopen(filename, "r");
     return read_lines(fp, filename, can_write(filename));

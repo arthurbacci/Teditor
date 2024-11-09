@@ -75,28 +75,19 @@ bool is_whitespace(char c) {
     return strchr(WHITESPACE_CHARS, c) != NULL;
 }
 
-
-void ensure_data_dir(void) {
-    struct stat st = {0};
-
-    // TODO: support $XDG_DATA_DIR
-    char *data_dir = home_path(".local/state/");
-    if (-1 == stat(data_dir, &st))
-        mkdir(data_dir, 0770);
-
-    free(data_dir);
-
-    char *data_ted_dir = home_path(".local/state/ted/");
-    if (-1 == stat(data_ted_dir, &st))
-        mkdir(data_ted_dir, 0770);
-
-    free(data_ted_dir);
-}
-
-
-char *log_file_path() {
-    ensure_data_dir();
-    return home_path(".local/state/ted/log");
+void ensure_ted_dirs(void) {
+    char *ted_dirs[] = {get_ted_data_home(), get_ted_config_home(), get_ted_state_home(),
+                        get_ted_cache_home()};
+    
+    for (int i = 0; i < (sizeof(ted_dirs) / sizeof(char *)); i++) {
+        struct stat st = {0};
+        
+        if (-1 == stat(ted_dirs[i], &st))
+            if (-1 == mkdir(ted_dirs[i], 0770))
+                die("Couldn't create ted directories");
+        
+        free(ted_dirs[i]);
+    }
 }
 
 char *strdup(const char *s) {
@@ -170,4 +161,24 @@ void replace_fd(int fd, const char *filename, int flags) {
         die("couldn't get the same file descriptor as the original");
 }
 
+char *printdup(const char *format, ...) {
+    va_list va1, va2;
+    char *ret = NULL;
+    
+    va_start(va1, format);
+    va_copy(va2, va1);
+    
+    int len = vsnprintf(NULL, 0, format, va1);
+    if (len <= 0) goto END;
+    
+    ret = malloc(len + 1);
+    if (0 >= vsnprintf(ret, len + 1, format, va2))
+        ret = NULL;
+    
+END:
+    va_end(va1);
+    va_end(va2);
+    
+    return ret;
+}
 

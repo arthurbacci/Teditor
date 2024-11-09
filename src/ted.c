@@ -12,12 +12,14 @@ bool is_jmp_set = false;
 jmp_buf end;
 
 int main(int argc, char **argv) {
+    ensure_ted_dirs();
+
     // It may be interesting to support pipes some point in the future
     if (!isatty(STDOUT_FILENO) || !isatty(STDIN_FILENO))
         die("This editor doesn't support pipes");
 
     if (isatty(STDERR_FILENO)) {
-        char *filename = log_file_path();
+        /*char *filename = log_file_path();
 
         // Create file if it doesn't exist (creat() gives it some strange
         // permissions)
@@ -26,7 +28,7 @@ int main(int argc, char **argv) {
 
         replace_fd(STDERR_FILENO, filename, O_WRONLY);
 
-        free(filename);
+        free(filename);*/
     }
 
     open_buffer(default_buffer());

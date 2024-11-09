@@ -25,6 +25,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <time.h>
+#include <stdarg.h>
 
 // suckless' libgrapheme
 #include <grapheme.h>
@@ -159,13 +160,13 @@ Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
 bool is_whitespace(char c);
-char *log_file_path();
 char *strdup(const char *s);
 int process_as_bool(const char *s);
-void ensure_data_dir(void);
+void ensure_ted_dirs(void);
 int invoke_editorconfig(const char *prop, const char *filename);
 void configure_editorconfig(Buffer *b);
 void replace_fd(int fd, const char *filename, int flags);
+char *printdup(const char *format, ...);
 
 // modify.c
 bool modify(Buffer *buf);
@@ -194,9 +195,14 @@ size_t index_by_width(size_t wi, char **s);
 bool is_replacement_character(Grapheme g);
 Grapheme replacement_character(void);
 
-
 // uuid.c
 void uuid_version4(char uuid[37]);
+
+// xdg.c
+char *get_ted_data_home();
+char *get_ted_config_home();
+char *get_ted_state_home();
+char *get_ted_cache_home();
 
 
 extern char *menu_message;

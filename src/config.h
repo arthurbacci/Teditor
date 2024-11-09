@@ -8,5 +8,6 @@
 // WHETHER TO AUTOMATICALLY MAINTAIN THE SAME INDENTATION LEVEL OR NOT
 #define DEFAULT_AUTOTAB true
 
-
+// Name for the subdirectories of the XDG config, data, state and cache dirs
+#define TED_DIRECTORY_NAME "ted"
 
