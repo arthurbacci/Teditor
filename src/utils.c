@@ -2,10 +2,7 @@
 
 void die(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
-    if (is_jmp_set)
-        longjmp(end, TED_LONGJMP_DIE);
-    else
-        exit(2);
+    TED_CALL_LONGJMP(TED_LONGJMP_DIE);
 }
 
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]) {
@@ -24,19 +21,6 @@ size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]) {
         s = n;
     }
 
-    return i;
-}
-
-
-int calculate_len_line_number(Buffer buf) {
-    // + 1 because lines numbers start with 1, not 0
-    int num = buf.num_lines + 1;
-    int i = 1;
-
-    do {
-        num /= 10;// base 10
-        ++i;
-    } while (num);
     return i;
 }
 

@@ -61,6 +61,9 @@
 
 #define TED_LONGJMP_DIE 2
 #define TED_LONGJMP_USER_EXIT 1
+#define TED_CALL_LONGJMP(x) { \
+    if (is_jmp_set) longjmp(end, (x)); \
+    else exit((x) - 1); }
 
 #define PRETEND_TO_USE(x) (void)(x)
 
@@ -154,7 +157,6 @@ void process_keypress(int c);
 // utils.c
 void die(const char *s);
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
-int calculate_len_line_number(Buffer buf);
 Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);

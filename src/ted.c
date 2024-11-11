@@ -88,8 +88,8 @@ int main(int argc, char **argv) {
         is_jmp_set = true;
 
         while (1) {
-            int len_line_number = calculate_len_line_number(SEL_BUF);
-
+            int len_line_number = snprintf(NULL, 0, "%lu", SEL_BUF.num_lines);
+        
             calculate_scroll(&SEL_BUF, COLS - len_line_number - 2);
 
             display_buffer(SEL_BUF, len_line_number);

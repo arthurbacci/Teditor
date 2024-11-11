@@ -19,12 +19,8 @@ void open_buffer(Buffer b) {
 }
 
 void buffer_close(void) {
-    if (buffer_list.len == 1) {
-        if (is_jmp_set)
-            longjmp(end, TED_LONGJMP_USER_EXIT);
-        else
-            exit(EXIT_SUCCESS);
-    }
+    if (buffer_list.len == 1)
+        TED_CALL_LONGJMP(TED_LONGJMP_USER_EXIT);
 
     buffer_list.len--;
 
