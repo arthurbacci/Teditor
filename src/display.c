@@ -103,28 +103,39 @@ void display_buffer(Buffer buf, int len_line_number) {
 
             // CAUTION: if anything is changed here be sure to make grapheme
             // _width follow along
-            if (1 == g.sz && '\t' == *g.dt) {
-                attron(A_REVERSE);
-
-                for (int k = 0; k < SEL_BUF.tab_width; k++)
-                    addch(' ');
-            } else if (is_replacement_character(g) || (1 == g.sz && !isprint(*g.dt))) {
-                attron(A_REVERSE);
-                addch('X');
-            } else {
-                printw("%.*s", (int)g.sz, g.dt);
+            switch (get_grapheme_type(g)) {
+                case TABULATION: {
+                    attron(A_REVERSE);
+                    for (int k = 0; k < SEL_BUF.tab_width; k++)
+                        addch(' ');
+                }
+                case CONTROL_CHAR: {
+                    char d = *g.dt ^ 0100;
+                    attron(A_REVERSE);
+                    switch (d) {
+                        case '\\': printw("FS"); break;
+                        case ']' : printw("GS"); break;
+                        case '^' : printw("RS"); break;
+                        case '_' : printw("US"); break;
+                        default: printw("^%c", d);
+                    }
+                }
+                case INVALID_UNICODE: {
+                    //attron(A_REVERSE);
+                    //addch('X');
+                }
+                case DISPLAYABLE_CHAR: {
+                    printw("%.*s", (int)g.sz, g.dt);
+                }
             }
             size += grapheme_width(g);
-
-
+            
             attroff(A_REVERSE);
         }
 
         while (size < screen_sz) {
-            if (i == buf.cursor.y
-            && buf.scroll.x_width + size == buf.cursor.x_width) {
+            if (i == buf.cursor.y && buf.scroll.x_width + size == buf.cursor.x_width)
                 attron(A_REVERSE);
-            }
 
             addch(' ');
             attroff(A_REVERSE);

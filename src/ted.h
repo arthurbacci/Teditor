@@ -127,6 +127,13 @@ typedef struct {
     const char *hint;
 } Hints;
 
+typedef enum {
+    DISPLAYABLE_CHAR,
+    TABULATION,
+    INVALID_UNICODE,
+    CONTROL_CHAR
+} GraphemeType;
+
 
 // message_and_prompt.c
 char *prompt(const char *msgtmp, char *def);
@@ -194,6 +201,7 @@ ssize_t index_by_width_after(size_t _wi, char **s);
 size_t index_by_width(size_t wi, char **s);
 bool is_replacement_character(Grapheme g);
 Grapheme replacement_character(void);
+GraphemeType get_grapheme_type(Grapheme g);
 
 // uuid.c
 void uuid_version4(char uuid[37]);

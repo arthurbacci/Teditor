@@ -51,21 +51,24 @@ size_t grapheme_width(Grapheme g) {
     // Resources that may be useful:
     // - https://www.unicode.org/reports/tr51/
 
-    if (1 == g.sz && '\t' == *g.dt)
-        return SEL_BUF.tab_width;
-    if (is_replacement_character(g) || (1 == g.sz && !isprint(*g.dt)))
-        return 1;
+    switch (get_grapheme_type(g)) {
+        case TABULATION: return SEL_BUF.tab_width;
+        case CONTROL_CHAR: return 2;
+        case INVALID_UNICODE: return 1;
+        case DISPLAYABLE_CHAR: {
+            for (size_t off = 0; off < g.sz; ) {
+                uint_least32_t cp;
 
-    for (size_t off = 0; off < g.sz; ) {
-        uint_least32_t cp;
+                off += grapheme_decode_utf8(g.dt + off, g.sz - off, &cp);
+                // In case of an error
+                if (off > g.sz) break;
 
-        off += grapheme_decode_utf8(g.dt + off, g.sz - off, &cp);
-        // In case of an error
-        if (off > g.sz) break;
-
-        if (is_codepoint_fullwidth(cp)) return 2;
+                if (is_codepoint_fullwidth(cp)) return 2;
+            }
+            return 1;
+        }
     }
-    return 1;
+    return 0;
 }
 
 size_t wi_to_gi(size_t si, char *s) {
@@ -103,7 +106,7 @@ ssize_t index_by_width_after(size_t _wi, char **s) {
             return -wi;
 
         Grapheme g = get_next_grapheme(s, SIZE_MAX);
-
+        
         if (g.sz <= 0)
             return -wi;
 
@@ -138,4 +141,10 @@ Grapheme replacement_character(void) {
     return g;
 }
 
+GraphemeType get_grapheme_type(Grapheme g) {
+    if (1 == g.sz && '\t' == *g.dt) return TABULATION;
+    if (1 == g.sz && !isprint(*g.dt)) return CONTROL_CHAR;
+    if (is_replacement_character(g)) return INVALID_UNICODE;
+    return DISPLAYABLE_CHAR;
+}
 
