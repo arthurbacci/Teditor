@@ -1,51 +1,21 @@
-# Archival
-
-Code is bad and needs a complete rewrite in order to work properly. The editor however has no distinctive features, therefore i don't think there's any reason at all to rewrite it. Please don't use this to work with any important files.
-
 # Teditor
+
 ## A simple text/code editor
 
-<image src="teditor.gif">
+A simple text and code editor, based on ncurses and libgrapheme, and under 2000 LoC.
 
-A simple text and code editor with (partial) UTF-8 support made using ncurses
+## Compiling
 
-## Installing
-
-### Manual installation
-
-Go to your programs directory and do: 
-
-```sh
-git clone https://github.com/ArthurBacci64/Teditor.git
-cd Teditor
-sudo make PREFIX=/usr install
-```
-
-Installed.
-
-If you want to install locally, do `make PREFIX=~/.local install` instead of `sudo make install`.
-
-## Uninstalling
-
-Just do:
-
-```sh
-rm ~/.config/ted -rf
-sudo rm $(which ted) -rf
-```
-
-If you installed locally, you do not need to use `sudo`.
+Install suckless' `libgrapheme` on your computer, then compile `ted` with
+`make`.
 
 ## Help
 
-Press `Ctrl-G`, type `manual`, press `ENTER` and press `ENTER` again.
+Please open an issue if you have any problems, questions or suggestions.
 
 ## Contributing
 
-Please open a Issue if you found some bug or if you have a suggestion or a question.
+Pull requests are welcome, but if they have any considerable additions please
+open a PR Draft explaining what you pretend to add so that you don't waste any time
+working on a feature that may not get merged.
 
-## Goals
-
-- [ ] Implement grapheme clusters and replace the wchar code points. Also try to make it use a normal `char` buffer.
-- [ ] Fix the bad code and try to make it stable enough for real usage
-- [ ] Fix all current issues

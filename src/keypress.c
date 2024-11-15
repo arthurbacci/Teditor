@@ -11,21 +11,21 @@ void expand_line(Line *ln, size_t x) {
 }
 
 
-bool process_keypress(int c, Node **n) {
-    Buffer *buf = &(*n)->data;
+void process_keypress(int c) {
+    Buffer *buf = &SEL_BUF;
 
     if (c == ERR)
-        return false;
+        return;
 
     message("");
 
     switch (c) {
     case ctrl('c'):
-        return parse_command("close", n);
+        parse_command("close");
     case ctrl('z'):
-        return parse_command("prev", n);
+        parse_command("prev");
     case ctrl('x'):
-        return parse_command("next", n);
+        parse_command("next");
     case KEY_UP:
     case ctrl('p'):
         // Decrements `y` if it is greater than 0
@@ -88,22 +88,19 @@ bool process_keypress(int c, Node **n) {
             savefile(buf);
         break;
     case '\t':
-        if (config.use_spaces == 1) {
-            for (int i = 0; i < config.tablen; i++)
-                process_keypress(' ', n);
-            return false;
+        if (SEL_BUF.indent_size > 0) {
+            for (int i = 0; i < SEL_BUF.indent_size; i++)
+                process_keypress(' ');
+            return;
         } // else, it will pass though and be added to the buffer
         break;
     case ctrl('g'):
-        if (config_dialog(n))
-            return true;
+        config_dialog();
         break;
     case ctrl('q'):
-        if (parse_command(
-            buf->read_only ? "read-only 0" : "read-only 1",
-            n
-        ))
-            return true;
+        parse_command(
+            buf->read_only ? "read-only 0" : "read-only 1"
+        );
         break;
     case KEY_PPAGE: {
         size_t dec = SROW + buf->cursor.y % SROW;
@@ -134,23 +131,23 @@ bool process_keypress(int c, Node **n) {
         Line *ln = &buf->lines[buf->cursor.y];
 
         while (buf->cursor.x_bytes > 0) {
-            process_keypress(KEY_LEFT, n);
+            process_keypress(KEY_LEFT);
             bool w = is_whitespace(ln->data[buf->cursor.x_bytes]);
-            process_keypress(KEY_RIGHT, n);
+            process_keypress(KEY_RIGHT);
             if (w)
                 break;
 
-            process_keypress(KEY_BACKSPACE, n);
+            process_keypress(KEY_BACKSPACE);
         }
         
         while (buf->cursor.x_bytes > 0) {
-            process_keypress(KEY_LEFT, n);
+            process_keypress(KEY_LEFT);
             bool w = is_whitespace(ln->data[buf->cursor.x_bytes]);
-            process_keypress(KEY_RIGHT, n);
+            process_keypress(KEY_RIGHT);
             if (!w)
                 break;
 
-            process_keypress(KEY_BACKSPACE, n);
+            process_keypress(KEY_BACKSPACE);
         }
 
         break;
@@ -158,7 +155,7 @@ bool process_keypress(int c, Node **n) {
     case ctrl('o'): {
         char *d = prompt("open: ", buf->filename);
         if (d)
-            open_file(d, n);
+            open_file(d);
         break;
     }
     case CTRL_KEY_LEFT:
@@ -168,11 +165,11 @@ bool process_keypress(int c, Node **n) {
         while (
             buf->cursor.x_bytes > 0 && !is_whitespace(s[buf->cursor.x_bytes])
         ) {
-            process_keypress(KEY_LEFT, n);
+            process_keypress(KEY_LEFT);
         }
         
         while (buf->cursor.x_bytes > 0 && is_whitespace(s[buf->cursor.x_bytes]))
-            process_keypress(KEY_LEFT, n);
+            process_keypress(KEY_LEFT);
 
         break;
     }
@@ -184,14 +181,14 @@ bool process_keypress(int c, Node **n) {
             buf->cursor.x_bytes < ln.length
             && !is_whitespace(ln.data[buf->cursor.x_bytes])
         ) {
-            process_keypress(KEY_RIGHT, n);
+            process_keypress(KEY_RIGHT);
         }
 
         while (
             buf->cursor.x_bytes < ln.length
             && is_whitespace(ln.data[buf->cursor.x_bytes])
         ) {
-            process_keypress(KEY_RIGHT, n);
+            process_keypress(KEY_RIGHT);
         }
 
         break;
@@ -199,7 +196,7 @@ bool process_keypress(int c, Node **n) {
     case KEY_BACKSPACE: case KEY_DC: case 127: {
         if (modify(buf)) {
             if (buf->cursor.x_bytes > 0) {
-                process_keypress(KEY_LEFT, n);
+                process_keypress(KEY_LEFT);
                 remove_char(buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
             } else if (buf->cursor.y > 0) {
                 Line del_line = buf->lines[buf->cursor.y];
@@ -248,7 +245,7 @@ bool process_keypress(int c, Node **n) {
             Line *current = &buf->lines[buf->cursor.y];
             Line *new = &buf->lines[buf->cursor.y + 1];
 
-            if (config.autotab) {
+            if (SEL_BUF.autotab_on) {
                 size_t ident_sz = get_ident_sz(current->data);
                 
                 expand_line(new, ident_sz);
@@ -293,19 +290,16 @@ bool process_keypress(int c, Node **n) {
     uint32_t codepoint;
     size_t r = grapheme_decode_utf8(cc, 1, &codepoint);
 
-    if (GRAPHEME_INVALID_CODEPOINT == codepoint || r != 1) {
-        if (r > 1) {
-            for (size_t i = 1; i < r; i++)
-                cc[i] = getch();
+    if (r > 1) {
+        for (size_t i = 1; i < r; i++)
+            cc[i] = getch();
 
-            size_t newr = grapheme_decode_utf8(cc, r, &codepoint);
-            if (GRAPHEME_INVALID_CODEPOINT == codepoint || newr != r)
-                return false;
-        } else {
-            // TODO: maybe I can print a message?
-            return false;
-        }
+        grapheme_decode_utf8(cc, r, &codepoint);
     }
+
+    if (GRAPHEME_INVALID_CODEPOINT == codepoint)
+        // TODO: maybe I can print a message?
+        return;
 
 
     if (r > 1 || isprint(c) || '\t' == c) {
@@ -313,11 +307,11 @@ bool process_keypress(int c, Node **n) {
             Grapheme g = {r, cc};
 
             add_char(g, buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
-            process_keypress(KEY_RIGHT, n);
+            process_keypress(KEY_RIGHT);
         }
     }
     
 
-    return false;
+    return;
 }
 

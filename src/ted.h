@@ -3,6 +3,7 @@
 
 #define _POSIX_C_SOURCE 1
 #define _XOPEN_SOURCE
+#define _XOPEN_SOURCE_EXTENDED
 
 #include <ncurses.h>
 #include <stdio.h>
@@ -21,7 +22,10 @@
 #include <unistd.h>
 #include <setjmp.h>
 #include <limits.h>
-#include <wchar.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <time.h>
+#include <stdarg.h>
 
 // suckless' libgrapheme
 #include <grapheme.h>
@@ -42,12 +46,30 @@
 #define IN_RANGE(x, min, max)  ((x) >= (min)) && ((x) <= (max))
 #define OUT_RANGE(x, min, max) ((x) < (min)) || ((x) > (max))
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 // timeout for input in ncurses (in milliseconds)
 #define INPUT_TIMEOUT 5
 
 #define USE(x) (void)(x)
 
 #define MSG_SZ 512
+
+#define CMD_WORD_SZ 128
+#define CMD_ARR_SZ 30
+
+#define TED_LONGJMP_DIE 2
+#define TED_LONGJMP_USER_EXIT 1
+#define TED_CALL_LONGJMP(x) { \
+    if (is_jmp_set) longjmp(end, (x)); \
+    else exit((x) - 1); }
+
+#define PRETEND_TO_USE(x) (void)(x)
+
+#define NUM_BUFFERS 16
+
+#define SEL_BUF (buffer_list.bufs[buffer_list.selected])
 
 /*--*--TYPES--*--*/
 
@@ -76,35 +98,41 @@ typedef struct {
 } TextScroll;
 
 typedef struct {
+    Cursor cursor;
+    TextScroll scroll;
+
+    Line *lines;
+    size_t num_lines;
+
+    char *filename;
+
     bool modified;
     bool read_only;
     bool can_write;
-    bool crlf; // 0: LF  1: CRLF
-    Line *lines;
-    size_t num_lines;
-    Cursor cursor;
-    TextScroll scroll;
-    char *name;
-    char *filename;
+    bool crlf;
+
+    bool autotab_on;
+    uint8_t indent_size;
+    uint8_t tab_width;
 } Buffer;
 
 typedef struct {
-    unsigned int tablen;
-    bool use_spaces;
-    bool autotab;
-    char *whitespace_chars;
-} GlobalCfg;
+    Buffer bufs[NUM_BUFFERS];
+    size_t len;
+    size_t selected;
+} BufferList;
 
 typedef struct {
     const char *command;
     const char *hint;
 } Hints;
 
-typedef struct Node {
-    Buffer data;
-    struct Node *next;
-    struct Node *prev;
-} Node;
+typedef enum {
+    DISPLAYABLE_CHAR,
+    TABULATION,
+    INVALID_UNICODE,
+    CONTROL_CHAR
+} GraphemeType;
 
 
 // message_and_prompt.c
@@ -113,18 +141,17 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
 void message(char *msg);
 
 // config_dialog.c
-bool config_dialog(Node **n);
-int run_command(char **words, int words_len, Node **n);
-bool parse_command(char *command, Node **n);
+void config_dialog(void);
+void parse_command(char *command);
 
 // open_and_save.c
 void savefile(Buffer *buf);
 Buffer read_lines(FILE *fp, char *filename, bool read_only);
-void open_file(char *fname, Node **n);
+void open_file(char *fname);
 bool can_write(char *fname);
 
 // display.c
-void display_menu(const char *message, const char *shadow, const Node *n);
+void display_menu(const char *message, const char *shadow);
 void display_buffer(Buffer buf, int len_line_number);
 
 // free.c
@@ -132,17 +159,21 @@ void free_buffer(Buffer *buf);
 
 // keypress.c
 void expand_line(Line *ln, size_t x);
-bool process_keypress(int c, Node **n);
+void process_keypress(int c);
 
 // utils.c
 void die(const char *s);
-char *home_path(const char *path);
-char **split_str(const char *str, int *num_str);
-int calculate_len_line_number(Buffer buf);
+size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
 Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
 bool is_whitespace(char c);
+int process_as_bool(const char *s);
+void ensure_ted_dirs(void);
+int invoke_editorconfig(const char *prop, const char *filename);
+void configure_editorconfig(Buffer *b);
+void replace_fd(int fd, const char *filename, int flags);
+char *printdup(const char *format, ...);
 
 // modify.c
 bool modify(Buffer *buf);
@@ -154,14 +185,12 @@ void calculate_scroll(Buffer *buf, size_t screen_width);
 void truncate_cur(Buffer *buf);
 void recalc_cur(Buffer *buf);
 
-// buffer_list.c
-Node *allocate_node(Node n);
-void deallocate_node(Node *n);
-Node *single_buffer(Buffer b);
-void buffer_add_next(Node *n, Buffer b);
-void buffer_add_prev(Node *n, Buffer b);
-void buffer_close(Node *n);
-void free_buffer_list(Node *n);
+// buffers.c
+Buffer default_buffer();
+void open_buffer(Buffer b);
+void buffer_close(void);
+void next_buffer(void);
+void previous_buffer(void);
 
 // grapheme.c
 Grapheme get_next_grapheme(char **str, size_t len);
@@ -170,11 +199,26 @@ size_t wi_to_gi(size_t si, char *s);
 size_t gi_to_wi(size_t gi, char *s);
 ssize_t index_by_width_after(size_t _wi, char **s);
 size_t index_by_width(size_t wi, char **s);
+bool is_replacement_character(Grapheme g);
+Grapheme replacement_character(void);
+GraphemeType get_grapheme_type(Grapheme g);
+
+// uuid.c
+void uuid_version4(char uuid[37]);
+
+// xdg.c
+char *get_ted_data_home();
+char *get_ted_config_home();
+char *get_ted_state_home();
+char *get_ted_cache_home();
 
 
-extern GlobalCfg config;
 extern char *menu_message;
+extern bool is_jmp_set;
 extern jmp_buf end;
+extern BufferList buffer_list;
+
+#include "config.h"
 
 #endif
 

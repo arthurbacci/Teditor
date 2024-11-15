@@ -5,8 +5,8 @@ PREFIX=/usr/local
 # variables to include our flags. Our flags are listed first so the user
 # can always override our default choices.
 TED_DEBUG=-Wall -O0 -g3 -pedantic -std=c99
-TED_ANALYZE=-Wall -O1 -g3 -pedantic -std=c99
-TED_RELEASE=-Wall -O3 -g2 -pedantic -std=c99
+TED_ANALYZE=-Wall -O0 -pedantic -std=c99
+TED_RELEASE=-Wall -O2 -pedantic -std=c99
 TED_LIBS=-lncursesw -lgrapheme
 
 all: ted

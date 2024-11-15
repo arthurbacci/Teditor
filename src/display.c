@@ -1,7 +1,7 @@
 #include "ted.h"
 
-void display_menu(const char *message, const char *shadow, const Node *n) {
-    const Buffer *buf = &n->data;
+void display_menu(const char *message, const char *shadow) {
+    const Buffer buf = SEL_BUF;
 
     int x, y;
     getyx(stdscr, y, x);
@@ -11,25 +11,22 @@ void display_menu(const char *message, const char *shadow, const Node *n) {
         addch(' ');
 
     move(LINES - 1, 0);
-    if (!*message && n) {
+    if (!*message) {
         printw(
             "%lu:%lu/%lu %s",
-            buf->cursor.y + 1,
-            buf->cursor.x_width,
-            buf->cursor.x_bytes,
-            buf->filename
+            buf.cursor.y + 1,
+            buf.cursor.x_width,
+            buf.cursor.x_bytes,
+            buf.filename
         );
 
         char b[500];
         int len = snprintf(
-            b, 500, "%s%s%s %s | %s<-%s->%s",
-            buf->modified ? "!" : ".",
-            buf->read_only ? "o" : "c",
-            buf->can_write ? "W" : "R",
-            buf->crlf ? "CRLF" : "LF",
-            n->prev->data.name,
-            buf->name,
-            n->next->data.name
+            b, 500, "%s%s%s %s",
+            buf.modified ? "!" : ".",
+            buf.read_only ? "o" : "c",
+            buf.can_write ? "W" : "R",
+            buf.crlf ? "CRLF" : "LF"
         );
 
         mvprintw(LINES - 1, COLS - len, "%s", b);
@@ -91,43 +88,54 @@ void display_buffer(Buffer buf, int len_line_number) {
                 attron(A_REVERSE);
             }
 
-            Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
-            size_t gw = grapheme_width(grapheme);
+            Grapheme g = get_next_grapheme(&at, SIZE_MAX);
+            size_t gw = grapheme_width(g);
 
             if (size + gw > screen_sz) {
                 attron(A_REVERSE);
-                while (size < screen_sz) {
+                for (; size < screen_sz; size++)
                     addch('<');
-                    size++;
-                }
                 attroff(A_REVERSE);
 
                 break;
             }
 
-            if (1 == grapheme.sz && '\t' == *grapheme.dt) {
-                /*attron(A_REVERSE);
-                addch('T');
-                for (int k = 0; k < config.tablen - 1; k++)
-                    addch(' ');
-                attroff(A_REVERSE);*/
-                for (int k = 0; k < config.tablen; k++)
-                    addch(' ');
-                size += config.tablen;
-            } else {
-                printw("%.*s", (int)grapheme.sz, grapheme.dt);
 
-                size += grapheme_width(grapheme);
+            // CAUTION: if anything is changed here be sure to make grapheme
+            // _width follow along
+            switch (get_grapheme_type(g)) {
+                case TABULATION: {
+                    attron(A_REVERSE);
+                    for (int k = 0; k < SEL_BUF.tab_width; k++)
+                        addch(' ');
+                }
+                case CONTROL_CHAR: {
+                    char d = *g.dt ^ 0100;
+                    attron(A_REVERSE);
+                    switch (d) {
+                        case '\\': printw("FS"); break;
+                        case ']' : printw("GS"); break;
+                        case '^' : printw("RS"); break;
+                        case '_' : printw("US"); break;
+                        default: printw("^%c", d);
+                    }
+                }
+                case INVALID_UNICODE: {
+                    //attron(A_REVERSE);
+                    //addch('X');
+                }
+                case DISPLAYABLE_CHAR: {
+                    printw("%.*s", (int)g.sz, g.dt);
+                }
             }
-
+            size += grapheme_width(g);
+            
             attroff(A_REVERSE);
         }
 
         while (size < screen_sz) {
-            if (i == buf.cursor.y
-            && buf.scroll.x_width + size == buf.cursor.x_width) {
+            if (i == buf.cursor.y && buf.scroll.x_width + size == buf.cursor.x_width)
                 attron(A_REVERSE);
-            }
 
             addch(' ');
             attroff(A_REVERSE);

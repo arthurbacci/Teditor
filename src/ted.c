@@ -8,83 +8,65 @@ TODO: remove the Grapheme type and do it without overhead
 
 char *menu_message = "";
 
-GlobalCfg config = {4, 0, 1, " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"};
-
+bool is_jmp_set = false;
 jmp_buf end;
 
-
 int main(int argc, char **argv) {
-    int is_input_pipe = !isatty(STDIN_FILENO);
-    if (is_input_pipe) {
-        // TODO: read pipe contents to buffer before closing it
-        close(STDIN_FILENO);
-        open("/dev/tty", O_RDONLY);
+    ensure_ted_dirs();
+
+    // It may be interesting to support pipes some point in the future
+    if (!isatty(STDOUT_FILENO) || !isatty(STDIN_FILENO))
+        die("This editor doesn't support pipes");
+
+    if (isatty(STDERR_FILENO)) {
+        /*char *filename = log_file_path();
+
+        // Create file if it doesn't exist (creat() gives it some strange
+        // permissions)
+        FILE *fp = fopen(filename, "w");
+        if (fp) fclose(fp);
+
+        replace_fd(STDERR_FILENO, filename, O_WRONLY);
+
+        free(filename);*/
     }
 
-    Node *buf = NULL;
-    if (argc < 2) {
-        // FIXME: Lots of calls to home_path
+    open_buffer(default_buffer());
+    
+    for (int i = 1; i < argc; i++) {
+        char *filename = malloc(PATH_MAX + 1);
+        size_t len = 0;
 
-        struct stat st = {0};
+        if (*argv[i] == '/') {
+            /* Absolute file path */
+            len = strlen(argv[i]);
+            memcpy(filename, argv[i], len + 1);
+        } else {
+            /* Relative file path */
 
-        char *config = home_path(".config/");
-        if (stat(config, &st) == -1)
-            mkdir(config, 0777);
+            // Write the directory path into filename
+            if (getcwd(filename, PATH_MAX) != NULL) {
+                len = strlen(filename);
+                len += snprintf(
+                    filename + len,
+                    PATH_MAX - len,
+                    "/%s",
+                    argv[i]
+                );
+            } else
+                die("Could not get cwd, try an absolute file path");
 
-        char *config_ted = home_path(".config/ted/");
-        if (stat(config_ted, &st) == -1)
-            mkdir(config_ted, 0777);
-            
-        char *filename = home_path(".config/ted/buffer");
-        free(config);
-        free(config_ted);
+            // Now we have an absolute filename
+        }
+
+        char *smaller_filename = malloc(len + 1);
+        memcpy(smaller_filename, filename, len + 1);
+        free(filename);
+        filename = smaller_filename;
 
         FILE *fp = fopen(filename, "r");
-        buf = single_buffer(read_lines(fp, filename, can_write(filename)));
-        if (fp)
-            fclose(fp);
-    } else {
-        for (int i = 1; i < argc; i++) {
-            char *filename = malloc(PATH_MAX + 1);
-            size_t len = 0;
-
-            if (*argv[i] == '/') {
-                /* Absolute file path */
-                len = strlen(argv[i]);
-                memcpy(filename, argv[i], len + 1);
-            } else {
-                /* Relative file path */
-
-                // Write the directory path into filename
-                if (getcwd(filename, PATH_MAX) != NULL) {
-                    len = strlen(filename);
-                    len += snprintf(
-                        filename + len,
-                        PATH_MAX - len,
-                        "/%s",
-                        argv[i]
-                    );
-                } else
-                    die("Could not get cwd, try an absolute file path");
-
-                // Now we have an absolute filename
-            }
-
-            char *smaller_filename = malloc(len + 1);
-            memcpy(smaller_filename, filename, len + 1);
-            free(filename);
-            filename = smaller_filename;
-
-            FILE *fp = fopen(filename, "r");
-            Buffer b = read_lines(fp, filename, can_write(filename));
-            if (i == 1)
-                buf = single_buffer(b);
-            else
-                buffer_add_prev(buf, b);
-
-            if (fp)
-                fclose(fp);
-        }
+        Buffer b = read_lines(fp, filename, can_write(filename));
+        open_buffer(b);
     }
 
     setlocale(LC_ALL, "");
@@ -103,24 +85,23 @@ int main(int argc, char **argv) {
     int val = setjmp(end);
 
     if (!val) {
+        is_jmp_set = true;
+
         while (1) {
-            int len_line_number = calculate_len_line_number(buf->data);
+            int len_line_number = snprintf(NULL, 0, "%lu", SEL_BUF.num_lines);
+        
+            calculate_scroll(&SEL_BUF, COLS - len_line_number - 2);
 
-            calculate_scroll(&buf->data, COLS - len_line_number - 2);
-
-            display_buffer(buf->data, len_line_number);
-            display_menu(menu_message, NULL, buf);
+            display_buffer(SEL_BUF, len_line_number);
+            display_menu(menu_message, NULL);
             refresh();
 
             int c = getch();
-            if (process_keypress(c, &buf))
-                break;
+            process_keypress(c);
         }
     }
 
-    free_buffer_list(buf);
-
     endwin();
-    return 0;
+    return val != 1;
 }
 
