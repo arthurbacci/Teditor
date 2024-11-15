@@ -2,25 +2,19 @@
 
 ## A simple text/code editor
 
-A simple text and code editor, based on ncurses and libgrapheme.
+A simple text and code editor, based on ncurses and libgrapheme, and under 2000 LoC.
 
-## Installing
+## Compiling
 
-### Manual installation
-
-TODO
-
-## Uninstalling
-
-TODO
+Install suckless' `libgrapheme` on your computer, then compile `ted` with
+`make`.
 
 ## Help
 
-Currently unavailable, please open an issue with your question or send me an email.
+Please open an issue if you have any problems, questions or suggestions.
 
 ## Contributing
 
-Please open an Issue if you have any problems, questions or suggestions.
 Pull requests are welcome, but if they have any considerable additions please
 open a PR Draft explaining what you pretend to add so that you don't waste any time
 working on a feature that may not get merged.
