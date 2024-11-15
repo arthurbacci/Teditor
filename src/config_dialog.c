@@ -18,9 +18,9 @@
     static void (a)(char words[][CMD_WORD_SZ], size_t words_len) { \
         Buffer *buf = &SEL_BUF; \
         /* Only for suppressing warnings */ \
-        USE(words); \
-        USE(words_len); \
-        USE(buf); \
+        PRETEND_TO_USE(words); \
+        PRETEND_TO_USE(words_len); \
+        PRETEND_TO_USE(buf); \
         \
         b \
         return; \

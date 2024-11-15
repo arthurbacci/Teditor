@@ -52,8 +52,6 @@
 // timeout for input in ncurses (in milliseconds)
 #define INPUT_TIMEOUT 5
 
-#define USE(x) (void)(x)
-
 #define MSG_SZ 512
 
 #define CMD_WORD_SZ 128
