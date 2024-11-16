@@ -127,6 +127,7 @@ void process_keypress(int c) {
         recalc_cur(buf);
         break;
     }
+    /*
     case ctrl('w'): {
         Line *ln = &buf->lines[buf->cursor.y];
 
@@ -152,12 +153,14 @@ void process_keypress(int c) {
 
         break;
     }
+    */
     case ctrl('o'): {
         char *d = prompt("open: ", buf->filename);
         if (d)
             open_file(d);
         break;
     }
+    /*
     case CTRL_KEY_LEFT:
     case ctrl('h'): {
         char *s = buf->lines[buf->cursor.y].data;
@@ -193,6 +196,7 @@ void process_keypress(int c) {
 
         break;
     }
+    */
     case KEY_BACKSPACE: case KEY_DC: case 127: {
         if (modify(buf)) {
             if (buf->cursor.x_bytes > 0) {

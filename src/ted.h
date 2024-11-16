@@ -30,6 +30,8 @@
 // suckless' libgrapheme
 #include <grapheme.h>
 
+#include <ted_string_utils.h>
+
 // Screen rows
 #define SROW (LINES - 1)
 // Screen cols
@@ -159,20 +161,6 @@ void free_buffer(Buffer *buf);
 void expand_line(Line *ln, size_t x);
 void process_keypress(int c);
 
-// utils.c
-void die(const char *s);
-size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
-Line blank_line(void);
-char *bufn(int a);
-size_t get_ident_sz(char *s);
-bool is_whitespace(char c);
-int process_as_bool(const char *s);
-void ensure_ted_dirs(void);
-int invoke_editorconfig(const char *prop, const char *filename);
-void configure_editorconfig(Buffer *b);
-void replace_fd(int fd, const char *filename, int flags);
-char *printdup(const char *format, ...);
-
 // modify.c
 bool modify(Buffer *buf);
 void add_char(Grapheme c, size_t x, Line *ln);
@@ -210,6 +198,16 @@ char *get_ted_config_home();
 char *get_ted_state_home();
 char *get_ted_cache_home();
 
+// utils.c
+void die(const char *s);
+size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
+Line blank_line(void);
+char *bufn(int a);
+size_t get_ident_sz(char *s);
+void ensure_ted_dirs(void);
+int invoke_editorconfig(const char *prop, const char *filename);
+void configure_editorconfig(Buffer *b);
+void replace_fd(int fd, const char *filename, int flags);
 
 extern char *menu_message;
 extern bool is_jmp_set;

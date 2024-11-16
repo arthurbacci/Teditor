@@ -1,4 +1,5 @@
 #include "ted.h"
+#include <utils.h>
 
 void die(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
@@ -48,10 +49,6 @@ size_t get_ident_sz(char *s) {
     return ident_sz;
 }
 
-bool is_whitespace(char c) {
-    return strchr(WHITESPACE_CHARS, c) != NULL;
-}
-
 void ensure_ted_dirs(void) {
     char *ted_dirs[] = {get_ted_data_home(), get_ted_config_home(), get_ted_state_home(),
                         get_ted_cache_home()};
@@ -65,29 +62,6 @@ void ensure_ted_dirs(void) {
         
         free(ted_dirs[i]);
     }
-}
-
-int process_as_bool(const char *s) {
-    size_t len = strlen(s);
-    
-    if (len == 1) {
-        if (*s == 't' || *s == 'T' || *s == '1')
-            return 1;
-        if (*s == 'f' || *s == 'F' || *s == '0')
-            return 0;
-        return -1;
-    }
-
-    // NOTE: this function only works if the first letter of t is different
-    // than the first letter of f
-    const char *t = "true";
-    const char *f = "false";
-
-    for (size_t c = 0; c < len; c++)
-        if (tolower(s[c]) != t[c] && tolower(s[c]) != f[c])
-            return -1;
-
-    return tolower(*s) == 't';
 }
 
 int invoke_editorconfig(const char *prop, const char *filename) {
@@ -133,25 +107,3 @@ void replace_fd(int fd, const char *filename, int flags) {
     if (fd != open(filename, flags))
         die("couldn't get the same file descriptor as the original");
 }
-
-char *printdup(const char *format, ...) {
-    va_list va1, va2;
-    char *ret = NULL;
-    
-    va_start(va1, format);
-    va_copy(va2, va1);
-    
-    int len = vsnprintf(NULL, 0, format, va1);
-    if (len <= 0) goto END;
-    
-    ret = malloc(len + 1);
-    if (0 >= vsnprintf(ret, len + 1, format, va2))
-        ret = NULL;
-    
-END:
-    va_end(va1);
-    va_end(va2);
-    
-    return ret;
-}
-

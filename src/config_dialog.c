@@ -5,7 +5,7 @@
 
 #define BOOL_COMMAND(a, b) \
     if (words_len == 1) { \
-        int r = process_as_bool(words[0]); \
+        int r = string_to_bool(words[0]); \
         if (r == 1) \
             a \
         else if (r == 0) \
