@@ -1,10 +1,4 @@
 #include "ted.h"
-#include <utils.h>
-
-void die(const char *s) {
-    fprintf(stderr, "Error: %s\n", s);
-    TED_CALL_LONGJMP(TED_LONGJMP_DIE);
-}
 
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]) {
     for (; *s == ' '; s++);
@@ -49,26 +43,8 @@ size_t get_ident_sz(char *s) {
     return ident_sz;
 }
 
-void ensure_ted_dirs(void) {
-    char *ted_dirs[] = {get_ted_data_home(), get_ted_config_home(), get_ted_state_home(),
-                        get_ted_cache_home()};
-    
-    for (int i = 0; i < (sizeof(ted_dirs) / sizeof(char *)); i++) {
-        struct stat st = {0};
-        
-        if (-1 == stat(ted_dirs[i], &st))
-            if (-1 == mkdir(ted_dirs[i], 0770))
-                die("Couldn't create ted directories");
-        
-        free(ted_dirs[i]);
-    }
-}
-
 int invoke_editorconfig(const char *prop, const char *filename) {
-    // TODO: Store those paths somewhere global and clear them when the program ends
-    char *ted_data_home = get_ted_data_home();
     char *program_path = printdup("%s/" TED_EDITORCONFIG_PLUGIN_NAME, ted_data_home);
-    free(ted_data_home);
 
     int status;
     pid_t child;

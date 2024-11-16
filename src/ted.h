@@ -31,6 +31,10 @@
 #include <grapheme.h>
 
 #include <ted_string_utils.h>
+#include <ted_xdg.h>
+#include <ted_die.h>
+#include <ted_longjmp.h>
+#include <ted_config.h>
 
 // Screen rows
 #define SROW (LINES - 1)
@@ -58,12 +62,6 @@
 
 #define CMD_WORD_SZ 128
 #define CMD_ARR_SZ 30
-
-#define TED_LONGJMP_DIE 2
-#define TED_LONGJMP_USER_EXIT 1
-#define TED_CALL_LONGJMP(x) { \
-    if (is_jmp_set) longjmp(end, (x)); \
-    else exit((x) - 1); }
 
 #define PRETEND_TO_USE(x) (void)(x)
 
@@ -189,32 +187,17 @@ bool is_replacement_character(Grapheme g);
 Grapheme replacement_character(void);
 GraphemeType get_grapheme_type(Grapheme g);
 
-// uuid.c
-void uuid_version4(char uuid[37]);
-
-// xdg.c
-char *get_ted_data_home();
-char *get_ted_config_home();
-char *get_ted_state_home();
-char *get_ted_cache_home();
-
 // utils.c
-void die(const char *s);
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
 Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
-void ensure_ted_dirs(void);
 int invoke_editorconfig(const char *prop, const char *filename);
 void configure_editorconfig(Buffer *b);
 void replace_fd(int fd, const char *filename, int flags);
 
 extern char *menu_message;
-extern bool is_jmp_set;
-extern jmp_buf end;
 extern BufferList buffer_list;
-
-#include "config.h"
 
 #endif
 

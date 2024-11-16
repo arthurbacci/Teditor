@@ -3,9 +3,7 @@
 BufferList buffer_list = {0};
 
 Buffer default_buffer() {
-    char *ted_data_home = get_ted_data_home();
     char *filename = printdup("%s/buffer", ted_data_home);
-    free(ted_data_home);
 
     FILE *fp = fopen(filename, "r");
     return read_lines(fp, filename, can_write(filename));

@@ -8,8 +8,8 @@ TODO: remove the Grapheme type and do it without overhead
 
 char *menu_message = "";
 
-bool is_jmp_set = false;
-jmp_buf end;
+bool is_ted_longjmp_set = false;
+jmp_buf ted_longjmp_end;
 
 int main(int argc, char **argv) {
     ensure_ted_dirs();
@@ -82,10 +82,10 @@ int main(int argc, char **argv) {
     timeout(INPUT_TIMEOUT);
 
 
-    int val = setjmp(end);
+    int val = setjmp(ted_longjmp_end);
 
     if (!val) {
-        is_jmp_set = true;
+        is_ted_longjmp_set = true;
 
         while (1) {
             int len_line_number = snprintf(NULL, 0, "%lu", SEL_BUF.num_lines);
@@ -102,6 +102,6 @@ int main(int argc, char **argv) {
     }
 
     endwin();
-    return val != 1;
+    return val - 1;
 }
 
