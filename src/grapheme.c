@@ -9,7 +9,7 @@ struct CodepointRange {
 };
 
 struct CodepointRange fullwidth_ranges[] = {
-    #include "data/fullwidth.def"
+    #include <fullwidth.def>
     {0, 0}
 };
 
