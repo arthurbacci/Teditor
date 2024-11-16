@@ -119,8 +119,6 @@ Hints hints[] = {
     {NULL, NULL}
 };
 
-// FIXME: dont hardcode 1000
-char last_command[1000] = "";
 
 void calculate_base_hint(char *base_hint) {
     char *p = base_hint;
@@ -148,19 +146,14 @@ void config_dialog(void) {
 
 
 void parse_command(char *command) {
-    if (!command)
-        return;
+    if (!command) return;
 
     char words[CMD_ARR_SZ + 1][CMD_WORD_SZ];
     size_t words_len = split_cmd_string(command, words);
 
-    if (words_len == 1 && !strcmp(words[0], "repeat"))
-        parse_command(last_command);
-    for (unsigned int i = 0; fns[i].name; i++) {
+    for (size_t i = 0; fns[i].name; i++) {
         if (!strcmp(words[0], fns[i].name)) {
             fns[i].function(words + 1, words_len - 1);
-            if (command != last_command)
-                strcpy(last_command, command);
             break;
         }
     }
