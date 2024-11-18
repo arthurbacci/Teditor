@@ -1,24 +1,5 @@
 #include "ted.h"
 
-size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]) {
-    for (; *s == ' '; s++);
-
-    size_t i;
-    for (i = 0; *s; i++) {
-        const char *n = s;
-        for (; *n != ' ' && *n != '\0'; n++);
-
-        size_t cpsz = MIN(n - s, CMD_WORD_SZ - 1);
-        memcpy(ret[i], s, cpsz);
-        ret[i][cpsz] = '\0';
-
-        for (; *n == ' '; n++);
-        s = n;
-    }
-
-    return i;
-}
-
 Line blank_line(void) {
     Line ln;
 

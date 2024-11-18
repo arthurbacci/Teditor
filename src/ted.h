@@ -60,9 +60,6 @@
 
 #define MSG_SZ 512
 
-#define CMD_WORD_SZ 128
-#define CMD_ARR_SZ 30
-
 #define PRETEND_TO_USE(x) (void)(x)
 
 #define NUM_BUFFERS 16
@@ -134,8 +131,6 @@ typedef enum {
 
 
 // message_and_prompt.c
-char *prompt(const char *msgtmp, char *def);
-char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
 void message(char *msg);
 
 // config_dialog.c
@@ -188,7 +183,6 @@ Grapheme replacement_character(void);
 GraphemeType get_grapheme_type(Grapheme g);
 
 // utils.c
-size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
 Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
