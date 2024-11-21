@@ -27,13 +27,13 @@
 #include <time.h>
 #include <stdarg.h>
 
-// suckless' libgrapheme
-#include <grapheme.h>
-
 #include <ted_string_utils.h>
 #include <ted_xdg.h>
 #include <ted_die.h>
 #include <ted_longjmp.h>
+#include <ted_grapheme.h>
+#include <ted_buffer.h>
+
 #include <ted_config.h>
 
 // Screen rows
@@ -65,72 +65,11 @@
 
 #define PRETEND_TO_USE(x) (void)(x)
 
-#define NUM_BUFFERS 16
-
-#define SEL_BUF (buffer_list.bufs[buffer_list.selected])
-
-/*--*--TYPES--*--*/
-
-typedef struct {
-    size_t sz;
-    char *dt;
-} Grapheme;
-
-typedef struct {
-    size_t cap;
-    size_t length;
-    char *data;
-} Line;
-
-typedef struct {
-    size_t lx_width;
-    size_t x_width;
-    size_t x_bytes;
-
-    size_t y;
-} Cursor;
-
-typedef struct {
-    size_t x_width;
-    size_t y;
-} TextScroll;
-
-typedef struct {
-    Cursor cursor;
-    TextScroll scroll;
-
-    Line *lines;
-    size_t num_lines;
-
-    char *filename;
-
-    bool modified;
-    bool read_only;
-    bool can_write;
-    bool crlf;
-
-    bool autotab_on;
-    uint8_t indent_size;
-    uint8_t tab_width;
-} Buffer;
-
-typedef struct {
-    Buffer bufs[NUM_BUFFERS];
-    size_t len;
-    size_t selected;
-} BufferList;
 
 typedef struct {
     const char *command;
     const char *hint;
 } Hints;
-
-typedef enum {
-    DISPLAYABLE_CHAR,
-    TABULATION,
-    INVALID_UNICODE,
-    CONTROL_CHAR
-} GraphemeType;
 
 
 // message_and_prompt.c
@@ -164,29 +103,6 @@ bool modify(Buffer *buf);
 void add_char(Grapheme c, size_t x, Line *ln);
 void remove_char(size_t x, Line *ln);
 
-// cursor.c
-void calculate_scroll(Buffer *buf, size_t screen_width);
-void truncate_cur(Buffer *buf);
-void recalc_cur(Buffer *buf);
-
-// buffers.c
-Buffer default_buffer();
-void open_buffer(Buffer b);
-void buffer_close(void);
-void next_buffer(void);
-void previous_buffer(void);
-
-// grapheme.c
-Grapheme get_next_grapheme(char **str, size_t len);
-size_t grapheme_width(Grapheme g);
-size_t wi_to_gi(size_t si, char *s);
-size_t gi_to_wi(size_t gi, char *s);
-ssize_t index_by_width_after(size_t _wi, char **s);
-size_t index_by_width(size_t wi, char **s);
-bool is_replacement_character(Grapheme g);
-Grapheme replacement_character(void);
-GraphemeType get_grapheme_type(Grapheme g);
-
 // utils.c
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
 Line blank_line(void);
@@ -197,7 +113,6 @@ void configure_editorconfig(Buffer *b);
 void replace_fd(int fd, const char *filename, int flags);
 
 extern char *menu_message;
-extern BufferList buffer_list;
 
 #endif
 

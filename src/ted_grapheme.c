@@ -1,7 +1,6 @@
-/* Some functions built on top of suckless' libgrapheme */
-
-#include "ted.h"
-
+#include <ted_grapheme.h>
+#include <ted_buffer.h>
+#include <ctype.h>
 
 struct CodepointRange {
     uint_least32_t start;
