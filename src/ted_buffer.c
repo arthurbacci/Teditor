@@ -81,4 +81,9 @@ void previous_buffer(void) {
     buffer_list.selected--;
 }
 
-
+void free_buffer(Buffer *buf) {
+    for (size_t i = 0; i < buf->num_lines; i++)
+        free(buf->lines[i].data);
+    free(buf->lines);
+    free(buf->filename);
+}

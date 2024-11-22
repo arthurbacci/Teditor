@@ -36,9 +36,7 @@
 
 #include <ted_config.h>
 
-// Screen rows
 #define SROW (LINES - 1)
-// Screen cols
 #define SCOL (COLS - 1)
 
 #define READ_BLOCKSIZE 100
@@ -90,9 +88,6 @@ bool can_write(char *fname);
 // display.c
 void display_menu(const char *message, const char *shadow);
 void display_buffer(Buffer buf, int len_line_number);
-
-// free.c
-void free_buffer(Buffer *buf);
 
 // keypress.c
 void expand_line(Line *ln, size_t x);
