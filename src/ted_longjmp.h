@@ -1,3 +1,6 @@
+#ifndef TED_LONGJMP_H
+#define TED_LONGJMP_H
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <setjmp.h>
@@ -11,3 +14,4 @@
 extern bool is_ted_longjmp_set;
 extern jmp_buf ted_longjmp_end;
 
+#endif

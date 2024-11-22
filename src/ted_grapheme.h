@@ -1,3 +1,6 @@
+#ifndef TED_GRAPHEME_H
+#define TED_GRAPHEME_H
+
 #include <stddef.h>
 // TODO: remove sys/types.h if ssize_t is not used anymore (prob wont)
 #include <sys/types.h>
@@ -27,3 +30,4 @@ bool is_replacement_character(Grapheme g);
 Grapheme replacement_character(void);
 GraphemeType get_grapheme_type(Grapheme g);
 
+#endif

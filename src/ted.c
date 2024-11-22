@@ -89,8 +89,9 @@ int main(int argc, char **argv) {
 
         while (1) {
             int len_line_number = snprintf(NULL, 0, "%lu", SEL_BUF.num_lines);
+            ScreenInfo screen_info = get_screen_info(len_line_number);
         
-            calculate_scroll(&SEL_BUF, COLS - len_line_number - 2);
+            calculate_scroll(&SEL_BUF, screen_info);
 
             display_buffer(SEL_BUF, len_line_number);
             display_menu(menu_message, NULL);

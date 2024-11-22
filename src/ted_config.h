@@ -1,3 +1,6 @@
+#ifndef TED_CONFIG_H
+#define TED_CONFIG_H
+
 // SET TO ZERO FOR INDENTING WITH TABS
 #define DEFAULT_INDENT_SIZE 0
 // THE WIDTH OF THE TAB CHARACTER
@@ -9,3 +12,5 @@
 #define TED_DIRECTORY_NAME "ted"
 
 #define TED_EDITORCONFIG_PLUGIN_NAME "ted_editorconfig"
+
+#endif

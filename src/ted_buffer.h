@@ -1,6 +1,10 @@
+#ifndef TED_BUFFER_H
+#define TED_BUFFER_H
+
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <ted_screen.h>
 
 #define NUM_BUFFERS 16
 #define SEL_BUF (buffer_list.bufs[buffer_list.selected])
@@ -51,7 +55,7 @@ typedef struct {
 
 extern BufferList buffer_list;
 
-void calculate_scroll(Buffer *buf, size_t screen_width);
+void calculate_scroll(Buffer *buf, ScreenInfo screen_info);
 void truncate_cur(Buffer *buf);
 void recalc_cur(Buffer *buf);
 Buffer default_buffer();
@@ -62,3 +66,5 @@ void previous_buffer(void);
 
 
 
+
+#endif

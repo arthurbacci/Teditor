@@ -33,11 +33,10 @@
 #include <ted_longjmp.h>
 #include <ted_grapheme.h>
 #include <ted_buffer.h>
+#include <ted_screen.h>
 
 #include <ted_config.h>
 
-#define SROW (LINES - 1)
-#define SCOL (COLS - 1)
 
 #define READ_BLOCKSIZE 100
 #define ctrl(x) ((x) & 0x1f)
@@ -110,4 +109,3 @@ void replace_fd(int fd, const char *filename, int flags);
 extern char *menu_message;
 
 #endif
-

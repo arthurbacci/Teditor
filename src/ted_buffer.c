@@ -10,18 +10,20 @@
 
 BufferList buffer_list = {0};
 
-void calculate_scroll(Buffer *buf, size_t screen_width) {
+void calculate_scroll(Buffer *buf, ScreenInfo screen_info) {
+    // TODO: DRY
+    
     // y
     if (buf->cursor.y < buf->scroll.y)
         buf->scroll.y = buf->cursor.y;
-    if (buf->cursor.y >= buf->scroll.y + SROW)
-        buf->scroll.y = buf->cursor.y + 1 - SROW;
+    if (buf->cursor.y > buf->scroll.y + screen_info.text_height)
+        buf->scroll.y = buf->cursor.y - screen_info.text_height;
     
     // x
     if (buf->cursor.x_width < buf->scroll.x_width)
         buf->scroll.x_width = buf->cursor.x_width;
-    if (buf->cursor.x_width > buf->scroll.x_width + screen_width)
-        buf->scroll.x_width = buf->cursor.x_width - screen_width;
+    if (buf->cursor.x_width > buf->scroll.x_width + screen_info.text_width)
+        buf->scroll.x_width = buf->cursor.x_width - screen_info.text_width;
 }
 
 // TODO: check if there's any usage of truncate_cur except for recalc_cur

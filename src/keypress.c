@@ -102,7 +102,7 @@ void process_keypress(int c) {
             buf->read_only ? "read-only 0" : "read-only 1"
         );
         break;
-    case KEY_PPAGE: {
+/*    case KEY_PPAGE: {
         size_t dec = SROW + buf->cursor.y % SROW;
 
         if (buf->cursor.y > dec)
@@ -126,7 +126,7 @@ void process_keypress(int c) {
 
         recalc_cur(buf);
         break;
-    }
+    }*/
     /*
     case ctrl('w'): {
         Line *ln = &buf->lines[buf->cursor.y];
