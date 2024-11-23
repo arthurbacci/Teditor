@@ -3,6 +3,7 @@
 #include <ted_xdg.h>
 #include <ted_string_utils.h>
 #include <ted_longjmp.h>
+#include <ted_prompt.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -135,8 +136,7 @@ void open_file(char *filename) {
     // configure_editorconfig(&b);
 
     if (!fp) {
-        // FIXME: create ted_prompt.h
-        // message("New file");
+        message("New file");
 
         b.lines = malloc(b.num_lines * sizeof(Line));
         b.lines[0] = blank_line();
@@ -180,8 +180,8 @@ void savefile(Buffer *buf) {
     FILE *fpw = fopen(buf->filename, "w");
 
     if (fpw == NULL) {
-        // FIXME
-        // message(COuld not open file etc etc);
+        // TODO: after making message accept dynamic strings print the errno code
+        message("could not open file");
         return;
     }
 
