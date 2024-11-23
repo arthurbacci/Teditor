@@ -34,6 +34,7 @@
 #include <ted_grapheme.h>
 #include <ted_buffer.h>
 #include <ted_screen.h>
+#include <ted_prompt.h>
 
 #include <ted_config.h>
 
@@ -55,17 +56,6 @@
 
 #define PRETEND_TO_USE(x) (void)(x)
 
-
-typedef struct {
-    const char *command;
-    const char *hint;
-} Hints;
-
-
-// message_and_prompt.c
-char *prompt(const char *msgtmp, char *def);
-char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
-void message(char *msg);
 
 // config_dialog.c
 void config_dialog(void);
@@ -91,7 +81,5 @@ size_t get_ident_sz(char *s);
 int invoke_editorconfig(const char *prop, const char *filename);
 void configure_editorconfig(Buffer *b);
 void replace_fd(int fd, const char *filename, int flags);
-
-extern char *menu_message;
 
 #endif

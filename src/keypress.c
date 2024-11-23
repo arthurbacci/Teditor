@@ -155,9 +155,8 @@ void process_keypress(int c) {
     }
     */
     case ctrl('o'): {
-        char *d = prompt("open: ", buf->filename);
-        if (d)
-            open_file(d);
+        char *d = prompt_hints("open: ", buf->filename, NULL, NULL);
+        if (d) open_file(d);
         break;
     }
     /*

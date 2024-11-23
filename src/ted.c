@@ -6,8 +6,6 @@ TODO: remove the Grapheme type and do it without overhead
 #include <curses.h>
 #include <unistd.h>
 
-char *menu_message = "";
-
 bool is_ted_longjmp_set = false;
 jmp_buf ted_longjmp_end;
 

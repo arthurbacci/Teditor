@@ -1,18 +1,22 @@
-#include "ted.h"
+#include <ted_prompt.h>
+#include <ted_string_utils.h>
+#include <ted_grapheme.h>
+#include <string.h>
+#include <ncurses.h>
 
-// TODO: remove this function
-char *prompt(const char *msgtmp, char *def) {
-    return prompt_hints(msgtmp, def, NULL, NULL);
-}
+const char *menu_message = "";
+
+// FIXME: this is a very bad practise
+void display_menu(const char *message, const char *shadow);
 
 char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
-    char msg[MSG_SZ];
+    char msg[1000];
 
     strncpy(msg, msgtmp, sizeof(msg));
-    msg[MSG_SZ - 1] = '\0';
+    msg[sizeof(msg) - 1] = '\0';
 
     char *b = msg + strlen(msg);
-    size_t bcap = MSG_SZ + msg - b;
+    size_t bcap = sizeof(msg) + msg - b;
     
     strncpy(b, def, bcap);
     b[bcap - 1] = '\0';
@@ -69,7 +73,6 @@ char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints) {
         }
     }
 }
-
 
 void message(char *msg) {
     menu_message = msg;
