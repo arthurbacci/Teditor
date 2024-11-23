@@ -78,8 +78,6 @@ void remove_char(size_t x, Line *ln);
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
-int invoke_editorconfig(const char *prop, const char *filename);
-void configure_editorconfig(Buffer *b);
 void replace_fd(int fd, const char *filename, int flags);
 
 #endif
