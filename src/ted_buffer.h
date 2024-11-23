@@ -58,12 +58,15 @@ extern BufferList buffer_list;
 void calculate_scroll(Buffer *buf, ScreenInfo screen_info);
 void truncate_cur(Buffer *buf);
 void recalc_cur(Buffer *buf);
-Buffer default_buffer();
+void open_default_buffer(void);
 void open_buffer(Buffer b);
 void buffer_close(void);
 void next_buffer(void);
 void previous_buffer(void);
-
+bool can_write(const char *fname);
+Line blank_line(void);
+void open_file(char *fname);
+void savefile(Buffer *buf);
 
 
 

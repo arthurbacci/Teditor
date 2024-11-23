@@ -31,9 +31,10 @@ int main(int argc, char **argv) {
         free(filename);*/
     }
 
-    open_buffer(default_buffer());
+    open_default_buffer();
     
     for (int i = 1; i < argc; i++) {
+        // TODO: refactor this ugly piece of code
         char *filename = malloc(PATH_MAX + 1);
         size_t len = 0;
 
@@ -59,14 +60,8 @@ int main(int argc, char **argv) {
             // Now we have an absolute filename
         }
 
-        char *smaller_filename = malloc(len + 1);
-        memcpy(smaller_filename, filename, len + 1);
+        open_file(printdup("%s", filename));
         free(filename);
-        filename = smaller_filename;
-
-        FILE *fp = fopen(filename, "r");
-        Buffer b = read_lines(fp, filename, can_write(filename));
-        open_buffer(b);
     }
 
     setlocale(LC_ALL, "");

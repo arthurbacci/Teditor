@@ -13,4 +13,6 @@
 
 #define TED_EDITORCONFIG_PLUGIN_NAME "ted_editorconfig"
 
+#define READ_BLOCKSIZE 256
+
 #endif

@@ -1,12 +1,16 @@
-/*#include <ted_buffer.h>
+#include <ted_buffer.h>
 #include <ted_grapheme.h>
 #include <ted_xdg.h>
-#include <ted_string_utils.h>*/
+#include <ted_string_utils.h>
+#include <ted_longjmp.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
-// FIXME: temporary
-#include "ted.h"
+#include <ted_config.h>
 
 BufferList buffer_list = {0};
 
@@ -41,11 +45,9 @@ void recalc_cur(Buffer *buf) {
     truncate_cur(buf);
 }
 
-Buffer default_buffer() {
+void open_default_buffer(void) {
     char *filename = printdup("%s/buffer", ted_data_home);
-
-    FILE *fp = fopen(filename, "r");
-    return read_lines(fp, filename, can_write(filename));
+    open_file(filename);
 }
 
 void open_buffer(Buffer b) {
@@ -71,12 +73,12 @@ void buffer_close(void) {
         buffer_list.selected--;
 }
 
+// TODO: DRY with the similar structures on the scroll functions
 void next_buffer(void) {
     buffer_list.selected++;
     if (buffer_list.selected >= buffer_list.len)
         buffer_list.selected = 0;
 }
-
 void previous_buffer(void) {
     if (buffer_list.selected == 0)
         buffer_list.selected = buffer_list.len;
@@ -89,3 +91,120 @@ void free_buffer(Buffer *buf) {
     free(buf->lines);
     free(buf->filename);
 }
+
+bool can_write(const char *fname) {
+    struct stat st;
+    if (stat(fname, &st) == 0) {
+        const bool all_permission = st.st_mode & S_IWOTH;
+        const bool owner_permission = getuid() == st.st_uid && st.st_mode && S_IWUSR;
+        const bool group_permission = getgid() == st.st_gid && st.st_mode && S_IWGRP;
+        return all_permission || owner_permission || group_permission;
+    }
+    // FIXME: this part of the code is incomplete and may lead to errors, it may be interesting to
+    // try to actually write on the file to check if there's permission.
+    return errno != EACCES;
+}
+
+Line blank_line(void) {
+    Line ln = {READ_BLOCKSIZE, 0, malloc(READ_BLOCKSIZE)};
+    *ln.data = '\0';
+    return ln;
+}
+
+void open_file(char *filename) {
+    FILE *fp = fopen(filename, "r");
+    
+    const bool writable = can_write(filename);
+    
+    Buffer b = {
+        {0, 0, 0, 0}, // Cursor
+        {0, 0},       // Scroll
+        NULL,
+        1,
+        filename,
+        false,      // Modified
+        !writable,  // Read-only
+        writable,   // Can-write
+        false,      // CRFL buffer (if a carriage return is detected this is set)
+        DEFAULT_AUTOTAB,
+        DEFAULT_INDENT_SIZE,
+        DEFAULT_TAB_WIDTH
+    };
+    
+    // FIXME: create ted_plugins.h
+    // configure_editorconfig(&b);
+
+    if (!fp) {
+        // FIXME: create ted_prompt.h
+        // message("New file");
+
+        b.lines = malloc(b.num_lines * sizeof(Line));
+        b.lines[0] = blank_line();
+        b.read_only = false;
+        b.modified = true;
+
+        open_buffer(b);
+        return;
+    }
+    
+    for (; !feof(fp); b.num_lines++) {
+        b.lines = realloc(b.lines, b.num_lines * sizeof(Line));
+
+        Line *curln = &b.lines[b.num_lines - 1];
+        *curln = blank_line();
+
+        for (int c; EOF != (c = fgetc(fp)) && '\n' != c; curln->length++) {
+            if ('\r' == c) {
+                b.crlf = true;
+                continue;
+            }
+
+            if (curln->length + 1 >= curln->cap) {
+                curln->cap *= 2;
+                curln->data = realloc(curln->data, curln->cap * sizeof(char));
+            }
+
+            curln->data[curln->length] = c;
+        }
+        curln->data[curln->length] = '\0';
+    }
+
+    b.num_lines--;
+    
+    fclose(fp);
+    
+    open_buffer(b);
+}
+
+void savefile(Buffer *buf) {
+    FILE *fpw = fopen(buf->filename, "w");
+
+    if (fpw == NULL) {
+        // FIXME
+        // message(COuld not open file etc etc);
+        return;
+    }
+
+
+    for (size_t i = 0; i < buf->num_lines; i++) {
+
+        char *at = buf->lines[i].data;
+        while ('\0' != *at) {
+            Grapheme grapheme = get_next_grapheme(&at, SIZE_MAX);
+
+            fwrite(grapheme.dt, sizeof(char), grapheme.sz, fpw);
+        }
+
+
+        // If we're not at the last line
+        if (buf->num_lines - 1 > i) {
+            if (buf->crlf)
+                fputc('\r', fpw);
+            fputc('\n', fpw);
+        }
+    }
+    fclose(fpw);
+
+    buf->modified = 0;
+}
+

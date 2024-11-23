@@ -19,17 +19,6 @@ size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]) {
     return i;
 }
 
-Line blank_line(void) {
-    Line ln;
-
-    ln.cap = READ_BLOCKSIZE;
-    ln.data = malloc(ln.cap);
-    ln.length = 0;
-
-    *ln.data = '\0';
-    return ln;
-}
-
 size_t get_ident_sz(char *s) {
     size_t ident_sz;
     char c;

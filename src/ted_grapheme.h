@@ -8,6 +8,13 @@
 
 #include <grapheme.h>
 
+
+// TODO: rename to CTRL_C0
+#define ctrl(x) ((x) & 0x1f)
+#define CTRL_KEY_RIGHT 0x232
+#define CTRL_KEY_LEFT  0x223
+
+
 typedef struct {
     size_t sz;
     char *dt;
@@ -19,6 +26,7 @@ typedef enum {
     INVALID_UNICODE,
     CONTROL_CHAR
 } GraphemeType;
+
 
 Grapheme get_next_grapheme(char **str, size_t len);
 size_t grapheme_width(Grapheme g);

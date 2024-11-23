@@ -37,13 +37,6 @@
 
 #include <ted_config.h>
 
-
-#define READ_BLOCKSIZE 100
-#define ctrl(x) ((x) & 0x1f)
-
-#define CTRL_KEY_RIGHT 0x232
-#define CTRL_KEY_LEFT  0x223
-
 #define NUM_PAIRS 6
 
 #define IN_RANGE(x, min, max)  ((x) >= (min)) && ((x) <= (max))
@@ -78,12 +71,6 @@ void message(char *msg);
 void config_dialog(void);
 void parse_command(char *command);
 
-// open_and_save.c
-void savefile(Buffer *buf);
-Buffer read_lines(FILE *fp, char *filename, bool read_only);
-void open_file(char *fname);
-bool can_write(char *fname);
-
 // display.c
 void display_menu(const char *message, const char *shadow);
 void display_buffer(Buffer buf, int len_line_number);
@@ -99,7 +86,6 @@ void remove_char(size_t x, Line *ln);
 
 // utils.c
 size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
-Line blank_line(void);
 char *bufn(int a);
 size_t get_ident_sz(char *s);
 int invoke_editorconfig(const char *prop, const char *filename);
