@@ -4,6 +4,7 @@
 #include <ted_string_utils.h>
 #include <ted_longjmp.h>
 #include <ted_prompt.h>
+#include <ted_plugins.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -132,8 +133,7 @@ void open_file(char *filename) {
         DEFAULT_TAB_WIDTH
     };
     
-    // FIXME: create ted_plugins.h
-    // configure_editorconfig(&b);
+    configure_editorconfig(&b);
 
     if (!fp) {
         message("New file");
