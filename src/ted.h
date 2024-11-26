@@ -38,10 +38,6 @@
 
 #include <ted_config.h>
 
-#define NUM_PAIRS 6
-
-#define IN_RANGE(x, min, max)  ((x) >= (min)) && ((x) <= (max))
-#define OUT_RANGE(x, min, max) ((x) < (min)) || ((x) > (max))
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
