@@ -42,16 +42,6 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-// timeout for input in ncurses (in milliseconds)
-#define INPUT_TIMEOUT 5
-
-#define MSG_SZ 512
-
-#define CMD_WORD_SZ 128
-#define CMD_ARR_SZ 30
-
-#define PRETEND_TO_USE(x) (void)(x)
-
 
 // config_dialog.c
 void config_dialog(void);
