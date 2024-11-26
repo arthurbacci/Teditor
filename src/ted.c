@@ -9,6 +9,12 @@ TODO: remove the Grapheme type and do it without overhead
 bool is_ted_longjmp_set = false;
 jmp_buf ted_longjmp_end;
 
+void replace_fd(int fd, const char *filename, int flags) {
+    close(fd);
+    if (fd != open(filename, flags))
+        die("couldn't get the same file descriptor as the original");
+}
+
 int main(int argc, char **argv) {
     ensure_ted_dirs();
 

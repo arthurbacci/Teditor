@@ -67,7 +67,7 @@ bool can_write(const char *fname);
 Line blank_line(void);
 void open_file(char *fname);
 void savefile(Buffer *buf);
-
+size_t get_line_indent_level(Line ln);
 
 
 #endif

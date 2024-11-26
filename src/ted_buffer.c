@@ -208,3 +208,9 @@ void savefile(Buffer *buf) {
     buf->modified = 0;
 }
 
+size_t get_line_indent_level(Line ln) {
+    const char *s = ln.data;
+    for (; ' ' == *s || '\t' == *s; s++);
+    return s - ln.data;
+}
+

@@ -74,10 +74,4 @@ bool modify(Buffer *buf);
 void add_char(Grapheme c, size_t x, Line *ln);
 void remove_char(size_t x, Line *ln);
 
-// utils.c
-size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]);
-char *bufn(int a);
-size_t get_ident_sz(char *s);
-void replace_fd(int fd, const char *filename, int flags);
-
 #endif

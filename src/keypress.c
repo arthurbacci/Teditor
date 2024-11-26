@@ -249,12 +249,12 @@ void process_keypress(int c) {
             Line *new = &buf->lines[buf->cursor.y + 1];
 
             if (SEL_BUF.autotab_on) {
-                size_t ident_sz = get_ident_sz(current->data);
+                size_t indent_level = get_line_indent_level(*current);
                 
-                expand_line(new, ident_sz);
+                expand_line(new, indent_level);
 
-                memcpy(new->data, current->data, ident_sz);
-                new->length = ident_sz;
+                memcpy(new->data, current->data, indent_level);
+                new->length = indent_level;
                 new->data[new->length] = '\0';
             }
 
