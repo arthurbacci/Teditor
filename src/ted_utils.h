@@ -1,5 +1,8 @@
-#ifndef TED_STRING_UTILS_H
-#define TED_STRING_UTILS_H
+#ifndef TED_UTILS_H
+#define TED_UTILS_H
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 // Converts strings of the form "0", "t", "false", "F" or "TrUE" to a boolean, or returns -1 if it
 // is not a valid boolean.

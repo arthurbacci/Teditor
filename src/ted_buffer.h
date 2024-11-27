@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <ted_screen.h>
+#include <ted_grapheme.h>
 
 #define NUM_BUFFERS 16
 #define SEL_BUF (buffer_list.bufs[buffer_list.selected])
@@ -68,6 +69,10 @@ Line blank_line(void);
 void open_file(char *fname);
 void savefile(Buffer *buf);
 size_t get_line_indent_level(Line ln);
+bool modify_buffer(Buffer *buf);
+void add_char(Grapheme c, size_t x, Line *ln);
+void remove_char(size_t x, Line *ln);
+void reserve_line_cap(Line *ln, size_t x);
 
 
 #endif

@@ -1,7 +1,7 @@
 #include <ted_buffer.h>
 #include <ted_grapheme.h>
 #include <ted_xdg.h>
-#include <ted_string_utils.h>
+#include <ted_utils.h>
 #include <ted_longjmp.h>
 #include <ted_prompt.h>
 #include <ted_plugins.h>
@@ -212,5 +212,38 @@ size_t get_line_indent_level(Line ln) {
     const char *s = ln.data;
     for (; ' ' == *s || '\t' == *s; s++);
     return s - ln.data;
+}
+
+bool modify_buffer(Buffer *buf) {
+    if (buf->read_only) message("Can't modify a read-only file.");
+    else                buf->modified = 1;
+
+    return !buf->read_only;
+}
+
+void add_char(Grapheme c, size_t x, Line *ln) {
+    reserve_line_cap(ln, c.sz);
+    memmove(&ln->data[x + c.sz], &ln->data[x], ln->length - x);
+    memcpy(&ln->data[x], c.dt, c.sz);
+    ln->data[ln->length += c.sz] = '\0';
+}
+
+// Note that `x` must point to a char boundary
+// TODO: make it return the removed Grapheme
+void remove_char(size_t x, Line *ln) {
+    char *afterpos = &ln->data[x];
+
+    size_t grapheme_sz = get_next_grapheme(&afterpos, SIZE_MAX).sz;
+
+    memmove(&ln->data[x], afterpos, ln->length - x + grapheme_sz);
+    ln->data[ln->length -= grapheme_sz] = '\0';
+}
+
+// Garants that the capacity is x + 1 bytes greater than the length
+void reserve_line_cap(Line *ln, size_t x) {
+    if (ln->cap <= ln->length + x + 1) {
+        ln->cap = MAX(ln->length + x + 1, ln->cap * 2);
+        ln->data = realloc(ln->data, ln->cap);
+    }
 }
 

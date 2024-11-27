@@ -1,5 +1,5 @@
 #include <ted_prompt.h>
-#include <ted_string_utils.h>
+#include <ted_utils.h>
 #include <ted_grapheme.h>
 #include <string.h>
 #include <ncurses.h>

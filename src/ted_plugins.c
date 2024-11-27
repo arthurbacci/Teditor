@@ -1,5 +1,5 @@
 #include <ted_plugins.h>
-#include <ted_string_utils.h>
+#include <ted_utils.h>
 #include <ted_xdg.h>
 #include <ted_config.h>
 #include <stdlib.h>

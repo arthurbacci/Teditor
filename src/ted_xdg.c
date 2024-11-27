@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <ted_string_utils.h>
+#include <ted_utils.h>
 #include <ted_die.h>
 #include <ted_config.h>
 

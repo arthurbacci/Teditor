@@ -27,7 +27,7 @@
 #include <time.h>
 #include <stdarg.h>
 
-#include <ted_string_utils.h>
+#include <ted_utils.h>
 #include <ted_xdg.h>
 #include <ted_die.h>
 #include <ted_longjmp.h>
@@ -39,10 +39,6 @@
 #include <ted_config.h>
 
 
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-
 // config_dialog.c
 void config_dialog(void);
 void parse_command(char *command);
@@ -52,12 +48,6 @@ void display_menu(const char *message, const char *shadow);
 void display_buffer(Buffer buf, int len_line_number);
 
 // keypress.c
-void expand_line(Line *ln, size_t x);
 void process_keypress(int c);
-
-// modify.c
-bool modify(Buffer *buf);
-void add_char(Grapheme c, size_t x, Line *ln);
-void remove_char(size_t x, Line *ln);
 
 #endif

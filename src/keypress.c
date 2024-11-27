@@ -1,14 +1,5 @@
 #include "ted.h"
 
-// garants that the capacity is (x + 1) bytes greater than the length
-void expand_line(Line *ln, size_t x) {
-    if (ln->cap <= ln->length + x + 1) {
-        while (ln->cap <= ln->length + x + 1)
-            ln->cap *= 2;
-
-        ln->data = realloc(ln->data, ln->cap);
-    }
-}
 
 
 void process_keypress(int c) {
@@ -197,7 +188,7 @@ void process_keypress(int c) {
     }
     */
     case KEY_BACKSPACE: case KEY_DC: case 127: {
-        if (modify(buf)) {
+        if (modify_buffer(buf)) {
             if (buf->cursor.x_bytes > 0) {
                 process_keypress(KEY_LEFT);
                 remove_char(buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
@@ -216,7 +207,7 @@ void process_keypress(int c) {
                 truncate_cur(buf);
                 buf->cursor.lx_width = buf->cursor.x_width;
 
-                expand_line(&buf->lines[buf->cursor.y], del_line.length);
+                reserve_line_cap(&buf->lines[buf->cursor.y], del_line.length);
 
                 Line *to_append = &buf->lines[buf->cursor.y];
 
@@ -235,7 +226,7 @@ void process_keypress(int c) {
         break;
     } case '\n': case KEY_ENTER: case '\r':
     {
-        if (modify(buf)) {
+        if (modify_buffer(buf)) {
             buf->lines = realloc(buf->lines, ++buf->num_lines * sizeof(Line));
             memmove(
                 &buf->lines[buf->cursor.y + 2],
@@ -251,7 +242,7 @@ void process_keypress(int c) {
             if (SEL_BUF.autotab_on) {
                 size_t indent_level = get_line_indent_level(*current);
                 
-                expand_line(new, indent_level);
+                reserve_line_cap(new, indent_level);
 
                 memcpy(new->data, current->data, indent_level);
                 new->length = indent_level;
@@ -266,7 +257,7 @@ void process_keypress(int c) {
             truncate_cur(buf);
             buf->cursor.lx_width = buf->cursor.x_width;
 
-            expand_line(new, current->length - cur_x);
+            reserve_line_cap(new, current->length - cur_x);
 
             memcpy(
                 &new->data[new->length],
@@ -306,7 +297,7 @@ void process_keypress(int c) {
 
 
     if (r > 1 || isprint(c) || '\t' == c) {
-        if (modify(buf)) {
+        if (modify_buffer(buf)) {
             Grapheme g = {r, cc};
 
             add_char(g, buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
