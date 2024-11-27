@@ -8,24 +8,17 @@
 #define BOOL_COMMAND(a, b) \
     if (words_len == 1) { \
         int r = string_to_bool(words[0]); \
-        if (r == 1) \
-            a \
-        else if (r == 0) \
-            b \
+        if (r == 1) a \
+        else if (r == 0) b \
     }
 
 #define BOOL_SET(a) BOOL_COMMAND((a) = 1;, (a) = 0;);
 
 #define DEF_COMMAND(a, b) \
     static void (a)(char words[][CMD_WORD_SZ], size_t words_len) { \
-        Buffer *buf = &SEL_BUF; \
-        /* Only for suppressing warnings */ \
         PRETEND_TO_USE(words); \
         PRETEND_TO_USE(words_len); \
-        PRETEND_TO_USE(buf); \
-        \
         b \
-        return; \
     }
 
 
@@ -46,33 +39,30 @@ DEF_COMMAND(indentsize, {
 })
 
 
-DEF_COMMAND(crlf, BOOL_SET(buf->crlf))
+DEF_COMMAND(crlf, BOOL_SET(SEL_BUF.crlf))
 
 DEF_COMMAND(autotab, BOOL_SET(SEL_BUF.autotab_on))
 
 DEF_COMMAND(save_as, {
     if (words_len == 1) {
-        free(buf->filename);
-
-        size_t size = strlen(words[0]) + 1;
-        buf->filename = malloc(size);
-        memcpy(buf->filename, words[0], size);
-
-        // Permissions may change since the last time it was detected
-        buf->can_write = can_write(buf->filename);
-
-        if (buf->can_write)
-            savefile(buf);
-        else
-            message("Can't save, no permission to write");
+        if (!can_write(words[0])) {
+            message("can't write in this file");
+            return;
+        }
+    
+        free(SEL_BUF.filename);
+        SEL_BUF.filename = printdup("%s", words[0]);
+        SEL_BUF.can_write = can_write(SEL_BUF.filename);
+        
+        savefile(&SEL_BUF);
     }
 })
 
 DEF_COMMAND(read_only, {
-    BOOL_SET(buf->read_only);
+    BOOL_SET(SEL_BUF.read_only);
 
-    if (!buf->can_write && !buf->read_only) {
-        buf->read_only = 1;
+    if (!SEL_BUF.can_write && !SEL_BUF.read_only) {
+        SEL_BUF.read_only = 1;
         message("Can't unlock buffer without write permission");
     }
 })
@@ -81,13 +71,12 @@ DEF_COMMAND(read_only, {
 DEF_COMMAND(next, next_buffer();)
 DEF_COMMAND(prev, previous_buffer();)
 DEF_COMMAND(close_buffer, {
-    if (buf->modified) {
+    if (SEL_BUF.modified) {
         char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to confirm", NULL);
         bool confirmed = prt && 0 == strcmp("exit", prt);
         free(prt);
 
-        if (!confirmed)
-            return;
+        if (!confirmed) return;
     }
     buffer_close();
 })
