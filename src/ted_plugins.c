@@ -1,28 +1,11 @@
-#include "ted.h"
+#include <ted_plugins.h>
+#include <ted_utils.h>
+#include <ted_xdg.h>
+#include <ted_config.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-Line blank_line(void) {
-    Line ln;
-
-    ln.cap = READ_BLOCKSIZE;
-    ln.data = malloc(ln.cap);
-    ln.length = 0;
-
-    *ln.data = '\0';
-    return ln;
-}
-
-size_t get_ident_sz(char *s) {
-    size_t ident_sz;
-    char c;
-    for (
-        ident_sz = 0;
-        ' ' == (c = s[ident_sz])
-        || '\t' == c;
-        ident_sz++
-    );
-
-    return ident_sz;
-}
 
 int invoke_editorconfig(const char *prop, const char *filename) {
     char *program_path = printdup("%s/" TED_EDITORCONFIG_PLUGIN_NAME, ted_data_home);
@@ -57,10 +40,4 @@ void configure_editorconfig(Buffer *b) {
         b->tab_width = tab_width;
     if (use_tabs)
         b->indent_size = 0;
-}
-
-void replace_fd(int fd, const char *filename, int flags) {
-    close(fd);
-    if (fd != open(filename, flags))
-        die("couldn't get the same file descriptor as the original");
 }

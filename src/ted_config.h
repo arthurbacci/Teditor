@@ -1,3 +1,6 @@
+#ifndef TED_CONFIG_H
+#define TED_CONFIG_H
+
 // SET TO ZERO FOR INDENTING WITH TABS
 #define DEFAULT_INDENT_SIZE 0
 // THE WIDTH OF THE TAB CHARACTER
@@ -9,3 +12,13 @@
 #define TED_DIRECTORY_NAME "ted"
 
 #define TED_EDITORCONFIG_PLUGIN_NAME "ted_editorconfig"
+
+#define READ_BLOCKSIZE 256
+
+#define MSG_SZ 512
+#define CMD_WORD_SZ 128
+#define CMD_ARR_SZ 30
+
+#define INPUT_TIMEOUT 5
+
+#endif

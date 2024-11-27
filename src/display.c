@@ -104,29 +104,22 @@ void display_buffer(Buffer buf, int len_line_number) {
             // CAUTION: if anything is changed here be sure to make grapheme
             // _width follow along
             switch (get_grapheme_type(g)) {
-                case TABULATION: {
+                case TABULATION:
                     attron(A_REVERSE);
                     for (int k = 0; k < SEL_BUF.tab_width; k++)
                         addch(' ');
-                }
-                case CONTROL_CHAR: {
-                    char d = *g.dt ^ 0100;
+                    break;
+                case CONTROL_CHAR:
                     attron(A_REVERSE);
-                    switch (d) {
-                        case '\\': printw("FS"); break;
-                        case ']' : printw("GS"); break;
-                        case '^' : printw("RS"); break;
-                        case '_' : printw("US"); break;
-                        default: printw("^%c", d);
-                    }
-                }
-                case INVALID_UNICODE: {
-                    //attron(A_REVERSE);
-                    //addch('X');
-                }
-                case DISPLAYABLE_CHAR: {
+                    printw("^%c", *g.dt ^ 0100);
+                    break;
+                case INVALID_UNICODE:
+                    attron(A_REVERSE);
+                    addch('X');
+                    break;
+                case DISPLAYABLE_CHAR:
                     printw("%.*s", (int)g.sz, g.dt);
-                }
+                    break;
             }
             size += grapheme_width(g);
             

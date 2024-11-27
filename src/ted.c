@@ -6,10 +6,14 @@ TODO: remove the Grapheme type and do it without overhead
 #include <curses.h>
 #include <unistd.h>
 
-char *menu_message = "";
-
 bool is_ted_longjmp_set = false;
 jmp_buf ted_longjmp_end;
+
+void replace_fd(int fd, const char *filename, int flags) {
+    close(fd);
+    if (fd != open(filename, flags))
+        die("couldn't get the same file descriptor as the original");
+}
 
 int main(int argc, char **argv) {
     ensure_ted_dirs();
@@ -31,9 +35,10 @@ int main(int argc, char **argv) {
         free(filename);*/
     }
 
-    open_buffer(default_buffer());
+    open_default_buffer();
     
     for (int i = 1; i < argc; i++) {
+        // TODO: refactor this ugly piece of code
         char *filename = malloc(PATH_MAX + 1);
         size_t len = 0;
 
@@ -59,14 +64,8 @@ int main(int argc, char **argv) {
             // Now we have an absolute filename
         }
 
-        char *smaller_filename = malloc(len + 1);
-        memcpy(smaller_filename, filename, len + 1);
+        open_file(printdup("%s", filename));
         free(filename);
-        filename = smaller_filename;
-
-        FILE *fp = fopen(filename, "r");
-        Buffer b = read_lines(fp, filename, can_write(filename));
-        open_buffer(b);
     }
 
     setlocale(LC_ALL, "");
@@ -89,8 +88,9 @@ int main(int argc, char **argv) {
 
         while (1) {
             int len_line_number = snprintf(NULL, 0, "%lu", SEL_BUF.num_lines);
+            ScreenInfo screen_info = get_screen_info(len_line_number);
         
-            calculate_scroll(&SEL_BUF, COLS - len_line_number - 2);
+            calculate_scroll(&SEL_BUF, screen_info);
 
             display_buffer(SEL_BUF, len_line_number);
             display_menu(menu_message, NULL);

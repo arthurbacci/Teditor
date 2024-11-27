@@ -27,171 +27,28 @@
 #include <time.h>
 #include <stdarg.h>
 
-// suckless' libgrapheme
-#include <grapheme.h>
-
-#include <ted_string_utils.h>
+#include <ted_utils.h>
 #include <ted_xdg.h>
 #include <ted_die.h>
 #include <ted_longjmp.h>
+#include <ted_grapheme.h>
+#include <ted_buffer.h>
+#include <ted_screen.h>
+#include <ted_prompt.h>
+
 #include <ted_config.h>
 
-// Screen rows
-#define SROW (LINES - 1)
-// Screen cols
-#define SCOL (COLS - 1)
-
-#define READ_BLOCKSIZE 100
-#define ctrl(x) ((x) & 0x1f)
-
-#define CTRL_KEY_RIGHT 0x232
-#define CTRL_KEY_LEFT  0x223
-
-#define NUM_PAIRS 6
-
-#define IN_RANGE(x, min, max)  ((x) >= (min)) && ((x) <= (max))
-#define OUT_RANGE(x, min, max) ((x) < (min)) || ((x) > (max))
-
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-// timeout for input in ncurses (in milliseconds)
-#define INPUT_TIMEOUT 5
-
-#define MSG_SZ 512
-
-#define PRETEND_TO_USE(x) (void)(x)
-
-#define NUM_BUFFERS 16
-
-#define SEL_BUF (buffer_list.bufs[buffer_list.selected])
-
-/*--*--TYPES--*--*/
-
-typedef struct {
-    size_t sz;
-    char *dt;
-} Grapheme;
-
-typedef struct {
-    size_t cap;
-    size_t length;
-    char *data;
-} Line;
-
-typedef struct {
-    size_t lx_width;
-    size_t x_width;
-    size_t x_bytes;
-
-    size_t y;
-} Cursor;
-
-typedef struct {
-    size_t x_width;
-    size_t y;
-} TextScroll;
-
-typedef struct {
-    Cursor cursor;
-    TextScroll scroll;
-
-    Line *lines;
-    size_t num_lines;
-
-    char *filename;
-
-    bool modified;
-    bool read_only;
-    bool can_write;
-    bool crlf;
-
-    bool autotab_on;
-    uint8_t indent_size;
-    uint8_t tab_width;
-} Buffer;
-
-typedef struct {
-    Buffer bufs[NUM_BUFFERS];
-    size_t len;
-    size_t selected;
-} BufferList;
-
-typedef struct {
-    const char *command;
-    const char *hint;
-} Hints;
-
-typedef enum {
-    DISPLAYABLE_CHAR,
-    TABULATION,
-    INVALID_UNICODE,
-    CONTROL_CHAR
-} GraphemeType;
-
-
-// message_and_prompt.c
-void message(char *msg);
 
 // config_dialog.c
 void config_dialog(void);
 void parse_command(char *command);
 
-// open_and_save.c
-void savefile(Buffer *buf);
-Buffer read_lines(FILE *fp, char *filename, bool read_only);
-void open_file(char *fname);
-bool can_write(char *fname);
-
 // display.c
 void display_menu(const char *message, const char *shadow);
 void display_buffer(Buffer buf, int len_line_number);
 
-// free.c
-void free_buffer(Buffer *buf);
-
 // keypress.c
-void expand_line(Line *ln, size_t x);
 void process_keypress(int c);
 
-// modify.c
-bool modify(Buffer *buf);
-void add_char(Grapheme c, size_t x, Line *ln);
-void remove_char(size_t x, Line *ln);
-
-// cursor.c
-void calculate_scroll(Buffer *buf, size_t screen_width);
-void truncate_cur(Buffer *buf);
-void recalc_cur(Buffer *buf);
-
-// buffers.c
-Buffer default_buffer();
-void open_buffer(Buffer b);
-void buffer_close(void);
-void next_buffer(void);
-void previous_buffer(void);
-
-// grapheme.c
-Grapheme get_next_grapheme(char **str, size_t len);
-size_t grapheme_width(Grapheme g);
-size_t wi_to_gi(size_t si, char *s);
-size_t gi_to_wi(size_t gi, char *s);
-ssize_t index_by_width_after(size_t _wi, char **s);
-size_t index_by_width(size_t wi, char **s);
-bool is_replacement_character(Grapheme g);
-Grapheme replacement_character(void);
-GraphemeType get_grapheme_type(Grapheme g);
-
-// utils.c
-Line blank_line(void);
-char *bufn(int a);
-size_t get_ident_sz(char *s);
-int invoke_editorconfig(const char *prop, const char *filename);
-void configure_editorconfig(Buffer *b);
-void replace_fd(int fd, const char *filename, int flags);
-
-extern char *menu_message;
-extern BufferList buffer_list;
 
 #endif
-

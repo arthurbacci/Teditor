@@ -1,3 +1,5 @@
+// TODO: move to ted_utils.c, alongside moving ted_die.h to ted_utils.h
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <ted_longjmp.h>
