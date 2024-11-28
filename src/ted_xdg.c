@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <ted_utils.h>
-#include <ted_die.h>
 #include <ted_config.h>
 
 // Defaults in case there's no information about them in the path

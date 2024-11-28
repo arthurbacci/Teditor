@@ -6,6 +6,10 @@
 
 #define PRETEND_TO_USE(x) (void)(x)
 
+
+// Kills the program after displaying a message
+void die(const char *fmt, ...);
+
 // Converts strings of the form "0", "t", "false", "F" or "TrUE" to a boolean, or returns -1 if it
 // is not a valid boolean.
 int string_to_bool(const char *s);
