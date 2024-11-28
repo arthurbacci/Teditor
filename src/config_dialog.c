@@ -1,6 +1,5 @@
 #include "ted.h"
 
-#define PRETEND_TO_USE(x) (void)(x)
 
 // TODO: error messages for incomplete commands (right now they're being
 // completely ignored)

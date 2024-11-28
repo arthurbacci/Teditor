@@ -4,6 +4,8 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
+#define PRETEND_TO_USE(x) (void)(x)
+
 // Converts strings of the form "0", "t", "false", "F" or "TrUE" to a boolean, or returns -1 if it
 // is not a valid boolean.
 int string_to_bool(const char *s);
