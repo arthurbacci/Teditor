@@ -111,11 +111,9 @@ Hints hints[] = {
 
 
 void calculate_base_hint(char *base_hint) {
-    char *p = base_hint;
     for (size_t i = 0; hints[i].command; i++)
-        p += sprintf(p, "%s ", hints[i].command);
-    if (p != base_hint)
-        p[-1] = '\0';
+        base_hint += sprintf(base_hint, "%s ", hints[i].command);
+    base_hint[hints[0].command ? -1 : 0] = '\0';
 }
 
 void config_dialog(void) {
