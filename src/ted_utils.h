@@ -4,6 +4,8 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
+#define IN_RANGE(a, b, c) ((c) >= (a) && (c) <= (b))
+
 #define PRETEND_TO_USE(x) (void)(x)
 
 
@@ -16,5 +18,7 @@ int string_to_bool(const char *s);
 
 // Similar to sprintf, but dynamically allocates enough space for what you need to format
 char *printdup(const char *fmt, ...);
+
+char *next_word(char **s);
 
 #endif

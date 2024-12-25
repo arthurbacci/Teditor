@@ -5,56 +5,46 @@
 // completely ignored)
 
 #define BOOL_COMMAND(a, b) \
-    if (words_len == 1) { \
-        int r = string_to_bool(words[0]); \
+        int r = string_to_bool(next_word(&words)); \
         if (r == 1) a \
-        else if (r == 0) b \
-    }
+        else if (r == 0) b
 
 #define BOOL_SET(a) BOOL_COMMAND((a) = 1;, (a) = 0;);
 
 #define DEF_COMMAND(a, b) \
-    static void (a)(char words[][CMD_WORD_SZ], size_t words_len) { \
+    static void (a)(char *words) { \
         PRETEND_TO_USE(words); \
-        PRETEND_TO_USE(words_len); \
         b \
     }
 
 
-
 DEF_COMMAND(tabwidth, {
-    if (words_len == 1) {
-        int answer_int = atoi(words[0]);
-        if (answer_int > 0 && answer_int < 256)
-            SEL_BUF.tab_width = answer_int;
-    }
+    int answer_int = atoi(next_word(&words));
+    if (IN_RANGE(1, 255, answer_int))
+        SEL_BUF.tab_width = answer_int;
 })
 DEF_COMMAND(indentsize, {
-    if (words_len == 1) {
-        int answer_int = atoi(words[0]);
-        if (answer_int >= 0 && answer_int < 256)
-            SEL_BUF.indent_size = answer_int;
-    }
+    int answer_int = atoi(next_word(&words));
+    if (IN_RANGE(0, 255, answer_int))
+        SEL_BUF.indent_size = answer_int;
 })
-
 
 DEF_COMMAND(crlf, BOOL_SET(SEL_BUF.crlf))
 
 DEF_COMMAND(autotab, BOOL_SET(SEL_BUF.autotab_on))
 
 DEF_COMMAND(save_as, {
-    if (words_len == 1) {
-        if (!can_write(words[0])) {
-            message("can't write in this file");
-            return;
-        }
+    const char *filename = next_word(&words);
+    if (!can_write(filename)) {
+        message("can't write in this file");
+        return;
+     }
     
-        free(SEL_BUF.filename);
-        SEL_BUF.filename = printdup("%s", words[0]);
-        SEL_BUF.can_write = can_write(SEL_BUF.filename);
+    free(SEL_BUF.filename);
+    SEL_BUF.filename = printdup("%s", filename);
+    SEL_BUF.can_write = can_write(SEL_BUF.filename);
         
-        savefile(&SEL_BUF);
-    }
+    savefile(&SEL_BUF);
 })
 
 DEF_COMMAND(read_only, {
@@ -71,18 +61,17 @@ DEF_COMMAND(next, next_buffer();)
 DEF_COMMAND(prev, previous_buffer();)
 DEF_COMMAND(close_buffer, {
     if (SEL_BUF.modified) {
-        char *prt = prompt_hints("Unsaved changes: ", "", "'exit' to confirm", NULL);
-        bool confirmed = prt && 0 == strcmp("exit", prt);
-        free(prt);
-
-        if (!confirmed) return;
+        char msg[MSG_SZ] = "Unsaved changes: ";
+        prompt_hints(msg, "'exit' to confirm", NULL);
+        
+        if (0 != strcmp("exit", msg)) return;
     }
     buffer_close();
 })
 
 struct {
     const char *name;
-    void (*function)(char words[][CMD_WORD_SZ], size_t words_len);
+    void (*function)(char *words);
 } fns[] = {
     {"tab_width"  , tabwidth    },
     {"indent_size", indentsize  },
@@ -116,53 +105,27 @@ void calculate_base_hint(char *base_hint) {
     base_hint[hints[0].command ? -1 : 0] = '\0';
 }
 
-void config_dialog(void) {
-    char base_hint[1000];
-    calculate_base_hint(base_hint);
-
-    char command[MSG_SZ];
-    char *_command = prompt_hints("Enter command: ", "", base_hint, hints);
-    if (!_command)
-        return;
-
-    strncpy(command, _command, MSG_SZ - 1);
-    command[MSG_SZ - 1] = '\0';
-    free(_command);
-
-    parse_command(command);
-}
-
-size_t split_cmd_string(const char *s, char ret[CMD_ARR_SZ + 1][CMD_WORD_SZ]) {
-    for (; *s == ' '; s++);
-
-    size_t i;
-    for (i = 0; *s; i++) {
-        const char *n = s;
-        for (; *n != ' ' && *n != '\0'; n++);
-
-        size_t cpsz = MIN(n - s, CMD_WORD_SZ - 1);
-        memcpy(ret[i], s, cpsz);
-        ret[i][cpsz] = '\0';
-
-        for (; *n == ' '; n++);
-        s = n;
-    }
-
-    return i;
-}
-
-void parse_command(char *command) {
-    if (!command) return;
-
-    char words[CMD_ARR_SZ + 1][CMD_WORD_SZ];
-    size_t words_len = split_cmd_string(command, words);
-
+void parse_command(char *words) {
+    char *fstword = next_word(&words);
+    
     for (size_t i = 0; fns[i].name; i++) {
-        if (!strcmp(words[0], fns[i].name)) {
-            fns[i].function(words + 1, words_len - 1);
-            break;
+        if (0 == strcmp(fstword, fns[i].name)) {
+            fns[i].function(words);
+            return;
         }
     }
 }
+
+void config_dialog(void) {
+    char base_hint[MSG_SZ];
+    // FIXME: may overrun buffer
+    calculate_base_hint(base_hint);
+
+    char words[MSG_SZ] = "Enter command: ";
+    prompt_hints(words, base_hint, hints);
+    
+    parse_command(words);
+}
+
 
 

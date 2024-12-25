@@ -1,14 +1,17 @@
 #ifndef TED_PROMPT_H
 #define TED_PROMPT_H
 
+#include <ted_config.h>
+#include <stddef.h>
+
 typedef struct {
     const char *command;
     const char *hint;
 } Hints;
 
-char *prompt_hints(const char *msgtmp, char *def, char *base, Hints *hints);
-void message(char *msg);
+size_t prompt_hints(char message[MSG_SZ], char *base_hint, Hints *hints);
+void message(const char *msg);
 
-extern const char *menu_message;
+extern char menu_message[MSG_SZ];
 
 #endif

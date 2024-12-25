@@ -43,3 +43,14 @@ END:
     
     return ret;
 }
+
+char *next_word(char **s) {
+    size_t fstlen = 0;
+    for (; (*s)[fstlen] && (*s)[fstlen] != ' '; fstlen++);
+    
+    while ((*s)[fstlen] == ' ')
+        (*s)[fstlen++] = '\0';
+    
+    *s += fstlen;
+    return *s - fstlen;
+}
