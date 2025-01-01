@@ -29,7 +29,6 @@
 
 #include <ted_utils.h>
 #include <ted_xdg.h>
-#include <ted_die.h>
 #include <ted_longjmp.h>
 #include <ted_grapheme.h>
 #include <ted_buffer.h>
@@ -49,5 +48,6 @@ void display_buffer(Buffer buf, int len_line_number);
 
 // keypress.c
 void process_keypress(int c);
+
 
 #endif

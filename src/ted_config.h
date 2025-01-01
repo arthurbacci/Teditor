@@ -16,8 +16,6 @@
 #define READ_BLOCKSIZE 256
 
 #define MSG_SZ 512
-#define CMD_WORD_SZ 128
-#define CMD_ARR_SZ 30
 
 #define INPUT_TIMEOUT 5
 

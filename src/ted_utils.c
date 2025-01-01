@@ -2,6 +2,17 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <ted_longjmp.h>
+
+void die(const char *fmt, ...) {
+    va_list va;
+    va_start(va, fmt);
+    
+    vfprintf(stderr, fmt, va);
+    
+    va_end(va);
+    TED_CALL_LONGJMP(TED_LONGJMP_DIE);
+}
 
 int string_to_bool(const char *s) {
     if (s[0] && !s[1]) {
@@ -31,4 +42,15 @@ END:
     va_end(va2);
     
     return ret;
+}
+
+char *next_word(char **s) {
+    size_t fstlen = 0;
+    for (; (*s)[fstlen] && (*s)[fstlen] != ' '; fstlen++);
+    
+    while ((*s)[fstlen] == ' ')
+        (*s)[fstlen++] = '\0';
+    
+    *s += fstlen;
+    return *s - fstlen;
 }

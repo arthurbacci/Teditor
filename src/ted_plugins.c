@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+
 int invoke_editorconfig(const char *prop, const char *filename) {
     char *program_path = printdup("%s/" TED_EDITORCONFIG_PLUGIN_NAME, ted_data_home);
 

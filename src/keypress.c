@@ -146,8 +146,11 @@ void process_keypress(int c) {
     }
     */
     case ctrl('o'): {
-        char *d = prompt_hints("open: ", buf->filename, NULL, NULL);
-        if (d) open_file(d);
+        char d[MSG_SZ] = "open: ";
+        // FIXME: add this back
+        // prompt_hints(d, buf->filename, NULL, NULL);
+        prompt_hints(d, NULL, NULL);
+        if (*d) open_file(d);
         break;
     }
     /*
