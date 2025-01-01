@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ncurses.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 
 char menu_message[MSG_SZ] = "";
@@ -17,8 +18,19 @@ size_t prompt_hints(char message[MSG_SZ], char *base_hint, Hints *hints) {
     size_t i = 0;
     
     while (1) {
-        // TODO: show hints
         const char *hint = NULL;
+        
+        if (i == 0) {
+            hint = base_hint;
+        } else {
+            char *tmp = printdup("%s", afterlabel);
+            char *fstword = next_word(&tmp);
+            if (&fstword[strlen(fstword)] != tmp)
+                for (size_t hi = 0; hints[hi].command; hi++)
+                    if (0 == strcmp(fstword, hints[hi].command))
+                        hint = hints[hi].hint;
+            free(fstword);
+        }
         
         display_menu(message, hint);
         
