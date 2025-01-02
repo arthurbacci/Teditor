@@ -35,6 +35,7 @@
 #include <ted_screen.h>
 #include <ted_prompt.h>
 #include <ted_commands.h>
+#include <ted_input.h>
 
 #include <ted_config.h>
 
@@ -42,9 +43,6 @@
 // display.c
 void display_menu(const char *message, const char *shadow);
 void display_buffer(Buffer buf, int len_line_number);
-
-// keypress.c
-void process_keypress(int c);
 
 
 #endif

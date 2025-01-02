@@ -1,5 +1,13 @@
-#include "ted.h"
-
+#include <ted_input.h>
+#include <ted_buffer.h>
+#include <ted_prompt.h>
+#include <ted_utils.h>
+#include <ted_grapheme.h>
+#include <ted_commands.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <ncurses.h>
 
 
 void process_keypress(int c) {
