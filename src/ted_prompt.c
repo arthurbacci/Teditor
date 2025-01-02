@@ -66,3 +66,4 @@ void message(const char *msg) {
     menu_message[MSG_SZ - 1] = '\0';
 }
 
+

@@ -1,8 +1,12 @@
-#include "ted.h"
+#include <ted_commands.h>
 
-
-// TODO: error messages for incomplete commands (right now they're being
-// completely ignored)
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <ted_utils.h>
+#include <ted_buffer.h>
+#include <ted_prompt.h>
+#include <ted_config.h>
 
 #define BOOL_COMMAND(a, b) \
         int r = string_to_bool(next_word(&words)); \
@@ -98,13 +102,6 @@ Hints hints[] = {
     {NULL, NULL}
 };
 
-
-void calculate_base_hint(char *base_hint) {
-    for (size_t i = 0; hints[i].command; i++)
-        base_hint += sprintf(base_hint, "%s ", hints[i].command);
-    base_hint[hints[0].command ? -1 : 0] = '\0';
-}
-
 void parse_command(char *words) {
     char *fstword = next_word(&words);
     
@@ -127,5 +124,8 @@ void config_dialog(void) {
     parse_command(words);
 }
 
-
-
+void calculate_base_hint(char *base_hint) {
+    for (size_t i = 0; hints[i].command; i++)
+        base_hint += sprintf(base_hint, "%s ", hints[i].command);
+    base_hint[hints[0].command ? -1 : 0] = '\0';
+}
