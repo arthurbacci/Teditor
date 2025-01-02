@@ -1,8 +1,9 @@
 #ifndef TED_PROMPT_H
 #define TED_PROMPT_H
 
-#include <ted_config.h>
 #include <stddef.h>
+#include <ted_config.h>
+
 
 typedef struct {
     const char *command;

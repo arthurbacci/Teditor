@@ -1,4 +1,5 @@
-#include "ted.h"
+#include <ted_buffer.h>
+#include <ncurses.h>
 
 void display_menu(const char *message, const char *shadow) {
     const Buffer buf = SEL_BUF;

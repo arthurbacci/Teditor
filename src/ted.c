@@ -1,10 +1,19 @@
-/*
-TODO: remove the Grapheme type and do it without overhead
-*/
-
-#include "ted.h"
-#include <curses.h>
+#include <ncurses.h>
+#include <stdlib.h>
+#include <setjmp.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <stdio.h>
+#include <locale.h>
+#include <ted_xdg.h>
+#include <ted_input.h>
+#include <ted_output.h>
+#include <ted_utils.h>
+#include <ted_buffer.h>
+#include <ted_prompt.h>
+#include <ted_config.h>
+
 
 bool is_ted_longjmp_set = false;
 jmp_buf ted_longjmp_end;
@@ -39,7 +48,7 @@ int main(int argc, char **argv) {
     
     for (int i = 1; i < argc; i++) {
         // TODO: refactor this ugly piece of code
-        char *filename = malloc(PATH_MAX + 1);
+        char *filename = malloc(1000);
         size_t len = 0;
 
         if (*argv[i] == '/') {
@@ -50,11 +59,11 @@ int main(int argc, char **argv) {
             /* Relative file path */
 
             // Write the directory path into filename
-            if (getcwd(filename, PATH_MAX) != NULL) {
+            if (getcwd(filename, 1000) != NULL) {
                 len = strlen(filename);
                 len += snprintf(
                     filename + len,
-                    PATH_MAX - len,
+                    1000 - len,
                     "/%s",
                     argv[i]
                 );
