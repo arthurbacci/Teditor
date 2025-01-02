@@ -34,13 +34,10 @@
 #include <ted_buffer.h>
 #include <ted_screen.h>
 #include <ted_prompt.h>
+#include <ted_commands.h>
 
 #include <ted_config.h>
 
-
-// config_dialog.c
-void config_dialog(void);
-void parse_command(char *command);
 
 // display.c
 void display_menu(const char *message, const char *shadow);
