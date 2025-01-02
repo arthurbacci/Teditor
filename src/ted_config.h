@@ -1,5 +1,7 @@
-// WHAT IS CONSIDERED WHITESPACE
-#define WHITESPACE_CHARS " \t~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"
+#ifndef TED_CONFIG_H
+#define TED_CONFIG_H
+
+#include <stdbool.h>
 
 // SET TO ZERO FOR INDENTING WITH TABS
 #define DEFAULT_INDENT_SIZE 0
@@ -12,3 +14,11 @@
 #define TED_DIRECTORY_NAME "ted"
 
 #define TED_EDITORCONFIG_PLUGIN_NAME "ted_editorconfig"
+
+#define READ_BLOCKSIZE 256
+
+#define MSG_SZ 512
+
+#define INPUT_TIMEOUT 5
+
+#endif
