@@ -1,6 +1,8 @@
 #ifndef TED_CONFIG_H
 #define TED_CONFIG_H
 
+#include <stdbool.h>
+
 // SET TO ZERO FOR INDENTING WITH TABS
 #define DEFAULT_INDENT_SIZE 0
 // THE WIDTH OF THE TAB CHARACTER
