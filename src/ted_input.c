@@ -20,30 +20,26 @@ void process_keypress(int c) {
     message("");
 
     switch (c) {
-    case ctrl('c'):
+    case ctrl('c'): {
         parse_command("close");
-    case ctrl('z'):
+        break;
+    } case ctrl('z'): {
         parse_command("prev");
-    case ctrl('x'):
+        break;
+    } case ctrl('x'): {
         parse_command("next");
-    case KEY_UP:
-    case ctrl('p'):
-        // Decrements `y` if it is greater than 0
+        break;
+    } case KEY_UP: case ctrl('p'): {
         buf->cursor.y -= buf->cursor.y > 0;
-
-        recalc_cur(buf);
+        recalc_restore_cur(buf);
 
         break;
-    case KEY_DOWN:
-    case ctrl('n'):
-        // Increments `y` if it doesn't gets greater or equal than `num_lines`
+    } case KEY_DOWN: case ctrl('n'): {
         buf->cursor.y += buf->cursor.y + 1 < buf->num_lines;
-
-        recalc_cur(buf);
-
+        recalc_restore_cur(buf);
+        
         break;
-    case KEY_LEFT:
-    case ctrl('b'): {
+    } case KEY_LEFT: case ctrl('b'): {
         char *s = buf->lines[buf->cursor.y].data;
 
         size_t x_grapheme = wi_to_gi(buf->cursor.x_width, s);
@@ -54,9 +50,7 @@ void process_keypress(int c) {
         recalc_cur(buf);
 
         break;
-    }
-    case KEY_RIGHT:
-    case ctrl('f'): {
+    } case KEY_RIGHT: case ctrl('f'): {
         char *s = buf->lines[buf->cursor.y].data + buf->cursor.x_bytes;
         Grapheme g = get_next_grapheme(&s, SIZE_MAX);
         size_t gw = grapheme_width(g);
@@ -65,45 +59,35 @@ void process_keypress(int c) {
         recalc_cur(buf);
 
         break;
-    }
-    case KEY_HOME:
-    case ctrl('a'):
+    } case KEY_HOME: case ctrl('a'): {
         buf->cursor.x_width = 0;
         recalc_cur(buf);
 
         break;
-    case KEY_END:
-    case ctrl('e'):
+    } case KEY_END: case ctrl('e'): {
         buf->cursor.x_width = SIZE_MAX;
         recalc_cur(buf);
 
         break;
-    case ctrl('s'):
+    } case ctrl('s'): {
         if (!buf->read_only)
             savefile(buf);
         break;
-    case '\t':
-        if (SEL_BUF.indent_size > 0) {
-            for (int i = 0; i < SEL_BUF.indent_size; i++)
-                process_keypress(' ');
-            return;
-        } // else, it will pass though and be added to the buffer
-        break;
-    case ctrl('g'):
+    } case ctrl('g'): {
         config_dialog();
         break;
-    case ctrl('q'):
+    } case ctrl('q'): {
         parse_command(buf->read_only ? "read-only 0" : "read-only 1");
         break;
-    case KEY_PPAGE: {
+    } case KEY_PPAGE: {
         buf->cursor.y -= MIN(buf->cursor.y, LINES - 1);
     
-        recalc_cur(buf);
+        recalc_restore_cur(buf);
         break;
     } case KEY_NPAGE: {
         buf->cursor.y += MIN(buf->num_lines - 1 - buf->cursor.y, LINES - 1);
     
-        recalc_cur(buf);
+        recalc_restore_cur(buf);
         break;
     } case ctrl('w'): {
         size_t oldcur = buf->cursor.x_width;
@@ -114,17 +98,14 @@ void process_keypress(int c) {
             process_keypress(KEY_DC);
 
         break;
-    }
-    case ctrl('o'): {
+    } case ctrl('o'): {
         char d[MSG_SZ] = "open: ";
         // FIXME: add this back
         // prompt_hints(d, buf->filename, NULL, NULL);
         prompt_hints(d, NULL, NULL);
         if (*d) open_file(d);
         break;
-    }
-    case CTRL_KEY_LEFT:
-    case ctrl('h'): {
+    } case CTRL_KEY_LEFT: case ctrl('h'): {
         char *s = buf->lines[buf->cursor.y].data;
 
         size_t x_word = wi_to_word(buf->cursor.x_width, s);
@@ -133,9 +114,7 @@ void process_keypress(int c) {
         recalc_cur(buf);
 
         break;
-    }
-    case CTRL_KEY_RIGHT:
-    case ctrl('l'): {
+    } case CTRL_KEY_RIGHT: case ctrl('l'): {
         char *s = buf->lines[buf->cursor.y].data;
         
         size_t x_word = wi_to_word(buf->cursor.x_width, s);
@@ -168,7 +147,7 @@ void process_keypress(int c) {
 
                 buf->cursor.y--;
                 buf->cursor.x_width = SIZE_MAX;
-                truncate_cur(buf);
+                recalc_cur(buf);
                 buf->cursor.lx_width = buf->cursor.x_width;
 
                 reserve_line_cap(&buf->lines[buf->cursor.y], del_line.length);
@@ -235,39 +214,40 @@ void process_keypress(int c) {
         }
 
         break;
-    }
-    }
+    } case '\t': {
+        if (buf->indent_size > 0) {
+            for (int i = 0; i < buf->indent_size; i++)
+                process_keypress(' ');
+            break;
+        }
+        // Fallthrough to indent with tabs
+    } default: {
+        char cc[4] = {c};
 
-    // TODO: move this all to `default`
+        uint32_t codepoint;
+        size_t r = grapheme_decode_utf8(cc, 1, &codepoint);
 
-    char cc[4];
-    cc[0] = c;
+        if (r > 1) {
+            for (size_t i = 1; i < r; i++)
+                cc[i] = getch();
 
-    uint32_t codepoint;
-    size_t r = grapheme_decode_utf8(cc, 1, &codepoint);
+            grapheme_decode_utf8(cc, r, &codepoint);
+        }
 
-    if (r > 1) {
-        for (size_t i = 1; i < r; i++)
-            cc[i] = getch();
-
-        grapheme_decode_utf8(cc, r, &codepoint);
-    }
-
-    if (GRAPHEME_INVALID_CODEPOINT == codepoint)
-        // TODO: maybe I can print a message?
-        return;
+        if (GRAPHEME_INVALID_CODEPOINT == codepoint)
+            // TODO: maybe I can print a message?
+            return;
 
 
-    if (r > 1 || isprint(c) || '\t' == c) {
-        if (modify_buffer(buf)) {
-            Grapheme g = {r, cc};
+        if (r > 1 || isprint(c) || '\t' == c) {
+            if (modify_buffer(buf)) {
+                Grapheme g = {r, cc};
 
-            add_char(g, buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
-            process_keypress(KEY_RIGHT);
+                add_char(g, buf->cursor.x_bytes, &buf->lines[buf->cursor.y]);
+                process_keypress(KEY_RIGHT);
+            }
         }
     }
-    
-
-    return;
+    }
 }
 

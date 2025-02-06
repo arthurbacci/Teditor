@@ -41,6 +41,11 @@ void truncate_cur(Buffer *buf) {
 }
 
 void recalc_cur(Buffer *buf) {
+    truncate_cur(buf);
+    buf->cursor.lx_width = buf->cursor.x_width;
+}
+
+void recalc_restore_cur(Buffer *buf) {
     buf->cursor.x_width = buf->cursor.lx_width;
     truncate_cur(buf);
 }

@@ -57,8 +57,8 @@ typedef struct {
 extern BufferList buffer_list;
 
 void calculate_scroll(Buffer *buf, ScreenInfo screen_info);
-void truncate_cur(Buffer *buf);
 void recalc_cur(Buffer *buf);
+void recalc_restore_cur(Buffer *buf);
 void open_default_buffer(void);
 void open_buffer(Buffer b);
 void buffer_close(void);
