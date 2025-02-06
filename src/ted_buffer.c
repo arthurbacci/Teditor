@@ -32,8 +32,6 @@ void calculate_scroll(Buffer *buf, ScreenInfo screen_info) {
         buf->scroll.x_width = buf->cursor.x_width - screen_info.text_width;
 }
 
-// TODO: check if there's any usage of truncate_cur except for recalc_cur
-// and if not, join the two functions into one
 void truncate_cur(Buffer *buf) {
     Line *ln = &buf->lines[buf->cursor.y];
     char *s = ln->data;
