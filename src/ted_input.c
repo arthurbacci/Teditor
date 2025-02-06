@@ -48,12 +48,10 @@ void process_keypress(int c) {
 
         size_t x_grapheme = wi_to_gi(buf->cursor.x_width, s);
 
-        if (x_grapheme > 0) {
+        if (x_grapheme > 0)
             buf->cursor.x_width = gi_to_wi(x_grapheme - 1, s);
-            truncate_cur(buf);
-        }
 
-        buf->cursor.lx_width = buf->cursor.x_width;
+        recalc_cur(buf);
 
         break;
     }
@@ -64,23 +62,20 @@ void process_keypress(int c) {
         size_t gw = grapheme_width(g);
 
         buf->cursor.x_width += gw;
-        truncate_cur(buf);
-        buf->cursor.lx_width = buf->cursor.x_width;
+        recalc_cur(buf);
 
         break;
     }
     case KEY_HOME:
     case ctrl('a'):
         buf->cursor.x_width = 0;
-        truncate_cur(buf);
-        buf->cursor.lx_width = buf->cursor.x_width;
+        recalc_cur(buf);
 
         break;
     case KEY_END:
     case ctrl('e'):
         buf->cursor.x_width = SIZE_MAX;
-        truncate_cur(buf);
-        buf->cursor.lx_width = buf->cursor.x_width;
+        recalc_cur(buf);
 
         break;
     case ctrl('s'):
@@ -98,9 +93,7 @@ void process_keypress(int c) {
         config_dialog();
         break;
     case ctrl('q'):
-        parse_command(
-            buf->read_only ? "read-only 0" : "read-only 1"
-        );
+        parse_command(buf->read_only ? "read-only 0" : "read-only 1");
         break;
     case KEY_PPAGE: {
         buf->cursor.y -= MIN(buf->cursor.y, LINES - 1);
@@ -137,10 +130,7 @@ void process_keypress(int c) {
         size_t x_word = wi_to_word(buf->cursor.x_width, s);
         
         buf->cursor.x_width = word_to_wi(x_word > 0 ? x_word - 1 : 0, s);
-        truncate_cur(buf);
-        
-        buf->cursor.lx_width = buf->cursor.x_width;
-        
+        recalc_cur(buf);
 
         break;
     }
@@ -151,8 +141,7 @@ void process_keypress(int c) {
         size_t x_word = wi_to_word(buf->cursor.x_width, s);
         
         buf->cursor.x_width = word_to_wi(x_word + 1, s);
-        truncate_cur(buf);
-        buf->cursor.lx_width = buf->cursor.x_width;
+        recalc_cur(buf);
 
         break;
     } case KEY_DC: case 127: {
@@ -228,8 +217,7 @@ void process_keypress(int c) {
 
             buf->cursor.y++;
             buf->cursor.x_width = SIZE_MAX;
-            truncate_cur(buf);
-            buf->cursor.lx_width = buf->cursor.x_width;
+            recalc_cur(buf);
 
             reserve_line_cap(new, current->length - cur_x);
 
