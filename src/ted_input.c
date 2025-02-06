@@ -151,10 +151,8 @@ void process_keypress(int c) {
 
         size_t x_word = wi_to_word(buf->cursor.x_width, s);
         
-        if (x_word > 0) {
-            buf->cursor.x_width = word_to_wi(x_word - 1, s);
-            truncate_cur(buf);
-        }
+        buf->cursor.x_width = word_to_wi(x_word > 0 ? x_word - 1 : 0, s);
+        truncate_cur(buf);
         
         buf->cursor.lx_width = buf->cursor.x_width;
         
