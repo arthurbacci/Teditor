@@ -73,7 +73,7 @@ size_t grapheme_width(Grapheme g) {
 size_t wi_to_gi(size_t si, char *s) {
     for (size_t i = 0;; i++) {
         Grapheme g = get_next_grapheme(&s, SIZE_MAX);
-
+    
         if (0 == g.sz)
             return i;
 
@@ -96,6 +96,44 @@ size_t gi_to_wi(size_t gi, char *s) {
         r += grapheme_width(g);
     }
     return r;
+}
+
+size_t word_to_wi(size_t word_n, char *s) {
+    size_t ret = 0;
+    for (size_t i = 0; i < word_n; i++) {
+        size_t wordl = grapheme_next_word_break_utf8(s, SIZE_MAX);
+        
+        size_t word_width = calc_string_width(s, wordl);
+        ret += word_width;
+        s += wordl;
+    }
+    return ret;
+}
+
+size_t wi_to_word(size_t wi, char *s) {
+    for (size_t i = 0;; i++) {
+        size_t wordl = grapheme_next_word_break_utf8(s, SIZE_MAX);
+        
+        if (wordl == 0)
+            return i;
+        
+        size_t word_width = calc_string_width(s, wordl);
+        
+        if (word_width > wi)
+            return i;
+        wi -= word_width;
+        s += wordl;
+    }
+}
+
+size_t calc_string_width(char *s, size_t len) {
+    size_t ret = 0;
+    const char *const end_of_s = s + len;
+    while (s < end_of_s) {
+        Grapheme g = get_next_grapheme(&s, SIZE_MAX);
+        ret += grapheme_width(g);
+    }
+    return ret;
 }
 
 ssize_t index_by_width_after(size_t _wi, char **s) {

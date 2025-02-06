@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <ncurses.h>
+#include <grapheme.h>
 
 
 void process_keypress(int c) {
@@ -126,33 +127,16 @@ void process_keypress(int c) {
         recalc_cur(buf);
         break;
     }*/
-    /*
     case ctrl('w'): {
-        Line *ln = &buf->lines[buf->cursor.y];
-
-        while (buf->cursor.x_bytes > 0) {
-            process_keypress(KEY_LEFT);
-            bool w = is_whitespace(ln->data[buf->cursor.x_bytes]);
-            process_keypress(KEY_RIGHT);
-            if (w)
-                break;
-
-            process_keypress(KEY_BACKSPACE);
-        }
+        size_t oldcur = buf->cursor.x_width;
         
-        while (buf->cursor.x_bytes > 0) {
-            process_keypress(KEY_LEFT);
-            bool w = is_whitespace(ln->data[buf->cursor.x_bytes]);
-            process_keypress(KEY_RIGHT);
-            if (!w)
-                break;
-
-            process_keypress(KEY_BACKSPACE);
-        }
+        process_keypress(CTRL_KEY_LEFT);
+        
+        for (size_t i = 0; i < oldcur - buf->cursor.x_width; i++)
+            process_keypress(KEY_DC);
 
         break;
     }
-    */
     case ctrl('o'): {
         char d[MSG_SZ] = "open: ";
         // FIXME: add this back
@@ -161,44 +145,41 @@ void process_keypress(int c) {
         if (*d) open_file(d);
         break;
     }
-    /*
     case CTRL_KEY_LEFT:
     case ctrl('h'): {
         char *s = buf->lines[buf->cursor.y].data;
 
-        while (
-            buf->cursor.x_bytes > 0 && !is_whitespace(s[buf->cursor.x_bytes])
-        ) {
-            process_keypress(KEY_LEFT);
+        size_t x_word = wi_to_word(buf->cursor.x_width, s);
+        
+        if (x_word > 0) {
+            buf->cursor.x_width = word_to_wi(x_word - 1, s);
+            truncate_cur(buf);
         }
         
-        while (buf->cursor.x_bytes > 0 && is_whitespace(s[buf->cursor.x_bytes]))
-            process_keypress(KEY_LEFT);
+        buf->cursor.lx_width = buf->cursor.x_width;
+        
 
         break;
     }
     case CTRL_KEY_RIGHT:
     case ctrl('l'): {
-        Line ln = buf->lines[buf->cursor.y];
-
-        while (
-            buf->cursor.x_bytes < ln.length
-            && !is_whitespace(ln.data[buf->cursor.x_bytes])
-        ) {
-            process_keypress(KEY_RIGHT);
-        }
-
-        while (
-            buf->cursor.x_bytes < ln.length
-            && is_whitespace(ln.data[buf->cursor.x_bytes])
-        ) {
-            process_keypress(KEY_RIGHT);
-        }
+        char *s = buf->lines[buf->cursor.y].data;
+        
+        size_t x_word = wi_to_word(buf->cursor.x_width, s);
+        
+        buf->cursor.x_width = word_to_wi(x_word + 1, s);
+        truncate_cur(buf);
+        buf->cursor.lx_width = buf->cursor.x_width;
 
         break;
-    }
-    */
-    case KEY_BACKSPACE: case KEY_DC: case 127: {
+    } case KEY_DC: case 127: {
+        size_t oldcur = buf->cursor.x_width;
+        process_keypress(KEY_RIGHT);
+        if (oldcur != buf->cursor.x_width)
+            process_keypress(KEY_BACKSPACE);
+        
+        break;
+    } case KEY_BACKSPACE: {
         if (modify_buffer(buf)) {
             if (buf->cursor.x_bytes > 0) {
                 process_keypress(KEY_LEFT);
@@ -235,8 +216,7 @@ void process_keypress(int c) {
             }
         }
         break;
-    } case '\n': case KEY_ENTER: case '\r':
-    {
+    } case '\n': case KEY_ENTER: case '\r': {
         if (modify_buffer(buf)) {
             buf->lines = realloc(buf->lines, ++buf->num_lines * sizeof(Line));
             memmove(
