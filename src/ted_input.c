@@ -102,32 +102,17 @@ void process_keypress(int c) {
             buf->read_only ? "read-only 0" : "read-only 1"
         );
         break;
-/*    case KEY_PPAGE: {
-        size_t dec = SROW + buf->cursor.y % SROW;
-
-        if (buf->cursor.y > dec)
-            buf->cursor.y -= dec;
-        else
-            buf->cursor.y = 0;
-        
-        buf->scroll.y = buf->cursor.y;
-
+    case KEY_PPAGE: {
+        buf->cursor.y -= MIN(buf->cursor.y, LINES - 1);
+    
         recalc_cur(buf);
         break;
-    }
-    case KEY_NPAGE: {
-        size_t inc = SROW - buf->cursor.y % SROW;
-
-        buf->cursor.y += inc;
-        if (buf->cursor.y >= buf->num_lines)
-            buf->cursor.y = buf->num_lines - 1;
-
-        buf->scroll.y = buf->cursor.y;
-
+    } case KEY_NPAGE: {
+        buf->cursor.y += MIN(buf->num_lines - 1 - buf->cursor.y, LINES - 1);
+    
         recalc_cur(buf);
         break;
-    }*/
-    case ctrl('w'): {
+    } case ctrl('w'): {
         size_t oldcur = buf->cursor.x_width;
         
         process_keypress(CTRL_KEY_LEFT);
