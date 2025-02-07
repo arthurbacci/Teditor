@@ -109,8 +109,12 @@ void process_keypress(int c) {
         char *s = buf->lines[buf->cursor.y].data;
 
         size_t x_word = wi_to_word(buf->cursor.x_width, s);
+        size_t width_from_word = word_to_wi(x_word, s);
         
-        buf->cursor.x_width = word_to_wi(x_word > 0 ? x_word - 1 : 0, s);
+        if (buf->cursor.x_width == width_from_word && x_word > 0)
+            buf->cursor.x_width = word_to_wi(x_word - 1, s);
+        else
+            buf->cursor.x_width = width_from_word;
         recalc_cur(buf);
 
         break;
