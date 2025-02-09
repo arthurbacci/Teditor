@@ -152,7 +152,6 @@ void process_keypress(int c) {
                 buf->cursor.y--;
                 buf->cursor.x_width = SIZE_MAX;
                 recalc_cur(buf);
-                buf->cursor.lx_width = buf->cursor.x_width;
 
                 reserve_line_cap(&buf->lines[buf->cursor.y], del_line.length);
 
