@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
         die("This editor doesn't support pipes");
 
     if (isatty(STDERR_FILENO)) {
-        /*char *filename = log_file_path();
+        char *filename = printdup("%s/log", ted_state_home);
 
         // Create file if it doesn't exist (creat() gives it some strange
         // permissions)
@@ -41,8 +41,10 @@ int main(int argc, char **argv) {
 
         replace_fd(STDERR_FILENO, filename, O_WRONLY);
 
-        free(filename);*/
+        free(filename);
     }
+    
+    fprintf(stderr, "log file open\n");
 
     open_default_buffer();
     
